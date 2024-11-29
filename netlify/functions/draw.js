@@ -1,17 +1,24 @@
 import { sendEmail } from './sendEmail';
 
 exports.handler = async function(event, context) {
+  // Parsing du corps de la requête
   const body = JSON.parse(event.body);
 
   const { participants, exclusions } = body;
 
   // Vérifier les données reçues
   if (!participants || participants.length < 2) {
-    throw createError({ statusCode: 400, message: "Au moins 2 participants sont requis." });
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Au moins 2 participants sont requis." })
+    };
   }
 
   if (!exclusions || !Array.isArray(exclusions)) {
-    throw createError({ statusCode: 400, message: "Les exclusions doivent être valides." });
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: "Les exclusions doivent être valides." })
+    };
   }
 
   // Fonction pour vérifier la validité d'un tirage
@@ -34,7 +41,7 @@ exports.handler = async function(event, context) {
       // Vérifiez si on a trouvé des récipiendaires valides
       if (validReceivers.length === 0) {
         console.warn(`Aucun récipiendaire valide trouvé pour ${giver}. Tirage ignoré pour ce participant.`);
-        continue; // Continuer à chercher pour d'autres participants sans interrompre tout le tirage
+        continue;
       }
 
       // Choisir un récepteur valide au hasard
@@ -60,15 +67,25 @@ exports.handler = async function(event, context) {
   try {
     const results = await drawParticipants(participants, exclusions);
 
+    // Vérification si des résultats ont été générés
     if (results.length > 0) {
       console.log("Tirage réussi:", results);
-      return { results };
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ results })
+      };
     } else {
       console.log("Aucun résultat de tirage valide trouvé.");
-      return { results: [] };
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ results: [] })
+      };
     }
   } catch (error) {
     console.error("Erreur lors du tirage ou de l'envoi des emails:", error);
-    throw createError({ statusCode: 500, message: 'Une erreur est survenue lors du tirage.' });
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Une erreur est survenue lors du tirage.' })
+    };
   }
 };
