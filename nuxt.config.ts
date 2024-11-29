@@ -1,11 +1,14 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-
 export default defineNuxtConfig({
-  ssr: true,
+  ssr: true, // Assurez-vous que SSR est activé
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
-  // Configuration personnalisée pour l'application
+  // Configurer Nitro pour utiliser les fonctions serverless de Netlify
+  nitro: {
+    preset: 'netlify',
+  },
+
+  // Configuration de l'application
   app: {
     head: {
       title: 'Loterie de Noël',
@@ -17,4 +20,4 @@ export default defineNuxtConfig({
 
   // Fichier CSS global
   css: ['~/main.css'],
-})
+});
