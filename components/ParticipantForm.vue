@@ -111,12 +111,17 @@ const showConfirmationModal = () => {
 
 const confirmSubmission = async () => {
   try {
-    // Envoyer les participants et exclusions au backend
-    const response = await $fetch('/api/lottery/draw', {
+    // Déterminer l'URL de l'API en fonction de l'environnement
+    const baseUrl = process.env.NODE_ENV === 'development' 
+      ? 'http://localhost:3000/api/lottery/draw' // Local
+      : 'https://christmaslottery.netlify.app/.netlify/functions/draw'; // Production
+
+    // Appel à l'API
+    const response = await $fetch(baseUrl, {
       method: 'POST',
       body: {
         participants: participants.value,
-        exclusions: exclusionRules.value,
+        exclusions: exclusions.value,
       },
     });
 
