@@ -1,7 +1,7 @@
 import { sendEmail } from './sendEmail';
 
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+exports.handler = async function(event, context) {
+  const body = JSON.parse(event.body);
 
   const { participants, exclusions } = body;
 
@@ -71,4 +71,4 @@ export default defineEventHandler(async (event) => {
     console.error("Erreur lors du tirage ou de l'envoi des emails:", error);
     throw createError({ statusCode: 500, message: 'Une erreur est survenue lors du tirage.' });
   }
-});
+};
