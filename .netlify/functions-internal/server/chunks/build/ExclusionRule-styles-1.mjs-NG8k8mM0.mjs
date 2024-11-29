@@ -1,0 +1,4 @@
+const ExclusionRule_vue_vue_type_style_index_0_scoped_38bb712c_lang = "#exclusions[data-v-38bb712c]{border:2px solid hsla(0,0%,100%,.3);border-radius:10px;box-shadow:0 4px 6px rgba(0,0,0,.1);margin:2rem;padding-bottom:1rem;padding-top:1rem}.form[data-v-38bb712c]{align-items:center;display:flex;flex-direction:column;gap:10px}select[data-v-38bb712c]{border:none;border-radius:5px;margin:5px 0;padding:10px}label[data-v-38bb712c]{color:bisque;font-family:fantasy;font-size:medium}.exclusion-list[data-v-38bb712c]{display:flex;flex-direction:column;gap:3px;margin-bottom:2rem}.exclusion-name[data-v-38bb712c]{height:2rem}.existing-rules[data-v-38bb712c]{color:bisque;font-family:fantasy;font-size:medium}.existing-rules ul[data-v-38bb712c]{padding:0;text-align:center}li[data-v-38bb712c]{list-style:none}";
+
+export { ExclusionRule_vue_vue_type_style_index_0_scoped_38bb712c_lang as E };
+//# sourceMappingURL=ExclusionRule-styles-1.mjs-NG8k8mM0.mjs.map

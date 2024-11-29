@@ -1,0 +1,4 @@
+const ParticipantForm_vue_vue_type_style_index_0_scoped_3eb9afd1_lang = ".form[data-v-3eb9afd1]{align-items:center;display:flex;flex-wrap:wrap;gap:10px;justify-content:center}@media (max-width:768px){.form[data-v-3eb9afd1]{align-items:center;flex-direction:column}}input[data-v-3eb9afd1]{border:none;border-radius:5px;margin:5px 0;padding:10px}button[data-v-3eb9afd1]:disabled{background-color:#ccc;cursor:not-allowed}.buttonSubmit[data-v-3eb9afd1]{margin-top:1rem}li[data-v-3eb9afd1]{color:bisque;font-family:fantasy;font-size:medium;list-style:none}.buttonClose[data-v-3eb9afd1]{background-color:#ff9f1a;border-radius:5px;cursor:pointer;font-size:6px;padding:2px 5px;transition:all .3s ease}";
+
+export { ParticipantForm_vue_vue_type_style_index_0_scoped_3eb9afd1_lang as P };
+//# sourceMappingURL=ParticipantForm-styles-1.mjs-Cp4Lb2jn.mjs.map
