@@ -38,7 +38,7 @@ export const sendEmail = async (giver, receiver, giverEmail) => {
     });
 
     const response = await request;
-    console.log(`Email envoyé à ${giver}:`, response.body);
+    console.log(`Email envoyé à ${giver}: Status ${response.body.Messages[0].Status}`);
     return response.body;
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);
