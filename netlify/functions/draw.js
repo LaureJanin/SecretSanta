@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (!exclusions || !Array.isArray(exclusions)) {
-    throw createError({ statusCode: 400, message: "Les exclusions doivent être un tableau valide." });
+    throw createError({ statusCode: 400, message: "Les exclusions doivent être valides." });
   }
 
   // Fonction pour vérifier la validité d'un tirage

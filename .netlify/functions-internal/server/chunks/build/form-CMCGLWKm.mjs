@@ -133,7 +133,7 @@ const _sfc_main$1 = {
       email: ""
     });
     const participants = ref([]);
-    ref([]);
+    const exclusions = ref([]);
     const drawResults = ref([]);
     const showModal = ref(false);
     const exclusionRules = ref([]);
@@ -149,11 +149,12 @@ const _sfc_main$1 = {
     };
     const confirmSubmission = async () => {
       try {
-        const response = await $fetch("/api/lottery/draw", {
+        const baseUrl = false ? "http://localhost:3000/api/lottery/draw" : "https://christmaslottery.netlify.app/.netlify/functions/draw";
+        const response = await $fetch(baseUrl, {
           method: "POST",
           body: {
             participants: participants.value,
-            exclusions: exclusionRules.value
+            exclusions: exclusions.value
           }
         });
         drawResults.value = response.results;
@@ -169,9 +170,9 @@ const _sfc_main$1 = {
       showModal.value = false;
     };
     return (_ctx, _push, _parent, _attrs) => {
-      _push(`<div${ssrRenderAttrs(_attrs)} data-v-3eb9afd1><form data-v-3eb9afd1><h4 data-v-3eb9afd1>Ajouter des participants</h4><div class="form" data-v-3eb9afd1><input${ssrRenderAttr("value", newParticipant.value.name)} type="text" placeholder="Pr\xE9nom du participant" data-v-3eb9afd1><input${ssrRenderAttr("value", newParticipant.value.email)} type="email" placeholder="Email du participant" data-v-3eb9afd1><button${ssrIncludeBooleanAttr(!isFormValid.value) ? " disabled" : ""} data-v-3eb9afd1> Ajouter </button></div><ul data-v-3eb9afd1><!--[-->`);
+      _push(`<div${ssrRenderAttrs(_attrs)} data-v-f5590cc5><form data-v-f5590cc5><h4 data-v-f5590cc5>Ajouter des participants</h4><div class="form" data-v-f5590cc5><input${ssrRenderAttr("value", newParticipant.value.name)} type="text" placeholder="Pr\xE9nom du participant" data-v-f5590cc5><input${ssrRenderAttr("value", newParticipant.value.email)} type="email" placeholder="Email du participant" data-v-f5590cc5><button${ssrIncludeBooleanAttr(!isFormValid.value) ? " disabled" : ""} data-v-f5590cc5> Ajouter </button></div><ul data-v-f5590cc5><!--[-->`);
       ssrRenderList(participants.value, (participant, index) => {
-        _push(`<li data-v-3eb9afd1>${ssrInterpolate(participant.name)} - ${ssrInterpolate(participant.email)} <button class="buttonClose" data-v-3eb9afd1>\u274C</button></li>`);
+        _push(`<li data-v-f5590cc5>${ssrInterpolate(participant.name)} - ${ssrInterpolate(participant.email)} <button class="buttonClose" data-v-f5590cc5>\u274C</button></li>`);
       });
       _push(`<!--]--></ul>`);
       _push(ssrRenderComponent(ExclusionRule, {
@@ -179,7 +180,7 @@ const _sfc_main$1 = {
         exclusionRules: exclusionRules.value,
         onAddRule: addExclusion
       }, null, _parent));
-      _push(`<button class="buttonSubmit" type="button"${ssrIncludeBooleanAttr(participants.value.length < 2) ? " disabled" : ""} data-v-3eb9afd1> Go Go Go </button></form>`);
+      _push(`<button class="buttonSubmit" type="button"${ssrIncludeBooleanAttr(participants.value.length < 2) ? " disabled" : ""} data-v-f5590cc5> Go Go Go </button></form>`);
       _push(ssrRenderComponent(ModalConfirmation, {
         participants: participants.value,
         exclusions: exclusionRules.value,
@@ -197,7 +198,7 @@ _sfc_main$1.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/ParticipantForm.vue");
   return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
 };
-const ParticipantForm = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-3eb9afd1"]]);
+const ParticipantForm = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__scopeId", "data-v-f5590cc5"]]);
 const _sfc_main = {
   __name: "form",
   __ssrInlineRender: true,
@@ -217,4 +218,4 @@ _sfc_main.setup = (props, ctx) => {
 };
 
 export { _sfc_main as default };
-//# sourceMappingURL=form-C97hlDx7.mjs.map
+//# sourceMappingURL=form-CMCGLWKm.mjs.map

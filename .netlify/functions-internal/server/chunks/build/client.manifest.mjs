@@ -1,10 +1,10 @@
 const client_manifest = {
-  "_DKsHof2a.js": {
+  "_C1w8A4KI.js": {
     "resourceType": "script",
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DKsHof2a.js",
+    "file": "C1w8A4KI.js",
     "name": "vue.8fc199ce",
     "imports": [
       "node_modules/nuxt/dist/app/entry.js"
@@ -15,13 +15,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "CwWbp5qY.js",
+    "file": "CwR-poKs.js",
     "name": "error-404",
     "src": "node_modules/nuxt/dist/app/components/error-404.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DKsHof2a.js"
+      "_C1w8A4KI.js"
     ],
     "css": []
   },
@@ -36,13 +36,13 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DKbtvClx.js",
+    "file": "__8knL3R.js",
     "name": "error-500",
     "src": "node_modules/nuxt/dist/app/components/error-500.vue",
     "isDynamicEntry": true,
     "imports": [
       "node_modules/nuxt/dist/app/entry.js",
-      "_DKsHof2a.js"
+      "_C1w8A4KI.js"
     ],
     "css": []
   },
@@ -57,7 +57,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "DeaWGwKM.js",
+    "file": "pbhRI_pX.js",
     "name": "entry",
     "src": "node_modules/nuxt/dist/app/entry.js",
     "isEntry": true,
@@ -81,7 +81,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "BCzIpxoX.js",
+    "file": "4swbUVR1.js",
     "name": "confirmation",
     "src": "pages/confirmation.vue",
     "isDynamicEntry": true,
@@ -101,7 +101,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "B4cJ6UJG.js",
+    "file": "Do1Up0ke.js",
     "name": "form",
     "src": "pages/form.vue",
     "isDynamicEntry": true,
@@ -109,11 +109,11 @@ const client_manifest = {
       "node_modules/nuxt/dist/app/entry.js"
     ],
     "css": [
-      "form.DKkX8KHM.css"
+      "form.qAGeL7KD.css"
     ]
   },
-  "form.DKkX8KHM.css": {
-    "file": "form.DKkX8KHM.css",
+  "form.qAGeL7KD.css": {
+    "file": "form.qAGeL7KD.css",
     "resourceType": "style",
     "prefetch": true,
     "preload": true
@@ -123,7 +123,7 @@ const client_manifest = {
     "module": true,
     "prefetch": true,
     "preload": true,
-    "file": "Dk_Lm8s3.js",
+    "file": "CCKsbrCx.js",
     "name": "index",
     "src": "pages/index.vue",
     "isDynamicEntry": true,
