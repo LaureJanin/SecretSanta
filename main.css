@@ -1,0 +1,171 @@
+/* Corps de la page */
+body {
+  font-family: 'Pacifico', cursive, Arial, sans-serif;
+  width: 90%;
+  border-radius: 10px;
+  margin: 3rem auto;
+  padding: 0;
+  background: linear-gradient(to bottom, #f9f9f9, #ffe6e6); 
+  color: #333;
+  background-size: cover;
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden; 
+}
+
+/* Titres */
+h1, h2, h3, h4 {
+  color:#ff9f1a; 
+  text-shadow: 2px 2px 4px #2e2519; 
+  margin: 10px 0;
+}
+
+h5 {
+  margin: 5px;
+  color: bisque;
+  font-family:fantasy;
+}
+
+/* Boutons */
+button {
+  background-color: #ff9f1a; 
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: vert;
+  border-color: #ff9f1a;
+  transform: scale(1.1); 
+}
+
+/* Pied de page */
+footer {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #333;
+  margin-top: 10px;
+  padding: 15px;
+  font-size: 14px;
+  border-top: 3px solid #d2232a;
+  text-align: center;
+}
+
+/* Liens */
+a {
+  color: #d2232a;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Effet de neige */
+/* Animation de chute */
+@keyframes fallAndDrift {
+  from {
+    transform: translate(-10px, -10px); /* Départ au-dessus de l'écran, légèrement à gauche */
+  }
+  50% {
+    transform: translate(30px, 50vh); /* Mi-parcours, dérive à droite */
+  }
+  to {
+    transform: translate(-20px, 100vh); /* Arrive en bas, dérive à gauche */
+  }
+}
+
+/* Conteneur des flocons */
+.snowflakes {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none; 
+  z-index: 10;
+  overflow: hidden; 
+}
+
+/* Flocon individuel */
+.snowflake {
+  position: absolute;
+  top: -10px; 
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%; 
+  opacity: 0.8;
+  animation: fallAndDrift 6s linear infinite; 
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+/* Variations des flocons */
+.snowflake:nth-child(1n) {
+  width: 5px;
+  height: 5px;
+  opacity: 0.9;
+  animation-duration: 5s;
+  animation-delay: 0s;
+}
+
+.snowflake:nth-child(2n) {
+  width: 7px;
+  height: 7px;
+  opacity: 0.7;
+  animation-duration: 6s;
+  animation-delay: -1s;
+}
+
+.snowflake:nth-child(3n) {
+  width: 9px;
+  height: 9px;
+  opacity: 0.6;
+  animation-duration: 7s;
+  animation-delay: -2s;
+}
+
+.snowflake:nth-child(4n) {
+  width: 6px;
+  height: 6px;
+  opacity: 0.8;
+  animation-duration: 8s;
+  animation-delay: 1s;
+}
+
+.snowflake:nth-child(5n) {
+  width: 10px;
+  height: 10px;
+  opacity: 0.5;
+  animation-duration: 9s;
+  animation-delay: -0.5s;
+}
+
+.snowflake:nth-child(6n) {
+  width: 12px;
+  height: 12px;
+  opacity: 0.4;
+  animation-duration: 10s;
+  animation-delay: 0.8s;
+}
+
+.snowflake:nth-child(7n) {
+  width: 8px;
+  height: 8px;
+  opacity: 0.9;
+  animation-duration: 6.5s;
+  animation-delay: -1.2s;
+}
+
+.snowflake:nth-child(8n) {
+  width: 11px;
+  height: 11px;
+  opacity: 0.3;
+  animation-duration: 11s;
+  animation-delay: 1.5s;
+}
+

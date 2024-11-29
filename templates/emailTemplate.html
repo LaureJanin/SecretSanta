@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tirage de Noël</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f7f7f7;
+      }
+      .email-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .email-header {
+        background-color: #ff4d87;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-radius: 12px 12px 0 0;
+        font-size: 24px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .email-content {
+        margin-top: 30px;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+        padding: 0 15px;
+      }
+      .email-content p {
+        margin: 10px 0;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #ff4d87;
+      }
+      .button {
+        display: inline-block;
+        background-color: #ff4d87;
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      .button:hover {
+        background-color: #ff1f5d;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="email-header">
+        🎄 Loterie de Noël 🎁
+      </div>
+      <div class="email-content">
+        <p>Salut <span class="highlight">{{giver}}</span> !</p>
+        <p>La ❄️ loterie de Noël ❄️ a eu lieu et voici le résultat :</p>
+        <p><span class="highlight">Tu dois offrir un cadeau à : {{receiver}} !</span></p>
+        <p>Fais chauffer la carte bleue 🔥 et soit généreux ou généreuse 💰 !</p>
+      </div>
+      <div class="footer">
+        <p>Merci de participer à la Loterie de Noël ! 🎅</p>
+        <p>Ce message a été envoyé par <strong>Loterie de Noël</strong> 🎅.</p>
+        <p>Si vous ne souhaitez plus être abonné à la Loterie de Noël et bah c'est dommage petit lutin en sucre 🦌.</p>
+      </div>
+    </div>
+  </body>
+</html>
