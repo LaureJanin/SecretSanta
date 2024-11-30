@@ -113,8 +113,8 @@ const confirmSubmission = async () => {
   try {
     // Déterminer l'URL de l'API en fonction de l'environnement
     const baseUrl = process.env.NODE_ENV === 'development' 
-      ? 'http://localhost:3000/api/lottery/draw' // Local
-      : 'https://christmaslottery.netlify.app/.netlify/functions/draw'; // Production
+      ? import.meta.env.VITE_API_URL_DEV 
+      : import.meta.env.VITE_API_URL_PROD;
 
     // Appel à l'API
     const response = await $fetch(baseUrl, {

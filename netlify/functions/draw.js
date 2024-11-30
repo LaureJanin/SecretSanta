@@ -72,7 +72,7 @@ exports.handler = async function(event, context) {
       console.log("Tirage réussi:", results);
       return {
         statusCode: 200,
-        body: JSON.stringify({ results })
+        body: JSON.stringify({ message: "Ok petit lutin" })
       };
     } else {
       console.log("Aucun résultat de tirage valide trouvé.");

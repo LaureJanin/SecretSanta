@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="snowflakes">
+    <div class="snowflakes" v-if="isClient">
       <div
         class="snowflake"
         v-for="n in 100"
@@ -20,11 +20,19 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
+
+const isClient = ref(false);
+
+onMounted(() => {
+  isClient.value = true; 
+});
+
 const generateFlakeStyle = () => {
-  const size = Math.random() * 8 + 4; 
-  const left = Math.random() * 100; 
-  const duration = Math.random() * 5 + 5; 
-  const delay = Math.random() * -5; 
+  const size = Math.random() * 8 + 4;
+  const left = Math.random() * 100;
+  const duration = Math.random() * 5 + 5;
+  const delay = Math.random() * -5;
 
   return {
     width: `${size}px`,
