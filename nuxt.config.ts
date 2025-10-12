@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  ssr: true, // Assurez-vous que SSR est activé
+  ssr: true,
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
@@ -19,5 +19,5 @@ export default defineNuxtConfig({
   },
 
   // Fichier CSS global
-  css: ['~/main.css'],
+  css: ['~/main.css']
 });

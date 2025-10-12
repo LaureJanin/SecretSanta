@@ -1,4 +1,0 @@
-const ModaleConfirmation_vue_vue_type_style_index_0_scoped_ddc5359e_lang = ".modal-overlay[data-v-ddc5359e]{align-items:center;background:rgba(0,0,0,.5);display:flex;height:100%;justify-content:center;left:0;position:fixed;top:0;width:100%;z-index:10}.modal[data-v-ddc5359e]{background-color:#ffebcd;border-radius:8px;max-height:80vh;max-width:500px;overflow-y:auto;padding:20px;text-align:center;width:90%}.modal h3[data-v-ddc5359e]{margin-bottom:20px}.modal ul[data-v-ddc5359e]{list-style-type:none;padding-left:0}.buttons[data-v-ddc5359e]{display:flex;justify-content:space-between}li[data-v-ddc5359e],p[data-v-ddc5359e]{color:#000;font-size:medium}h4[data-v-ddc5359e]{text-shadow:none}";
-
-export { ModaleConfirmation_vue_vue_type_style_index_0_scoped_ddc5359e_lang as M };
-//# sourceMappingURL=ModaleConfirmation-styles-1.mjs-krMBbHMk.mjs.map

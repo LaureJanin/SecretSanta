@@ -1,5 +1,5 @@
 <template>
-    <div id="home"> 
+    <div id="home">
         <div>
             🎅 OH OH OH 🎄 C'est bientôt Noël !
             <br>
@@ -27,10 +27,10 @@
         </router-link>
     </div>
 </template>
-  
+
 <script setup>
 const items = ["Un Jouet en plastique", "Des puces de lit", "Un iPad inutile", "Une 'Surprise'", "Une Étoile de mer", "Un truc gnangnan et rose à paillettes", "Des chaussettes moches",  "Un Secret de famille", ];
-const repeatedItems = [...items, ...items]; 
+const repeatedItems = [...items, ...items];
 </script>
 
 <style scoped>
@@ -41,11 +41,11 @@ const repeatedItems = [...items, ...items];
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  height: 50px; 
+  height: 50px;
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 80%; 
+  width: 80%;
   margin: 1rem auto;
 }
 
@@ -53,7 +53,7 @@ const repeatedItems = [...items, ...items];
 .lottery-wheel {
   display: flex;
   flex-direction: column;
-  animation: scroll 8s linear infinite; 
+  animation: scroll 8s linear infinite;
   text-align: center;
 }
 
@@ -68,13 +68,13 @@ const repeatedItems = [...items, ...items];
 /* Animation cyclique */
 @keyframes scroll {
   0% {
-    transform: translateY(0); 
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-50%); 
+    transform: translateY(-50%);
   }
   100% {
-    transform: translateY(0); 
+    transform: translateY(0);
   }
 }
 </style>
