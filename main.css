@@ -1,22 +1,27 @@
+/* Import de la police Fredoka depuis Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+
 /* Corps de la page */
 body {
-  font-family: 'Pacifico', cursive, Arial, sans-serif;
+  font-family: 'Fredoka', Arial, sans-serif;
   width: 90%;
   border-radius: 10px;
-  margin: 3rem auto;
+  margin: 2rem auto;
   padding: 0;
-  background: linear-gradient(to bottom, #f9f9f9, #ffe6e6); 
+  background: linear-gradient(135deg, #ffe6b7 0%, #ffb88c 40%, #e57373 100%);
   color: #333;
   background-size: cover;
   background-attachment: fixed;
   position: relative;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
 /* Titres */
 h1, h2, h3, h4 {
-  color:#ff9f1a; 
-  text-shadow: 2px 2px 4px #2e2519; 
+  font-family: 'Fredoka', Arial, sans-serif;
+  color: #1ca463;
+  text-align: center;
+  text-shadow: 1px 1px 1px #2e2519;
   margin: 10px 0;
 }
 
@@ -28,31 +33,23 @@ h5 {
 
 /* Boutons */
 button {
-  background-color: #ff9f1a; 
+  background-color: #ff9f1a;
   color: #fff;
-  padding: 10px 20px;
+  margin-top: 1rem;
+  padding: 0.8rem 2.2rem;;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   cursor: pointer;
-  font-size: 16px;
+  font-size: 1.2rem;
   transition: all 0.3s ease;
 }
 
 button:hover {
-  background-color: vert;
+  background-color: #1ca463;
   border-color: #ff9f1a;
-  transform: scale(1.1); 
-}
-
-/* Pied de page */
-footer {
-  background-color: rgba(255, 255, 255, 0.9);
-  color: #333;
-  margin-top: 10px;
-  padding: 15px;
-  font-size: 14px;
-  border-top: 3px solid #d2232a;
-  text-align: center;
+  transform: scale(1.1);
+  font-weight: bold;
 }
 
 /* Liens */
@@ -86,21 +83,21 @@ a:hover {
   left: 0;
   width: 100%;
   height: 100vh;
-  pointer-events: none; 
+  pointer-events: none;
   z-index: 10;
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 /* Flocon individuel */
 .snowflake {
   position: absolute;
-  top: -10px; 
+  top: -10px;
   width: 10px;
   height: 10px;
   background-color: white;
-  border-radius: 50%; 
+  border-radius: 50%;
   opacity: 0.8;
-  animation: fallAndDrift 6s linear infinite; 
+  animation: fallAndDrift 6s linear infinite;
   box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
 }
 
@@ -168,4 +165,3 @@ a:hover {
   animation-duration: 11s;
   animation-delay: 1.5s;
 }
-

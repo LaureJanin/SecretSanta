@@ -41,7 +41,12 @@ async function startServer() {
     console.log('🚀 Démarrage du serveur sur le port 4000...')
     const { url } = await startStandaloneServer(server, {
       listen: { port: 4000 },
-      context: async ({ req }): Promise<GraphQLContext> => {
+      cors: {
+        origin: 'http://localhost:3000',
+        credentials: true,
+        allowedHeaders: ['Content-Type', 'Authorization']
+      },
+      context: async ({ req }: { req: any }): Promise<GraphQLContext> => {
         const authHeader = req.headers.authorization
         const token = authService.extractTokenFromHeader(authHeader)
 
@@ -52,7 +57,7 @@ async function startServer() {
 
         return { user }
       }
-    })
+    } as any)
 
     console.log('\n✅ Serveur Apollo GraphQL démarré avec succès !')
     console.log(`📊 Apollo Studio: ${url}`)
