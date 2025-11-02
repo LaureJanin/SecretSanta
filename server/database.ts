@@ -37,37 +37,72 @@ class DatabaseService {
     })
   }
 
-  async getAllLotteries() {
-    return this.prisma.lottery.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        participants: { include: { giftIdeas: true } },
-        exclusions: true,
-        draws: true
-      }
-    })
-  }
-
-  async getCurrentLottery() {
-    return this.prisma.lottery.findFirst({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        participants: { include: { giftIdeas: true } },
-        exclusions: true,
-        draws: true
-      }
-    })
-  }
 
   async getUserLotteries(userId: string) {
+    // Récupérer d'abord l'email de l'utilisateur
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true }
+    })
+
+    if (!user) return []
+
+    // Retourner les loteries où :
+    // 1. L'utilisateur est le propriétaire (ownerId)
+    // 2. OU l'utilisateur est participant (via son email)
+    return this.prisma.lottery.findMany({
+      where: {
+        OR: [
+          { ownerId: userId },
+          {
+            participants: {
+              some: {
+                email: user.email
+              }
+            }
+          }
+        ]
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        owner: true,
+        participants: { include: { giftIdeas: true } },
+        exclusions: {
+          include: {
+            participant: true,
+            excluded: true
+          }
+        },
+        draws: {
+          include: {
+            giver: { include: { giftIdeas: true } },
+            receiver: { include: { giftIdeas: true } }
+          }
+        }
+      }
+    })
+  }
+
+  // Récupérer UNIQUEMENT les loteries créées par l'utilisateur (pour l'admin)
+  async getOwnedLotteries(userId: string) {
     return this.prisma.lottery.findMany({
       where: { ownerId: userId },
       orderBy: { createdAt: 'desc' },
       include: {
         owner: true,
         participants: { include: { giftIdeas: true } },
-        exclusions: true,
-        draws: true
+        exclusions: {
+          include: {
+            participant: true,
+            excluded: true
+          }
+        },
+        draws: {
+          include: {
+            giver: { include: { giftIdeas: true } },
+            receiver: { include: { giftIdeas: true } }
+          }
+        }
       }
     })
   }
@@ -92,25 +127,13 @@ class DatabaseService {
   }
 
   // === PARTICIPANTS ===
-  async createParticipant(lotteryId: string, name: string, email: string | null, isActive: boolean, loginCode: string | null) {
+  async createParticipant(lotteryId: string, name: string, email: string | null, isActive: boolean) {
     return this.prisma.participant.create({
-      data: { name, email, isActive, loginCode, lottery: { connect: { id: lotteryId } } }
+      data: { name, email, isActive, lottery: { connect: { id: lotteryId } } }
     })
   }
 
-  async getParticipantById(id: string) {
-    return this.prisma.participant.findUnique({
-      where: { id },
-      include: { giftIdeas: true, managedChildren: { include: { child: true } } }
-    })
-  }
 
-  async getParticipantByLoginCode(loginCode: string) {
-    return this.prisma.participant.findUnique({
-      where: { loginCode },
-      include: { giftIdeas: true, managedChildren: { include: { child: true } } }
-    })
-  }
 
   async getActiveParticipants(lotteryId: string) {
     return this.prisma.participant.findMany({
@@ -126,6 +149,13 @@ class DatabaseService {
     })
   }
 
+  async deleteGiftIdea(giftIdeaId: string) {
+    await this.prisma.giftIdea.delete({
+      where: { id: giftIdeaId }
+    })
+    return true
+  }
+
   async createExclusion(lotteryId: string, participantId: string, excludedId: string) {
     return this.prisma.exclusion.create({
       data: {
@@ -134,6 +164,13 @@ class DatabaseService {
         excluded: { connect: { id: excludedId } }
       }
     })
+  }
+
+  async deleteExclusion(exclusionId: string) {
+    await this.prisma.exclusion.delete({
+      where: { id: exclusionId }
+    })
+    return true
   }
 
   async clearDraws(lotteryId: string) {
@@ -173,7 +210,10 @@ class DatabaseService {
   }
 
   async getParticipantForRelation(participantId: string) {
-    return this.prisma.participant.findUnique({ where: { id: participantId } })
+    return this.prisma.participant.findUnique({
+      where: { id: participantId },
+      include: { giftIdeas: true }
+    })
   }
 
   async disconnect() {

@@ -20,12 +20,17 @@
       </div>
     </div>
 
-    <h3>Et toi que vas-tu offir ?</h3>
+    <h3>Et toi que vas-tu offrir ?</h3>
     <p>Pour répondre à ces questions, clique 👇.</p>
 
-    <NuxtLink to="/login">
-      <button>Commencer</button>
-    </NuxtLink>
+    <div class="action-buttons">
+      <NuxtLink to="/signup">
+        <button class="btn-signup">Créer un compte</button>
+      </NuxtLink>
+      <NuxtLink to="/login">
+        <button class="btn-login">Se connecter</button>
+      </NuxtLink>
+    </div>
   </div>
 </template>
 
@@ -63,7 +68,6 @@ const repeatedItems = [...items, ...items];
   width: 100%;
 }
 .emoji {
-  font-size: 2.2rem;
   display: block;
   font-size: 3rem;
   margin-bottom: 0.5rem;
@@ -96,6 +100,46 @@ const repeatedItems = [...items, ...items];
   color: #d2232a;
   font-weight: bold;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.action-buttons button {
+  padding: 0.9rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-width: 180px;
+}
+
+.btn-signup {
+  background: linear-gradient(135deg, #1ca463, #28a745);
+  color: white;
+}
+
+.btn-signup:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(28, 164, 99, 0.3);
+}
+
+.btn-login {
+  background: linear-gradient(135deg, #ff9f1a, #ffa500);
+  color: white;
+}
+
+.btn-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(255, 159, 26, 0.3);
+}
+
 @keyframes scroll {
   0% {
     transform: translateY(0);

@@ -21,7 +21,6 @@ h1, h2, h3, h4 {
   font-family: 'Fredoka', Arial, sans-serif;
   color: #1ca463;
   text-align: center;
-  text-shadow: 1px 1px 1px #2e2519;
   margin: 10px 0;
 }
 
@@ -35,21 +34,48 @@ h5 {
 button {
   background-color: #ff9f1a;
   color: #fff;
-  margin-top: 1rem;
-  padding: 0.8rem 2.2rem;;
+  padding: 0.8rem 2.2rem;
   border: none;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
   cursor: pointer;
   font-size: 1.2rem;
+  font-family: 'Fredoka', Arial, sans-serif;
   transition: all 0.3s ease;
 }
 
 button:hover {
   background-color: #1ca463;
   border-color: #ff9f1a;
-  transform: scale(1.1);
+  transform: scale(1.05);
   font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Variantes de boutons */
+.btn-primary {
+  background: linear-gradient(135deg, #1ca463, #28a745);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #178a52, #1e7e34);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(28, 164, 99, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #ff9f1a, #ffa500);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #e68a00, #ff8c00);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 159, 26, 0.3);
 }
 
 /* Liens */
@@ -60,6 +86,69 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+/* Formulaires */
+input, select, textarea {
+  padding: 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: 'Fredoka', Arial, sans-serif;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #1ca463;
+}
+
+label {
+  font-weight: 600;
+  color: #2e2519;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  display: block;
+}
+
+/* Messages d'erreur */
+.error-msg {
+  color: #d2232a;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0.5rem;
+  background: #ffe6e6;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+}
+
+/* Cartes/Conteneurs */
+.card {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.08);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* États de chargement */
+.loading {
+  text-align: center;
+  color: #1ca463;
+  font-size: 1.2rem;
+  margin: 2rem 0;
+}
+
+.error {
+  text-align: center;
+  color: #d2232a;
+  font-size: 1.1rem;
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #ffe6e6;
+  border-radius: 8px;
 }
 
 /* Effet de neige */

@@ -12,14 +12,21 @@
     <header class="main-header">
       <div class="header-left">
         <NuxtLink to="/" class="header-logo-link">
-          <img src="/favicon.ico" alt="Logo Loterie de Noël" class="header-logo" />
+          <img src="/lotterie-noel.png" alt="Logo Loterie de Noël" class="header-logo" />
         </NuxtLink>
         <h1 class="header-title">Loterie de Noël</h1>
       </div>
       <nav class="header-nav">
-        <NuxtLink to="/login">Connexion</NuxtLink>
-        <NuxtLink to="/mes-loteries">Mes loteries</NuxtLink>
-        <NuxtLink to="/admin">Admin</NuxtLink>
+        <template v-if="isLoggedIn">
+          <NuxtLink to="/mes-loteries">Mes loteries</NuxtLink>
+          <NuxtLink to="/gift-ideas">Mes idées cadeaux</NuxtLink>
+          <NuxtLink to="/admin">Admin</NuxtLink>
+          <button @click="logout" class="btn-logout">Déconnexion</button>
+        </template>
+        <template v-else>
+          <NuxtLink to="/login">Connexion</NuxtLink>
+          <NuxtLink to="/signup">Inscription</NuxtLink>
+        </template>
       </nav>
     </header>
 
@@ -28,19 +35,45 @@
     </main>
 
     <footer class="main-footer">
-      © 2024 Loterie de Noël - Tous droits fortement peu réservés
+      © Loterie de Noël - Tous droits fortement peu réservés
     </footer>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const isClient = ref(false);
+const isLoggedIn = ref(false);
+const router = useRouter();
 
 onMounted(() => {
   isClient.value = true;
+  checkAuth();
 });
+
+const checkAuth = () => {
+  if (process.client) {
+    isLoggedIn.value = !!localStorage.getItem('token');
+  }
+};
+
+const logout = () => {
+  if (process.client) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    isLoggedIn.value = false;
+    router.push('/');
+  }
+};
+
+// Surveiller les changements de route pour mettre à jour l'état de connexion
+if (process.client) {
+  router.afterEach(() => {
+    checkAuth();
+  });
+}
 
 const generateFlakeStyle = () => {
   const size = Math.random() * 8 + 4;
@@ -88,8 +121,8 @@ const generateFlakeStyle = () => {
   align-items: center;
 }
 .header-logo {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   cursor: pointer;
   transition: transform 0.15s;
 }
@@ -108,6 +141,7 @@ const generateFlakeStyle = () => {
   display: flex;
   gap: 1.5rem;
   margin-left: 1rem;
+  align-items: center;
 }
 .header-nav a {
   color: #d2232a;
@@ -119,6 +153,25 @@ const generateFlakeStyle = () => {
 .header-nav a:hover {
   color: #ff9f1a;
   text-decoration: underline;
+}
+
+.btn-logout {
+  background: transparent;
+  color: #d2232a;
+  border: 2px solid #d2232a;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #d2232a;
+  color: white;
+  transform: none;
+  box-shadow: none;
 }
 
 main {

@@ -26,6 +26,7 @@ async function startServer() {
     const server = new ApolloServer({
       typeDefs,
       resolvers,
+      csrfPrevention: false, // Désactiver la protection CSRF pour le développement
       formatError: (error) => {
         console.error('❌ Erreur GraphQL:', error.message)
         return {
@@ -41,23 +42,23 @@ async function startServer() {
     console.log('🚀 Démarrage du serveur sur le port 4000...')
     const { url } = await startStandaloneServer(server, {
       listen: { port: 4000 },
-      cors: {
-        origin: 'http://localhost:3000',
-        credentials: true,
-        allowedHeaders: ['Content-Type', 'Authorization']
-      },
       context: async ({ req }: { req: any }): Promise<GraphQLContext> => {
         const authHeader = req.headers.authorization
         const token = authService.extractTokenFromHeader(authHeader)
 
         let user: User | null = null
         if (token) {
-          user = await authService.getUserFromToken(token)
+          try {
+            user = await authService.getUserFromToken(token)
+          } catch (error) {
+            // Token invalide ou expiré - on continue sans user (= non authentifié)
+            console.log('⚠️ Token invalide ou expiré, utilisateur non authentifié')
+          }
         }
 
         return { user }
       }
-    } as any)
+    })
 
     console.log('\n✅ Serveur Apollo GraphQL démarré avec succès !')
     console.log(`📊 Apollo Studio: ${url}`)

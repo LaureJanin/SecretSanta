@@ -35,7 +35,6 @@ model Participant {
   id            String      @id @default(uuid())
   name          String
   email         String?     @unique
-  loginCode     String?     @unique
   isActive      Boolean     // true = participates in the lottery, false = child/non-drawing profile
   lotteryId     String
   lottery       Lottery     @relation(fields: [lotteryId], references: [id])

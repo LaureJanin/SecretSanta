@@ -39,9 +39,13 @@ async function handleLogin(e: Event) {
   errorMsg.value = ''
   loading.value = true
   try {
-    const { data } = await mutate({ email: email.value, password: password.value })
+    const result = await mutate({ email: email.value, password: password.value })
+    const data = result?.data
     if (data?.login?.success && data.login.token) {
       localStorage.setItem('token', data.login.token)
+      if (data.login.user?.id) {
+        localStorage.setItem('userId', data.login.user.id)
+      }
       router.push('/mes-loteries')
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'

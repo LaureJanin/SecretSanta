@@ -1,9 +1,689 @@
 <template>
-  <div>
-    <!-- Page d'administration -->
+  <div class="admin-page">
+    <h1>🎅 Administration des loteries</h1>
+
+    <div v-if="loading" class="loading">Chargement...</div>
+    <div v-else-if="error" class="error">{{ error.message }}</div>
+    <div v-else-if="loteries.length === 0" class="no-loterie">
+      <p>Vous n'avez créé aucune loterie.</p>
+      <button @click="router.push('/form')" class="btn-primary">Créer une loterie</button>
+    </div>
+    <div v-else>
+      <!-- Sélection de la loterie -->
+      <div class="lottery-selector">
+        <label for="lotterySelect">Sélectionner une loterie :</label>
+        <select id="lotterySelect" v-model="selectedLotteryId" @change="onLotteryChange">
+          <option value="">-- Choisir une loterie --</option>
+          <option v-for="lot in loteries" :key="lot.id" :value="lot.id">
+            {{ lot.name }} ({{ lot.year }})
+          </option>
+        </select>
+      </div>
+
+      <!-- Détails de la loterie sélectionnée -->
+      <div v-if="selectedLottery" class="lottery-details">
+        <div class="lottery-header">
+          <h2>{{ selectedLottery.name }} - {{ selectedLottery.year }}</h2>
+          <div class="lottery-stats">
+            <span class="stat-badge">👥 {{ selectedLottery.participants.length }} participants</span>
+            <span v-if="hasDrawBeenDone" class="stat-badge success">✅ Tirage effectué</span>
+            <span v-else class="stat-badge warning">⏳ Tirage non effectué</span>
+          </div>
+        </div>
+
+        <!-- Onglets -->
+        <div class="tabs">
+          <button
+            :class="['tab', { active: activeTab === 'participants' }]"
+            @click="activeTab = 'participants'">
+            👥 Participants
+          </button>
+          <button
+            :class="['tab', { active: activeTab === 'exclusions' }]"
+            @click="activeTab = 'exclusions'">
+            🚫 Exclusions
+          </button>
+          <button
+            :class="['tab', { active: activeTab === 'actions' }]"
+            @click="activeTab = 'actions'">
+            ⚙️ Actions
+          </button>
+        </div>
+
+        <!-- Contenu des onglets -->
+        <div class="tab-content">
+          <!-- Onglet Participants -->
+          <div v-if="activeTab === 'participants'" class="participants-section">
+            <div class="section-header">
+              <h3>Gestion des participants</h3>
+              <button @click="showAddParticipantForm = !showAddParticipantForm" class="btn-add">
+                {{ showAddParticipantForm ? '✖ Annuler' : '➕ Ajouter un participant' }}
+              </button>
+            </div>
+
+            <!-- Formulaire d'ajout -->
+            <div v-if="showAddParticipantForm" class="add-participant-form card">
+              <h4>Nouveau participant</h4>
+              <form @submit.prevent="handleAddParticipant">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Nom *</label>
+                    <input v-model="newParticipant.name" type="text" required placeholder="Prénom Nom" />
+                  </div>
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input v-model="newParticipant.email" type="email" placeholder="email@example.com" />
+                  </div>
+                </div>
+                <button type="submit" :disabled="!newParticipant.name" class="btn-primary">Ajouter</button>
+              </form>
+            </div>
+
+            <!-- Liste des participants -->
+            <div class="participants-list">
+              <div v-for="participant in selectedLottery.participants" :key="participant.id" class="participant-card">
+                <div class="participant-info">
+                  <h4>{{ participant.name }}</h4>
+                  <p v-if="participant.email" class="email">📧 {{ participant.email }}</p>
+                  <span v-if="participant.isActive" class="badge active">✅ Actif</span>
+                  <span v-else class="badge inactive">👶 Enfant</span>
+                </div>
+                <div class="participant-actions">
+                  <span class="gift-count">🎁 {{ participant.giftIdeas?.length || 0 }} idée(s)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Onglet Exclusions -->
+          <div v-if="activeTab === 'exclusions'" class="exclusions-section">
+            <div class="section-header">
+              <h3>Règles d'exclusion</h3>
+              <button @click="showAddExclusionForm = !showAddExclusionForm" class="btn-add">
+                {{ showAddExclusionForm ? '✖ Annuler' : '➕ Ajouter une exclusion' }}
+              </button>
+            </div>
+
+            <!-- Formulaire d'ajout d'exclusion -->
+            <div v-if="showAddExclusionForm" class="add-exclusion-form card">
+              <h4>Nouvelle exclusion</h4>
+              <form @submit.prevent="handleAddExclusion">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label>Participant</label>
+                    <select v-model="newExclusion.participantId" required>
+                      <option value="">-- Choisir --</option>
+                      <option v-for="p in activeParticipants" :key="p.id" :value="p.id">
+                        {{ p.name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Ne peut pas tirer</label>
+                    <select v-model="newExclusion.excludedId" required>
+                      <option value="">-- Choisir --</option>
+                      <option
+                        v-for="p in activeParticipants"
+                        :key="p.id"
+                        :value="p.id"
+                        :disabled="p.id === newExclusion.participantId">
+                        {{ p.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" :disabled="!newExclusion.participantId || !newExclusion.excludedId" class="btn-primary">
+                  Ajouter l'exclusion
+                </button>
+              </form>
+            </div>
+
+            <!-- Liste des exclusions -->
+            <div v-if="selectedLottery.exclusions && selectedLottery.exclusions.length > 0" class="exclusions-list">
+              <div v-for="exclusion in selectedLottery.exclusions" :key="exclusion.id" class="exclusion-item">
+                <span class="exclusion-text">
+                  <strong>{{ exclusion.participant.name }}</strong> ne peut pas tirer <strong>{{ exclusion.excluded.name }}</strong>
+                </span>
+                <button @click="handleDeleteExclusion(exclusion.id)" class="btn-delete-exclusion" title="Supprimer cette exclusion">
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <div v-else class="no-data">
+              Aucune exclusion définie.
+            </div>
+          </div>
+
+          <!-- Onglet Actions -->
+          <div v-if="activeTab === 'actions'" class="actions-section">
+            <h3>Actions administrateur</h3>
+
+            <div class="action-cards">
+
+              <!-- Effectuer le tirage -->
+              <div class="action-card">
+                <h4>🎲 Effectuer le tirage au sort</h4>
+                <p>Lance le tirage au sort en respectant les exclusions.</p>
+                <button
+                  @click="handlePerformDraw"
+                  :disabled="performingDraw || activeParticipants.length < 2"
+                  class="btn-warning">
+                  {{ performingDraw ? 'Tirage en cours...' : 'Lancer le tirage' }}
+                </button>
+                <p v-if="activeParticipants.length < 2" class="warning-text">
+                  ⚠️ Il faut au moins 2 participants actifs
+                </p>
+                <div v-if="drawResult" class="result-message success">
+                  ✅ Tirage effectué avec succès !
+                </div>
+              </div>
+
+              <!-- Envoyer les résultats -->
+              <div class="action-card">
+                <h4>🎁 Envoyer les résultats du tirage</h4>
+                <p>Envoie un email à chaque participant avec le nom de la personne qu'il doit gâter.</p>
+                <button
+                  @click="handleSendDrawResults"
+                  :disabled="sendingResults || !hasDrawBeenDone"
+                  class="btn-warning">
+                  {{ sendingResults ? 'Envoi en cours...' : 'Envoyer les résultats' }}
+                </button>
+                <p v-if="!hasDrawBeenDone" class="warning-text">
+                  ⚠️ Le tirage doit être effectué d'abord
+                </p>
+                <div v-if="drawResultsResult" class="result-message" :class="drawResultsResult.success ? 'success' : 'error'">
+                  {{ drawResultsResult.success
+                    ? `✅ ${drawResultsResult.sent} email(s) envoyé(s)`
+                    : `❌ Erreur: ${drawResultsResult.errors.join(', ')}` }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Script d'administration à compléter
+import { ref, computed } from 'vue'
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import { useRouter } from 'vue-router'
+import {
+  MY_OWNED_LOTTERIES_QUERY,
+  ADD_PARTICIPANT_MUTATION,
+  ADD_EXCLUSION_MUTATION,
+  DELETE_EXCLUSION_MUTATION,
+  PERFORM_DRAW_MUTATION,
+  SEND_DRAW_RESULTS_MUTATION
+} from '~/graphql/queries'
+
+const router = useRouter()
+
+// Vérification de l'authentification
+onMounted(() => {
+  if (process.client) {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      router.push('/login')
+    }
+  }
+})
+
+// Récupérer les loteries CRÉÉES par l'utilisateur (pas celles où il est juste participant)
+const { result, loading, error, refetch } = useQuery(MY_OWNED_LOTTERIES_QUERY)
+
+const loteries = computed(() => result.value?.myOwnedLotteries || [])
+
+// État de la page
+const selectedLotteryId = ref('')
+const activeTab = ref('participants')
+const showAddParticipantForm = ref(false)
+const showAddExclusionForm = ref(false)
+
+// Formulaires
+const newParticipant = ref({ name: '', email: '', isActive: true })
+const newExclusion = ref({ participantId: '', excludedId: '' })
+
+// États des actions
+const performingDraw = ref(false)
+const sendingResults = ref(false)
+const drawResult = ref<any>(null)
+const drawResultsResult = ref<any>(null)
+
+// Loterie sélectionnée
+const selectedLottery = computed(() => {
+  return loteries.value.find((l: any) => l.id === selectedLotteryId.value)
+})
+
+// Participants actifs uniquement
+const activeParticipants = computed(() => {
+  return selectedLottery.value?.participants.filter((p: any) => p.isActive) || []
+})
+
+// Vérifier si le tirage a été effectué
+const hasDrawBeenDone = computed(() => {
+  return selectedLottery.value?.draws && selectedLottery.value.draws.length > 0
+})
+
+// Mutations
+const { mutate: addParticipant } = useMutation(ADD_PARTICIPANT_MUTATION)
+const { mutate: addExclusion } = useMutation(ADD_EXCLUSION_MUTATION)
+const { mutate: deleteExclusion } = useMutation(DELETE_EXCLUSION_MUTATION)
+const { mutate: performDraw } = useMutation(PERFORM_DRAW_MUTATION)
+const { mutate: sendDrawResults } = useMutation(SEND_DRAW_RESULTS_MUTATION)
+
+// Handlers
+function onLotteryChange() {
+  activeTab.value = 'participants'
+  showAddParticipantForm.value = false
+  showAddExclusionForm.value = false
+  drawResult.value = null
+  drawResultsResult.value = null
+}
+
+async function handleAddParticipant() {
+  try {
+    await addParticipant({
+      lotteryId: selectedLotteryId.value,
+      name: newParticipant.value.name,
+      email: newParticipant.value.email || null,
+      isActive: newParticipant.value.isActive
+    })
+
+    newParticipant.value = { name: '', email: '', isActive: true }
+    showAddParticipantForm.value = false
+    await refetch()
+  } catch (err) {
+    console.error('Erreur:', err)
+    alert('Erreur lors de l\'ajout du participant')
+  }
+}
+
+async function handleAddExclusion() {
+  try {
+    await addExclusion({
+      lotteryId: selectedLotteryId.value,
+      participantId: newExclusion.value.participantId,
+      excludedId: newExclusion.value.excludedId
+    })
+
+    newExclusion.value = { participantId: '', excludedId: '' }
+    showAddExclusionForm.value = false
+    await refetch()
+  } catch (err) {
+    console.error('Erreur:', err)
+    alert('Erreur lors de l\'ajout de l\'exclusion')
+  }
+}
+
+async function handleDeleteExclusion(exclusionId: string) {
+  if (!confirm('Supprimer cette règle d\'exclusion ?')) return
+
+  try {
+    await deleteExclusion({ exclusionId })
+    await refetch()
+  } catch (err) {
+    console.error('Erreur:', err)
+    alert('Erreur lors de la suppression de l\'exclusion')
+  }
+}
+
+
+async function handlePerformDraw() {
+  if (!confirm('Effectuer le tirage au sort maintenant ? Cette action remplacera un éventuel tirage précédent.')) return
+
+  performingDraw.value = true
+  drawResult.value = null
+
+  try {
+    const result = await performDraw({ lotteryId: selectedLotteryId.value })
+    drawResult.value = result?.data?.performDraw
+    await refetch()
+  } catch (err: any) {
+    console.error('Erreur:', err)
+    alert(err.message || 'Erreur lors du tirage')
+  } finally {
+    performingDraw.value = false
+  }
+}
+
+async function handleSendDrawResults() {
+  if (!confirm('Envoyer les résultats du tirage par email à tous les participants ?')) return
+
+  sendingResults.value = true
+  drawResultsResult.value = null
+
+  try {
+    const result = await sendDrawResults({ lotteryId: selectedLotteryId.value })
+    drawResultsResult.value = result?.data?.sendDrawResults
+  } catch (err) {
+    console.error('Erreur:', err)
+    drawResultsResult.value = { success: false, errors: ['Erreur réseau'] }
+  } finally {
+    sendingResults.value = false
+  }
+}
 </script>
+
+<style scoped>
+.admin-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.lottery-selector {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lottery-selector label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #1ca463;
+}
+
+.lottery-selector select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.lottery-details {
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.lottery-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #1ca463, #28a745);
+  color: white;
+}
+
+.lottery-header h2 {
+  margin: 0 0 1rem 0;
+  color: white;
+}
+
+.lottery-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.stat-badge.success {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tabs {
+  display: flex;
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background: #f5f5f5;
+  color: #1ca463;
+}
+
+.tab.active {
+  color: #1ca463;
+}
+
+.tab-content {
+  padding: 2rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #1ca463;
+}
+
+.btn-add {
+  padding: 0.6rem 1.2rem;
+  background: #1ca463;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: 1rem;
+}
+
+.btn-add:hover {
+  background: #178a52;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.card h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.participants-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.participant-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.participant-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+}
+
+.participant-info p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.badge.active {
+  background: #e8f5e9;
+  color: #1ca463;
+}
+
+.badge.inactive {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.gift-count {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.exclusions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.exclusion-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exclusion-text {
+  color: #333;
+  flex: 1;
+}
+
+.btn-delete-exclusion {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  transition: background 0.2s;
+}
+
+.btn-delete-exclusion:hover {
+  background: #ffe6e6;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+}
+
+.action-cards {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.action-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.action-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1ca463;
+}
+
+.action-card p {
+  text-align: center;
+  margin: 0 0 1rem 0;
+  color: #666;
+}
+
+.btn-warning {
+  display: block;
+  margin: 0 auto;
+  background: #ffc107;
+  color: #333;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #e0a800;
+}
+
+.warning-text {
+  color: #856404;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.result-message {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.result-message.success {
+  background: #e8f5e9;
+  color: #1ca463;
+}
+
+.result-message.error {
+  background: #ffe6e6;
+  color: #d2232a;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .participant-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+}
+</style>
+

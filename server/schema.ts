@@ -22,7 +22,6 @@ export const typeDefs = `#graphql
     id: ID!
     name: String!
     email: String
-    loginCode: String
     isActive: Boolean!
     giftIdeas: [GiftIdea!]!
     managedChildren: [Participant!]!
@@ -65,10 +64,8 @@ export const typeDefs = `#graphql
     # Queries sécurisées - nécessitent d'être authentifié
     me: User
     myLotteries: [Lottery!]!
+    myOwnedLotteries: [Lottery!]!
     myLottery(id: ID!): Lottery
-    
-    # Queries publiques
-    participantByLoginCode(loginCode: String!): Participant
   }
 
   type Mutation {
@@ -82,14 +79,12 @@ export const typeDefs = `#graphql
     # Gestion des participants (authentification requise + propriétaire)
     addParticipant(lotteryId: ID!, name: String!, email: String, isActive: Boolean!): Participant
     addExclusion(lotteryId: ID!, participantId: ID!, excludedId: ID!): Exclusion
+    deleteExclusion(exclusionId: ID!): Boolean
     performDraw(lotteryId: ID!): [Draw!]!
-    sendLoginCodes(lotteryId: ID!): EmailResult!
     sendDrawResults(lotteryId: ID!): EmailResult!
     
-    # Gestion des idées cadeaux (public avec loginCode)
+    # Gestion des idées cadeaux
     addGiftIdea(participantId: ID!, title: String!, description: String, link: String): GiftIdea
-    
-    # Test email (authentification requise)
-    testGmailDirect: EmailResult!
+    deleteGiftIdea(giftIdeaId: ID!): Boolean
   }
 `

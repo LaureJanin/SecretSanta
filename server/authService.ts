@@ -121,7 +121,7 @@ export class AuthService {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
       return decoded
     } catch (error) {
-      console.error('❌ Token invalide:', error)
+      // Token invalide ou expiré - c'est normal, pas besoin de logger
       return null
     }
   }

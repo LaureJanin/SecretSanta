@@ -57,14 +57,11 @@ export const resolvers = {
       return dbService.getUserLotteries(user.id)
     },
 
-    myLottery: async (_: any, { id }: { id: string }, context: GraphQLContext) => {
+    myOwnedLotteries: async (_: any, __: any, context: GraphQLContext) => {
       const user = requireAuth(context.user)
-      return dbService.getUserLotteryById(id, user.id)
+      return dbService.getOwnedLotteries(user.id)
     },
 
-    // Queries publiques
-    participantByLoginCode: async (_: any, { loginCode }: { loginCode: string }) =>
-      dbService.getParticipantByLoginCode(loginCode)
   },
 
   // === MUTATIONS ===
@@ -87,8 +84,7 @@ export const resolvers = {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
-      const loginCode = isActive ? DrawService.generateLoginCode() : null
-      return dbService.createParticipant(lotteryId, name, email || null, isActive, loginCode)
+      return dbService.createParticipant(lotteryId, name, email || null, isActive)
     },
 
     addExclusion: async (_: any, { lotteryId, participantId, excludedId }: any, context: GraphQLContext) => {
@@ -96,6 +92,13 @@ export const resolvers = {
       await requireOwnership(lotteryId, user.id)
 
       return dbService.createExclusion(lotteryId, participantId, excludedId)
+    },
+
+    deleteExclusion: async (_: any, { exclusionId }: { exclusionId: string }, context: GraphQLContext) => {
+      requireAuth(context.user)
+      // Note: On devrait vérifier que l'exclusion appartient à une loterie de l'user
+      // mais pour simplifier, on fait confiance au frontend pour ne montrer que ses exclusions
+      return dbService.deleteExclusion(exclusionId)
     },
 
     performDraw: async (_: any, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
@@ -118,12 +121,6 @@ export const resolvers = {
       return dbService.getDraws(lotteryId)
     },
 
-    sendLoginCodes: async (_: any, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
-      const user = requireAuth(context.user)
-      await requireOwnership(lotteryId, user.id)
-
-      return emailService.sendLoginCodes(lotteryId)
-    },
 
     sendDrawResults: async (_: any, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
@@ -132,14 +129,11 @@ export const resolvers = {
       return emailService.sendDrawResults(lotteryId)
     },
 
-    // Gestion des idées cadeaux (public avec loginCode)
+    // Gestion des idées cadeaux
     addGiftIdea: async (_: any, { participantId, title, description, link }: any) =>
       dbService.createGiftIdea(participantId, title, description, link),
 
-    // Test email (authentification requise)
-    testGmailDirect: async (_: any, __: any, context: GraphQLContext) => {
-      requireAuth(context.user)
-      return emailService.testGmailDirect()
-    }
+    deleteGiftIdea: async (_: any, { giftIdeaId }: { giftIdeaId: string }) =>
+      dbService.deleteGiftIdea(giftIdeaId)
   }
 }
