@@ -29,7 +29,7 @@ export const resolvers = {
   Lottery: {
     owner: async (parent: GraphQLParent) => dbService.getUserById(parent.ownerId as string),
     draws: async (parent: GraphQLParent, _: unknown, context: GraphQLContext) => {
-      const lottery = parent as { id: string; ownerId: string }
+      const lottery = parent as { id: string; ownerId: string; _querySource?: string }
       const user = context.user
       
       if (!user) {
@@ -37,16 +37,17 @@ export const resolvers = {
       }
       
       const isOwner = lottery.ownerId === user.id
+      const isMyLotteriesQuery = lottery._querySource === 'myLotteries'
+      
+      if (isMyLotteriesQuery) {
+        return dbService.getUserDraw(lottery.id, user.email)
+      }
       
       if (isOwner) {
         return dbService.getDraws(lottery.id)
       }
       
-      const allDraws = await dbService.getDraws(lottery.id)
-      
-      return allDraws.filter((draw: { giver: { email: string | null } }) => {
-        return compareEmails(draw.giver?.email, user.email)
-      })
+      return dbService.getUserDraw(lottery.id, user.email)
     }
   },
 

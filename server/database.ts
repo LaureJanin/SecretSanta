@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { compareEmails } from '../utils/email.js'
 
 class DatabaseService {
   private prisma: PrismaClient
@@ -44,7 +45,7 @@ class DatabaseService {
 
     if (!user) return []
 
-    return this.prisma.lottery.findMany({
+    const lotteries = await this.prisma.lottery.findMany({
       where: {
         OR: [
           { ownerId: userId },
@@ -69,6 +70,11 @@ class DatabaseService {
         }
       }
     })
+
+    return lotteries.map(lottery => ({
+      ...lottery,
+      _querySource: 'myLotteries' as const
+    }))
   }
 
   async getOwnedLotteries(userId: string) {
@@ -169,6 +175,30 @@ class DatabaseService {
   async getDraws(lotteryId: string) {
     return this.prisma.draw.findMany({
       where: { lotteryId },
+      include: {
+        giver: { include: { giftIdeas: true } },
+        receiver: { include: { giftIdeas: true } }
+      }
+    })
+  }
+
+  async getUserDraw(lotteryId: string, userEmail: string) {
+    const participants = await this.prisma.participant.findMany({
+      where: { lotteryId },
+      include: { giftIdeas: true }
+    })
+
+    const userParticipant = participants.find(p => compareEmails(p.email, userEmail))
+
+    if (!userParticipant) {
+      return []
+    }
+
+    return this.prisma.draw.findMany({
+      where: {
+        lotteryId,
+        giverId: userParticipant.id
+      },
       include: {
         giver: { include: { giftIdeas: true } },
         receiver: { include: { giftIdeas: true } }
