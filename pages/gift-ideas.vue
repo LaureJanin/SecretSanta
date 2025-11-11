@@ -347,7 +347,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
   .gift-ideas-page {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
-    margin-right: var(--spacing-md);
+    margin-right: var(--spacing-sm);
   }
   .card {
     padding: var(--spacing-md);

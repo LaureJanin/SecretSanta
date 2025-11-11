@@ -29,12 +29,10 @@ export class DrawService {
       }
     })
 
-    // Vérifier d'abord si un tirage est possible
     if (!this.validateDrawPossibility(participants)) {
       throw new Error('Impossible d\'effectuer le tirage avec les exclusions actuelles')
     }
 
-    // Utiliser un algorithme de backtracking pour trouver une solution
     const solution = this.findValidAssignment(participants)
 
     if (!solution) {
@@ -51,59 +49,44 @@ export class DrawService {
     return solution
   }
 
-  /**
-   * Algorithme de backtracking pour trouver une assignation valide
-   */
   private static findValidAssignment(participants: ParticipantWithExclusions[]): DrawAssignment[] | null {
-    // Tenter plusieurs fois avec différents ordres si nécessaire
     for (let attempt = 0; attempt < 1000; attempt++) {
-      // Mélanger l'ordre des donneurs pour CHAQUE tentative (important !)
       const shuffledGivers = [...participants].sort(() => Math.random() - 0.5)
 
       const n = shuffledGivers.length
       const assignments: DrawAssignment[] = []
       const usedReceivers = new Set<string>()
 
-      // Fonction récursive de backtracking
       const backtrack = (giverIndex: number): boolean => {
-        // Tous les donneurs ont été assignés avec succès
         if (giverIndex === n) {
           return true
         }
 
         const giver = shuffledGivers[giverIndex]
 
-        // Mélanger les receveurs à chaque appel pour plus de variété
         const shuffledReceivers = [...participants].sort(() => Math.random() - 0.5)
 
-        // Essayer chaque receveur possible (dans un ordre mélangé à chaque fois)
         for (const receiver of shuffledReceivers) {
-          // Vérifier si ce receveur est valide
-          if (usedReceivers.has(receiver.id)) continue // Déjà reçu un cadeau
-          if (receiver.id === giver.id) continue // Ne peut pas se donner à soi-même
+          if (usedReceivers.has(receiver.id)) continue
+          if (receiver.id === giver.id) continue
 
-          // Vérifier les exclusions
           const isExcluded =
             giver.exclusions?.some((excl) => excl.excludedId === receiver.id) ||
             giver.excluded?.some((excl) => excl.participantId === receiver.id)
 
           if (isExcluded) continue
 
-          // Essayer cette assignation
           assignments.push({ giverId: giver.id, receiverId: receiver.id })
           usedReceivers.add(receiver.id)
 
-          // Continuer avec le prochain donneur
           if (backtrack(giverIndex + 1)) {
-            return true // Solution trouvée !
+            return true
           }
 
-          // Backtrack : annuler cette assignation
           assignments.pop()
           usedReceivers.delete(receiver.id)
         }
 
-        // Aucune assignation valide pour ce donneur
         return false
       }
 
@@ -122,7 +105,6 @@ export class DrawService {
   static validateDrawPossibility(participants: ParticipantWithExclusions[]): boolean {
     if (participants.length < 2) return false
 
-    // Vérification : chaque participant doit pouvoir donner à au moins une personne
     const basicCheck = participants.every(giver => {
       const possibleReceivers = participants.filter(receiver => {
         if (receiver.id === giver.id) return false

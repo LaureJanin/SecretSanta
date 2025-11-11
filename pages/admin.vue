@@ -515,15 +515,24 @@ async function handleSendDrawResults() {
   border: 1px solid var(--border-color);
 }
 
+.participant-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
 .participant-info h4 {
   margin: 0 0 var(--spacing-sm) 0;
   color: var(--color-text);
+  text-align: left;
 }
 
 .participant-info p {
   margin: var(--spacing-xs) 0;
   font-size: var(--font-size-sm);
   color: var(--color-text-light);
+  text-align: left;
 }
 
 .badge {
@@ -545,9 +554,16 @@ async function handleSendDrawResults() {
   color: #856404;
 }
 
+.participant-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .gift-count {
   color: var(--color-text-light);
   font-size: var(--font-size-sm);
+  text-align: right;
 }
 
 .exclusions-list {
@@ -674,15 +690,23 @@ async function handleSendDrawResults() {
   .admin-page {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
-    margin-right: var(--spacing-md);
+    margin-right: var(--spacing-sm);
   }
   .form-row {
     grid-template-columns: 1fr;
   }
   .participant-card {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     gap: var(--spacing-md);
+  }
+  .participant-info {
+    align-items: flex-start;
+    flex: 1;
+  }
+  .participant-actions {
+    align-items: center;
+    justify-content: flex-end;
   }
   .tabs {
     flex-direction: column;
@@ -708,6 +732,12 @@ async function handleSendDrawResults() {
   .btn-add {
     margin-left: 0;
     width: 100%;
+  }
+  .add-participant-form .btn-primary {
+    display: block;
+    margin: 0 auto;
+    width: auto;
+    min-width: 150px;
   }
 }
 </style>

@@ -7,7 +7,6 @@ async function startServer() {
   try {
     console.log('🔄 Démarrage du serveur Apollo...')
 
-    // Import sécurisé des modules
     console.log('📦 Chargement du schéma...')
     const { typeDefs } = await import('./schema.js')
 
@@ -21,12 +20,11 @@ async function startServer() {
 
     console.log('✅ Tous les modules chargés avec succès')
 
-    // Configuration du serveur Apollo
     console.log('⚙️ Configuration du serveur Apollo...')
     const server = new ApolloServer({
       typeDefs,
       resolvers,
-      csrfPrevention: false, // Désactiver la protection CSRF pour le développement
+      csrfPrevention: false,
       formatError: (error) => {
         console.error('❌ Erreur GraphQL:', error.message)
         return {
@@ -51,7 +49,6 @@ async function startServer() {
           try {
             user = await authService.getUserFromToken(token)
           } catch (error) {
-            // Token invalide ou expiré - on continue sans user (= non authentifié)
             console.log('⚠️ Token invalide ou expiré, utilisateur non authentifié')
           }
         }
@@ -63,7 +60,6 @@ async function startServer() {
     console.log('\n✅ Serveur Apollo GraphQL démarré avec succès !')
     console.log(`📊 Apollo Studio: ${url}`)
 
-    // Gestionnaire d'arrêt propre
     process.on('SIGINT', async () => {
       console.log('\n🛑 Arrêt du serveur...')
       try {

@@ -325,7 +325,7 @@ ul {
   .my-loteries-page {
     padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xl) var(--spacing-sm);
     margin-left: var(--spacing-sm);
-    margin-right: var(--spacing-md);
+    margin-right: var(--spacing-sm);
   }
   .loterie-card {
     padding: var(--spacing-md) var(--spacing-sm);

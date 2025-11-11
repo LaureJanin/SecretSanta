@@ -209,7 +209,7 @@ async function handleSubmit() {
   .form-page {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
-    margin-right: var(--spacing-md);
+    margin-right: var(--spacing-sm);
   }
   .form-container {
     padding: var(--spacing-md);

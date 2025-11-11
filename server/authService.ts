@@ -7,10 +7,8 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-i
 const JWT_EXPIRES_IN = '7d'
 
 export class AuthService {
-  // Enregistrement d'un nouvel utilisateur
   async register(email: string, name: string, password: string): Promise<AuthResult> {
     try {
-      // Vérifier si l'utilisateur existe déjà
       const existingUser = await dbService.getUserByEmail(email)
       if (existingUser) {
         return {
@@ -21,13 +19,8 @@ export class AuthService {
         }
       }
 
-      // Hasher le mot de passe
       const hashedPassword = await bcrypt.hash(password, 12)
-
-      // Créer l'utilisateur
       const user = await dbService.createUser(email, name, hashedPassword)
-
-      // Générer le token JWT
       const token = this.generateToken(user.id)
 
       return {
@@ -48,10 +41,8 @@ export class AuthService {
     }
   }
 
-  // Connexion d'un utilisateur
   async login(email: string, password: string): Promise<AuthResult> {
     try {
-      // Récupérer l'utilisateur
       const user = await dbService.getUserByEmail(email)
       if (!user) {
         return {
@@ -62,7 +53,6 @@ export class AuthService {
         }
       }
 
-      // Vérifier le mot de passe
       if (!user.password) {
         return {
           success: false,
@@ -82,10 +72,7 @@ export class AuthService {
         }
       }
 
-      // Générer le token JWT
       const token = this.generateToken(user.id)
-
-      // Retourner sans le mot de passe
       const { password: _, ...userWithoutPassword } = user
 
       return {
@@ -106,7 +93,6 @@ export class AuthService {
     }
   }
 
-  // Générer un token JWT
   private generateToken(userId: string): string {
     return jwt.sign(
       { userId },
@@ -115,18 +101,15 @@ export class AuthService {
     )
   }
 
-  // Vérifier et décoder un token JWT
   async verifyToken(token: string): Promise<{ userId: string } | null> {
     try {
       const decoded = jwt.verify(token, JWT_SECRET) as { userId: string }
       return decoded
     } catch (error) {
-      // Token invalide ou expiré - c'est normal, pas besoin de logger
       return null
     }
   }
 
-  // Récupérer l'utilisateur à partir du token
   async getUserFromToken(token: string): Promise<User | null> {
     try {
       const decoded = await this.verifyToken(token)
@@ -135,7 +118,6 @@ export class AuthService {
       const user = await dbService.getUserById(decoded.userId)
       if (!user) return null
 
-      // Retourner sans le mot de passe
       const { password: _, ...userWithoutPassword } = user
       return userWithoutPassword as User
 
@@ -145,7 +127,6 @@ export class AuthService {
     }
   }
 
-  // Extraire le token de l'en-tête Authorization
   extractTokenFromHeader(authHeader: string | undefined): string | null {
     if (!authHeader) return null
 

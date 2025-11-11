@@ -7,7 +7,6 @@ class DatabaseService {
     this.prisma = new PrismaClient()
   }
 
-  // === UTILISATEURS ===
   async createUser(email: string, name: string, password: string) {
     return this.prisma.user.create({
       data: { email, name, password },
@@ -29,7 +28,6 @@ class DatabaseService {
     })
   }
 
-  // === LOTERIES ===
   async createLottery(name: string, year: number, ownerId: string) {
     return this.prisma.lottery.create({
       data: { name, year, ownerId },
@@ -39,7 +37,6 @@ class DatabaseService {
 
 
   async getUserLotteries(userId: string) {
-    // Récupérer d'abord l'email de l'utilisateur
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { email: true }
@@ -47,9 +44,6 @@ class DatabaseService {
 
     if (!user) return []
 
-    // Retourner les loteries où :
-    // 1. L'utilisateur est le propriétaire (ownerId)
-    // 2. OU l'utilisateur est participant (via son email)
     return this.prisma.lottery.findMany({
       where: {
         OR: [
@@ -72,18 +66,11 @@ class DatabaseService {
             participant: true,
             excluded: true
           }
-        },
-        draws: {
-          include: {
-            giver: { include: { giftIdeas: true } },
-            receiver: { include: { giftIdeas: true } }
-          }
         }
       }
     })
   }
 
-  // Récupérer UNIQUEMENT les loteries créées par l'utilisateur (pour l'admin)
   async getOwnedLotteries(userId: string) {
     return this.prisma.lottery.findMany({
       where: { ownerId: userId },
@@ -95,12 +82,6 @@ class DatabaseService {
           include: {
             participant: true,
             excluded: true
-          }
-        },
-        draws: {
-          include: {
-            giver: { include: { giftIdeas: true } },
-            receiver: { include: { giftIdeas: true } }
           }
         }
       }
@@ -126,7 +107,6 @@ class DatabaseService {
     })
   }
 
-  // === PARTICIPANTS ===
   async createParticipant(lotteryId: string, name: string, email: string | null, isActive: boolean) {
     return this.prisma.participant.create({
       data: { name, email, isActive, lottery: { connect: { id: lotteryId } } }
@@ -142,7 +122,6 @@ class DatabaseService {
     })
   }
 
-  // === AUTRES OPÉRATIONS ===
   async createGiftIdea(participantId: string, title: string, description?: string, link?: string) {
     return this.prisma.giftIdea.create({
       data: { title, description, link, participant: { connect: { id: participantId } } }
@@ -190,7 +169,10 @@ class DatabaseService {
   async getDraws(lotteryId: string) {
     return this.prisma.draw.findMany({
       where: { lotteryId },
-      include: { giver: true, receiver: true }
+      include: {
+        giver: { include: { giftIdeas: true } },
+        receiver: { include: { giftIdeas: true } }
+      }
     })
   }
 

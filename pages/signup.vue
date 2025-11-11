@@ -202,7 +202,7 @@ button:disabled {
   .signup-page {
     padding-top: 2vh;
     padding-left: var(--spacing-sm);
-    padding-right: var(--spacing-md);
+    padding-right: var(--spacing-sm);
     box-sizing: border-box;
   }
   .signup-container {

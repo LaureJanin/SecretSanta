@@ -1,7 +1,6 @@
 import type { EmailResult } from './types.js'
 import { dbService } from './database.js'
 
-// Configuration Gmail SMTP
 async function createGmailTransporter() {
   try {
     const nodemailer = await import('nodemailer')
@@ -24,7 +23,6 @@ async function createGmailTransporter() {
   }
 }
 
-// Templates HTML améliorés
 const EMAIL_TEMPLATES = {
 
   drawResult: (giverName: string, receiverName: string, giftIdeasHtml: string, lotteryName?: string, giverEmail?: string) => `
@@ -115,7 +113,6 @@ export class EmailService {
 
   async sendDrawResults(lotteryId: string): Promise<EmailResult> {
     try {
-      // Récupérer la loterie avec ses draws
       const lottery = await dbService.getLotteryById(lotteryId)
       if (!lottery) throw new Error('Loterie non trouvée')
 
@@ -146,7 +143,6 @@ export class EmailService {
 
       console.log('📧 Utilisation de Gmail SMTP')
 
-      // Envoi par batch
       const batchSize = 10
       for (let i = 0; i < emailsToSend.length; i += batchSize) {
         const batch = emailsToSend.slice(i, i + batchSize)
@@ -195,7 +191,6 @@ export class EmailService {
           }
         })
 
-        // Pause entre les batches
         if (i + batchSize < emailsToSend.length) {
           await new Promise(resolve => setTimeout(resolve, 1000))
         }
@@ -218,7 +213,6 @@ export class EmailService {
     }
   }
 
-  // Méthode utilitaire pour générer le HTML des idées cadeaux
   private generateGiftIdeasHtml(giftIdeas: any[]): string {
     if (!giftIdeas || giftIdeas.length === 0) {
       return `

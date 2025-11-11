@@ -11,57 +11,57 @@ datasource db {
 }
 
 model User {
-  id        String      @id @default(uuid())
-  email     String      @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   name      String
-  password  String?     // Hash du mot de passe ou null si connexion par email magic link
-  createdAt DateTime    @default(now())
-  lotteries Lottery[]   // Les loteries qu'il a créées
+  password  String? // Hash du mot de passe ou null si connexion par email magic link
+  createdAt DateTime  @default(now())
+  lotteries Lottery[] // Les loteries qu'il a créées
 }
 
 model Lottery {
-  id        String      @id @default(uuid())
-  name      String
-  year      Int
-  createdAt DateTime    @default(now())
-  ownerId   String      // Qui a créé cette loterie
-  owner     User        @relation(fields: [ownerId], references: [id])
+  id           String        @id @default(uuid())
+  name         String
+  year         Int
+  createdAt    DateTime      @default(now())
+  ownerId      String // Qui a créé cette loterie
+  owner        User          @relation(fields: [ownerId], references: [id])
   participants Participant[]
   exclusions   Exclusion[]
   draws        Draw[]
 }
 
 model Participant {
-  id            String      @id @default(uuid())
-  name          String
-  email         String?     @unique
-  isActive      Boolean     // true = participates in the lottery, false = child/non-drawing profile
-  lotteryId     String
-  lottery       Lottery     @relation(fields: [lotteryId], references: [id])
-  createdAt     DateTime    @default(now())
-  giftIdeas     GiftIdea[]
-  exclusions    Exclusion[] @relation("ParticipantExclusions")
-  excluded      Exclusion[] @relation("ExcluExclusions")
-  giverDraws    Draw[]      @relation("GiverDraw")
-  receiverDraws Draw[]      @relation("ReceiverDraw")
+  id              String               @id @default(uuid())
+  name            String
+  email           String?
+  isActive        Boolean
+  lotteryId       String
+  lottery         Lottery              @relation(fields: [lotteryId], references: [id])
+  createdAt       DateTime             @default(now())
+  giftIdeas       GiftIdea[]
+  exclusions      Exclusion[]          @relation("ParticipantExclusions")
+  excluded        Exclusion[]          @relation("ExcluExclusions")
+  giverDraws      Draw[]               @relation("GiverDraw")
+  receiverDraws   Draw[]               @relation("ReceiverDraw")
   managedChildren ParticipantManager[] @relation("Manager")
-  managers      ParticipantManager[] @relation("Child")
+  managers        ParticipantManager[] @relation("Child")
 }
 
 model GiftIdea {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   participantId String
   participant   Participant @relation(fields: [participantId], references: [id])
   title         String
   description   String?
   link          String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime    @default(now())
 }
 
 model Exclusion {
-  id            String   @id @default(uuid())
+  id            String      @id @default(uuid())
   lotteryId     String
-  lottery       Lottery  @relation(fields: [lotteryId], references: [id])
+  lottery       Lottery     @relation(fields: [lotteryId], references: [id])
   participantId String
   participant   Participant @relation("ParticipantExclusions", fields: [participantId], references: [id])
   excludedId    String
@@ -69,19 +69,19 @@ model Exclusion {
 }
 
 model Draw {
-  id            String   @id @default(uuid())
-  lotteryId     String
-  lottery       Lottery  @relation(fields: [lotteryId], references: [id])
-  giverId       String
-  giver         Participant @relation("GiverDraw", fields: [giverId], references: [id])
-  receiverId    String
-  receiver      Participant @relation("ReceiverDraw", fields: [receiverId], references: [id])
+  id         String      @id @default(uuid())
+  lotteryId  String
+  lottery    Lottery     @relation(fields: [lotteryId], references: [id])
+  giverId    String
+  giver      Participant @relation("GiverDraw", fields: [giverId], references: [id])
+  receiverId String
+  receiver   Participant @relation("ReceiverDraw", fields: [receiverId], references: [id])
 }
 
 model ParticipantManager {
-  id         String      @id @default(uuid())
-  childId    String
-  child      Participant @relation("Child", fields: [childId], references: [id])
-  managerId  String
-  manager    Participant @relation("Manager", fields: [managerId], references: [id])
+  id        String      @id @default(uuid())
+  childId   String
+  child     Participant @relation("Child", fields: [childId], references: [id])
+  managerId String
+  manager   Participant @relation("Manager", fields: [managerId], references: [id])
 }
