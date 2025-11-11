@@ -19,6 +19,10 @@
       <div v-for="lottery in myLotteries" :key="lottery.id" class="lottery-section card">
         <h2>{{ lottery.name }} ({{ lottery.year }})</h2>
 
+        <div v-if="!getMyParticipant(lottery)" class="no-participant">
+          <p>Vous n'êtes pas participant dans cette loterie.</p>
+        </div>
+
         <div v-if="getMyParticipant(lottery)" class="my-ideas">
           <h3>Mes idées de cadeaux</h3>
 
@@ -66,46 +70,44 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery, useMutation } from '@vue/apollo-composable'
-import { MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries';
+import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries';
 
 const router = useRouter()
 
+const { result: meResult } = useQuery(ME_QUERY)
 const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
 const { mutate: addGiftIdea } = useMutation(ADD_GIFT_IDEA_MUTATION)
 const { mutate: deleteGiftIdea } = useMutation(DELETE_GIFT_IDEA_MUTATION)
 
 const newIdea = ref({ title: '', description: '', link: '' })
-const userId = ref('')
-const userEmail = ref('')
 
 onMounted(() => {
   if (process.client) {
     const token = localStorage.getItem('token')
-    userId.value = localStorage.getItem('userId') || ''
-    userEmail.value = localStorage.getItem('userEmail') || ''
-
     if (!token) {
       router.push('/login')
     }
   }
 })
 
+// Récupérer l'email de l'utilisateur connecté
+const userEmail = computed(() => {
+  return meResult.value?.me?.email || ''
+})
+
 const myLotteries = computed(() => {
   return result.value?.myLotteries || []
 })
 
-// Récupérer les loteries où je suis participant (pas propriétaire)
-const participantLotteries = computed(() => {
-  const lotteries = result.value?.myLotteries || []
-  return lotteries.filter((lottery: any) => {
-    // Trouver si je suis participant dans cette loterie
-    return lottery.participants.some((p: any) => p.email === userEmail.value)
-  })
-})
-
 // Récupérer mon participant dans une loterie
 function getMyParticipant(lottery: any) {
-  return lottery.participants.find((p: any) => p.email === userEmail.value)
+  if (!userEmail.value) return null
+  // Comparaison insensible à la casse et aux espaces
+  const normalizedEmail = userEmail.value.toLowerCase().trim()
+  return lottery.participants.find((p: any) => {
+    if (!p.email) return false
+    return p.email.toLowerCase().trim() === normalizedEmail
+  })
 }
 
 async function handleAddIdea(participantId: string) {
@@ -282,6 +284,15 @@ async function handleDeleteIdea(giftIdeaId: string) {
   background: #f8f9fa;
   border-radius: 8px;
   margin-bottom: 2rem;
+}
+
+.no-participant {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background: #fff3cd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
 .add-idea-form {

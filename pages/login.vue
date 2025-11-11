@@ -46,6 +46,9 @@ async function handleLogin(e: Event) {
       if (data.login.user?.id) {
         localStorage.setItem('userId', data.login.user.id)
       }
+      if (data.login.user?.email) {
+        localStorage.setItem('userEmail', data.login.user.email)
+      }
       router.push('/mes-loteries')
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'

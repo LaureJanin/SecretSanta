@@ -28,6 +28,32 @@
             <span v-if="loterie.draws && loterie.draws.length > 0" class="info-badge success">✅ Tirage effectué</span>
             <span v-else class="info-badge warning">⏳ Tirage non effectué</span>
           </div>
+
+          <!-- Affichage du résultat du tirage pour l'utilisateur -->
+          <div v-if="getMyDraw(loterie)" class="draw-result">
+            <div class="draw-header">
+              <h3>🎯 Votre mission de Noël</h3>
+            </div>
+            <div class="receiver-info">
+              <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
+              
+              <div v-if="getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)?.receiver?.giftIdeas.length > 0" class="gift-ideas-section">
+                <h4>🎁 Ses idées cadeaux :</h4>
+                <div class="gift-ideas-list">
+                  <div v-for="idea in getMyDraw(loterie)?.receiver?.giftIdeas" :key="idea.id" class="gift-idea-item">
+                    <div class="gift-idea-content">
+                      <h5>{{ idea.title }}</h5>
+                      <p v-if="idea.description" class="gift-idea-description">{{ idea.description }}</p>
+                      <a v-if="idea.link" :href="idea.link" target="_blank" class="gift-idea-link">🔗 Voir le lien</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="no-gift-ideas">
+                <p>Cette personne n'a pas encore ajouté d'idées cadeaux.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -37,13 +63,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
-import { MY_LOTERIES_QUERY } from '~/graphql/queries'
+import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const token = ref('')
-const userId = ref('')
 
+// Récupérer l'utilisateur connecté
+const { result: meResult } = useQuery(ME_QUERY)
 
 // Utiliser useQuery directement (pas dans onMounted)
 const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
@@ -53,12 +79,16 @@ const loteries = computed(() => {
   return result.value?.myLotteries || []
 })
 
+// Récupérer l'email de l'utilisateur connecté
+const userEmail = computed(() => {
+  return meResult.value?.me?.email || ''
+})
+
 // Rafraîchir les loteries quand la page est montée
 onMounted(async () => {
   if (process.client) {
-    token.value = localStorage.getItem('token') || ''
-    userId.value = localStorage.getItem('userId') || ''
-    if (!token.value) {
+    const token = localStorage.getItem('token') || ''
+    if (!token) {
       router.push('/login')
     } else {
       // Forcer le rechargement des données
@@ -69,7 +99,21 @@ onMounted(async () => {
 
 // Vérifier si l'utilisateur est le créateur de la loterie
 function isOwner(loterie: any) {
-  return loterie.owner?.id === userId.value
+  return loterie.owner?.id === meResult.value?.me?.id
+}
+
+// Récupérer le tirage où l'utilisateur est le donneur
+function getMyDraw(loterie: any) {
+  if (!loterie.draws || loterie.draws.length === 0) return null
+  if (!userEmail.value) return null
+  
+  const normalizedEmail = userEmail.value.toLowerCase().trim()
+  
+  // Trouver le draw où l'utilisateur est le giver
+  return loterie.draws.find((draw: any) => {
+    if (!draw.giver?.email) return false
+    return draw.giver.email.toLowerCase().trim() === normalizedEmail
+  })
 }
 </script>
 
@@ -190,12 +234,111 @@ ul {
 .btn-create:hover {
   background: #178a52;
 }
+
+.draw-result {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
+  border-radius: 12px;
+  border: 2px solid #1ca463;
+}
+
+.draw-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.draw-header h3 {
+  color: #1ca463;
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.receiver-info {
+  text-align: center;
+}
+
+.receiver-name {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.receiver-name strong {
+  color: #1ca463;
+  font-size: 1.2rem;
+}
+
+.gift-ideas-section {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.gift-ideas-section h4 {
+  color: #1ca463;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.gift-ideas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.gift-idea-item {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #ff9f1a;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gift-idea-content h5 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.gift-idea-description {
+  margin: 0.5rem 0;
+  color: #666;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.gift-idea-link {
+  color: #1ca463;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+.gift-idea-link:hover {
+  text-decoration: underline;
+}
+
+.no-gift-ideas {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+  font-style: italic;
+  background: white;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
 @media (max-width: 600px) {
   .mes-loteries-page {
     padding: 1rem 0.2rem 2rem 0.2rem;
   }
   .loterie-card {
     padding: 1rem 0.3rem;
+  }
+  .draw-result {
+    padding: 1rem;
   }
 }
 </style>

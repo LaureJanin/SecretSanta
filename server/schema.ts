@@ -65,7 +65,6 @@ export const typeDefs = `#graphql
     me: User
     myLotteries: [Lottery!]!
     myOwnedLotteries: [Lottery!]!
-    myLottery(id: ID!): Lottery
   }
 
   type Mutation {

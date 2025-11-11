@@ -130,10 +130,14 @@ export const resolvers = {
     },
 
     // Gestion des idées cadeaux
-    addGiftIdea: async (_: any, { participantId, title, description, link }: any) =>
-      dbService.createGiftIdea(participantId, title, description, link),
+    addGiftIdea: async (_: any, { participantId, title, description, link }: any, context: GraphQLContext) => {
+      requireAuth(context.user)
+      return dbService.createGiftIdea(participantId, title, description, link)
+    },
 
-    deleteGiftIdea: async (_: any, { giftIdeaId }: { giftIdeaId: string }) =>
-      dbService.deleteGiftIdea(giftIdeaId)
+    deleteGiftIdea: async (_: any, { giftIdeaId }: { giftIdeaId: string }, context: GraphQLContext) => {
+      requireAuth(context.user)
+      return dbService.deleteGiftIdea(giftIdeaId)
+    }
   }
 }

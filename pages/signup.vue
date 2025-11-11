@@ -70,6 +70,9 @@ async function handleSignup(e: Event) {
       if (data.register.user?.id) {
         localStorage.setItem('userId', data.register.user.id)
       }
+      if (data.register.user?.email) {
+        localStorage.setItem('userEmail', data.register.user.email)
+      }
       router.push('/mes-loteries')
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'

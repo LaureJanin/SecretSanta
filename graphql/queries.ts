@@ -93,6 +93,16 @@ mutation SendDrawResults($lotteryId: ID!) {
   }
 }`
 
+export const ME_QUERY = gql`
+  query me {
+    me {
+      id
+      email
+      name
+    }
+  }
+`
+
 export const MY_LOTERIES_QUERY = gql`
   query myLotteries {
     myLotteries {
@@ -105,9 +115,34 @@ export const MY_LOTERIES_QUERY = gql`
       }
       participants {
         id
+        name
+        email
+        isActive
+        giftIdeas {
+          id
+          title
+          description
+          link
+        }
       }
       draws {
-        id      
+        id
+        giver {
+          id
+          name
+          email
+        }
+        receiver {
+          id
+          name
+          email
+          giftIdeas {
+            id
+            title
+            description
+            link
+          }
+        }
       }
     }
   }
