@@ -19,5 +19,5 @@ export default defineNuxtConfig({
   },
 
   // Fichier CSS global
-  css: ['~/main.css']
+  css: ['~/assets/css/variables.css', '~/main.css']
 });

@@ -73,6 +73,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable'
 import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries';
 
 const router = useRouter()
+const { success, error: showError } = useToast()
 
 const { result: meResult } = useQuery(ME_QUERY)
 const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
@@ -128,11 +129,11 @@ async function handleAddIdea(participantId: string) {
       // Rafraîchir les données
       await refetch()
 
-      alert('✅ Idée cadeau ajoutée !')
+      success('Idée cadeau ajoutée !')
     }
   } catch (err: any) {
     console.error('Erreur:', err)
-    alert('❌ Erreur lors de l\'ajout : ' + (err.message || 'Erreur inconnue'))
+    showError('Erreur lors de l\'ajout : ' + (err.message || 'Erreur inconnue'))
   }
 }
 
@@ -142,93 +143,94 @@ async function handleDeleteIdea(giftIdeaId: string) {
   try {
     await deleteGiftIdea({ giftIdeaId })
     await refetch()
-    alert('✅ Idée supprimée !')
+    success('Idée supprimée !')
   } catch (err: any) {
     console.error('Erreur:', err)
-    alert('❌ Erreur lors de la suppression')
+    showError('Erreur lors de la suppression')
   }
 }
 </script>
 
 <style scoped>
 .gift-ideas-page {
-  max-width: 900px;
+  max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--spacing-xl) var(--spacing-md);
+  box-sizing: border-box;
 }
 
 .loading, .error {
   text-align: center;
-  padding: 2rem;
-  font-size: 1.1rem;
+  padding: var(--spacing-xl);
+  font-size: var(--font-size-lg);
 }
 
 .error {
-  color: #d2232a;
+  color: var(--color-error);
 }
 
 .intro {
-  background: linear-gradient(135deg, #1ca463, #28a745);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
   text-align: center;
 }
 
 .intro p {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--font-size-lg);
 }
 
 .no-lotteries {
   text-align: center;
-  padding: 3rem;
-  background: #f8f9fa;
-  border-radius: 12px;
+  padding: var(--spacing-2xl);
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius-lg);
 }
 
 .no-lotteries p {
-  color: #666;
-  font-size: 1.1rem;
+  color: var(--color-text-light);
+  font-size: var(--font-size-lg);
 }
 
 .lottery-section {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
 }
 
 .lottery-section h2 {
-  color: #1ca463;
+  color: var(--color-primary);
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .my-ideas h3 {
-  color: #2e2519;
-  margin-bottom: 1rem;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
 }
 
 .ideas-list {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .idea-card {
-  background: #f8f9fa;
-  border-left: 4px solid #ff9f1a;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   display: flex;
   justify-content: space-between;
-  align-items: start;
-  transition: transform 0.2s;
+  align-items: center;
+  transition: transform var(--transition-base);
 }
 
 .idea-card:hover {
@@ -240,22 +242,22 @@ async function handleDeleteIdea(giftIdeaId: string) {
 }
 
 .idea-content h4 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 1.1rem;
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
 }
 
 .idea-content p {
-  margin: 0.5rem 0;
-  color: #666;
+  margin: var(--spacing-sm) 0;
+  color: var(--color-text-light);
   line-height: 1.5;
 }
 
 .idea-link {
-  color: #1ca463;
+  color: var(--color-primary);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
 }
 
 .idea-link:hover {
@@ -265,95 +267,118 @@ async function handleDeleteIdea(giftIdeaId: string) {
 .btn-delete {
   background: transparent;
   border: none;
-  font-size: 1.3rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s;
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  transition: background var(--transition-base);
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-delete:hover {
-  background: #ffe6e6;
+  background: var(--color-error-bg);
 }
 
 .no-ideas {
   text-align: center;
-  padding: 2rem;
-  color: #999;
+  padding: var(--spacing-xl);
+  color: var(--color-text-lighter);
   font-style: italic;
-  background: #f8f9fa;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+  background: var(--color-bg-light);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-xl);
 }
 
 .no-participant {
   text-align: center;
-  padding: 2rem;
-  color: #666;
-  background: #fff3cd;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: var(--spacing-xl);
+  color: var(--color-text-light);
+  background: var(--color-warning-bg);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .add-idea-form {
-  background: #e8f5e9;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-top: 2rem;
+  background: var(--color-success-bg);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
 }
 
 .add-idea-form h4 {
   margin-top: 0;
-  color: #1ca463;
+  color: var(--color-primary);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .form-group label {
   display: block;
-  font-weight: 600;
-  color: #2e2519;
-  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 0.8rem;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #1ca463;
+  border-color: var(--border-color-focus);
 }
 
 .add-idea-form button {
-  background: #1ca463;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
-  font-size: 1rem;
-  transition: background 0.2s;
+  font-size: var(--font-size-base);
+  transition: background var(--transition-base);
   width: 100%;
 }
 
 .add-idea-form button:hover:not(:disabled) {
-  background: #178a52;
+  background: var(--color-primary-dark);
 }
 
 .add-idea-form button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .gift-ideas-page {
+    padding: var(--spacing-md) var(--spacing-sm);
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
+  }
+  .card {
+    padding: var(--spacing-md);
+  }
+  .idea-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+  .btn-delete {
+    align-self: flex-end;
+  }
 }
 </style>
 

@@ -57,21 +57,24 @@ const repeatedItems = [...items, ...items];
   justify-content: flex-start;
   padding-top: 4vh;
 }
+
 .home-intro {
   background: rgba(255, 255, 255, 0.85);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  padding: 1.2rem 2rem;
-  margin-bottom: 1.5rem;
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-md) var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
   text-align: center;
-  max-width: 500px;
+  max-width: var(--max-width-sm);
   width: 100%;
 }
+
 .emoji {
   display: block;
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-sm);
 }
+
 .lottery-container {
   display: flex;
   justify-content: center;
@@ -79,60 +82,63 @@ const repeatedItems = [...items, ...items];
   overflow: hidden;
   height: 50px;
   background: transparent;
-  max-width: 500px;
+  max-width: var(--max-width-sm);
   width: 100%;
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
 }
+
 .lottery-wheel {
   display: flex;
   flex-direction: column;
   animation: scroll 12s linear infinite;
   text-align: center;
 }
+
 .lottery-item {
-  font-size: 20px;
-  font-weight: bold;
-  color: #d2232a;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
   line-height: 50px;
 }
+
 .red {
-  color: #d2232a;
-  font-weight: bold;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
 }
 
 .action-buttons {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .action-buttons button {
-  padding: 0.9rem 2rem;
-  font-size: 1.1rem;
-  font-weight: bold;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
   min-width: 180px;
 }
 
 .btn-signup {
-  background: linear-gradient(135deg, #1ca463, #28a745);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
 }
 
 .btn-signup:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(28, 164, 99, 0.3);
+  box-shadow: var(--shadow-button-hover);
 }
 
 .btn-login {
-  background: linear-gradient(135deg, #ff9f1a, #ffa500);
-  color: white;
+  background: linear-gradient(135deg, var(--color-secondary), #ffa500);
+  color: var(--color-text-inverse);
 }
 
 .btn-login:hover {
@@ -151,15 +157,35 @@ const repeatedItems = [...items, ...items];
     transform: translateY(0);
   }
 }
-@media (max-width: 600px) {
+
+@media (max-width: 768px) {
+  .home-page {
+    padding-top: 2vh;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-md);
+    box-sizing: border-box;
+  }
   .home-intro {
-    padding: 1rem 0.5rem;
-    max-width: 95vw;
+    padding: var(--spacing-md);
+    max-width: 100%;
     width: 100%;
+    box-sizing: border-box;
   }
   .lottery-container {
     width: 98vw;
     max-width: 98vw;
+  }
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    gap: var(--spacing-md);
+    align-items: center;
+  }
+  .action-buttons button {
+    width: auto;
+    min-width: auto;
+    padding: var(--spacing-md) var(--spacing-lg);
   }
 }
 </style>

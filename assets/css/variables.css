@@ -1,0 +1,100 @@
+/* Design Tokens - Variables CSS globales */
+
+:root {
+  /* Couleurs principales */
+  --color-primary: #1ca463;
+  --color-primary-dark: #178a52;
+  --color-primary-light: #28a745;
+  --color-secondary: #ff9f1a;
+  --color-secondary-dark: #e68a00;
+  --color-accent: #d2232a;
+  --color-accent-light: #ff9f1a;
+  
+  /* Couleurs de texte */
+  --color-text: #333;
+  --color-text-light: #666;
+  --color-text-lighter: #999;
+  --color-text-inverse: #fff;
+  
+  /* Couleurs de fond */
+  --color-bg: rgba(255, 255, 255, 0.97);
+  --color-bg-light: #f8f9fa;
+  --color-bg-card: white;
+  --color-bg-gradient: linear-gradient(135deg, #ffe6b7 0%, #ffb88c 40%, #e57373 100%);
+  
+  /* Couleurs d'état */
+  --color-success: #1ca463;
+  --color-success-bg: #e8f5e9;
+  --color-error: #d2232a;
+  --color-error-bg: #ffe6e6;
+  --color-warning: #ffc107;
+  --color-warning-bg: #fff3cd;
+  --color-info: #007bff;
+  --color-info-bg: #e7f3ff;
+  
+  /* Espacements */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Bordures */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 14px;
+  --border-radius-full: 50%;
+  --border-radius-badge: 20px;
+  
+  --border-width: 2px;
+  --border-color: #ddd;
+  --border-color-focus: var(--color-primary);
+  
+  /* Ombres */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-button: 0 2px 8px rgba(0, 0, 0, 0.07);
+  --shadow-button-hover: 0 4px 12px rgba(28, 164, 99, 0.3);
+  
+  /* Typographie */
+  --font-family: 'Fredoka', Arial, sans-serif;
+  --font-family-title: 'Pacifico', cursive, Arial, sans-serif;
+  
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.1rem;
+  --font-size-xl: 1.2rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  
+  /* Largeurs max */
+  --max-width-sm: 500px;
+  --max-width-md: 700px;
+  --max-width-lg: 900px;
+  --max-width-xl: 1200px;
+  
+  /* Z-index */
+  --z-index-snowflakes: 10;
+  --z-index-header: 30;
+  --z-index-toast: 10000;
+  
+  /* Breakpoints (pour référence JS si besoin) */
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+

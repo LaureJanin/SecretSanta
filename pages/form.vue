@@ -5,7 +5,7 @@
     <div class="form-container">
       <form @submit.prevent="handleSubmit" class="lottery-form">
         <div class="form-section">
-          <h2>Informations de la loterie</h2>
+          <h2>Donnez un titre à votre loterie</h2>
 
           <div class="form-group">
             <label for="lotteryName">Nom de la loterie *</label>
@@ -35,7 +35,7 @@
           <button type="submit" :disabled="loading || !isFormValid" class="btn-primary">
             {{ loading ? 'Création en cours...' : 'Créer la loterie' }}
           </button>
-          <button type="button" @click="router.push('/mes-loteries')" class="btn-secondary">
+          <button type="button" @click="router.push('/my-loteries')" class="btn-secondary">
             Annuler
           </button>
         </div>
@@ -103,7 +103,7 @@ async function handleSubmit() {
 
       // Redirection vers la page de détail de la loterie après 1.5 secondes
       setTimeout(() => {
-        router.push('/mes-loteries')
+        router.push('/my-loteries')
       }, 1500)
     } else {
       errorMsg.value = 'Erreur lors de la création de la loterie'
@@ -123,92 +123,94 @@ async function handleSubmit() {
 
 <style scoped>
 .form-page {
-  max-width: 600px;
+  max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--spacing-xl) var(--spacing-md);
+  box-sizing: border-box;
 }
 
 .form-container {
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
+  background: var(--color-bg);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-xl);
 }
 
 .lottery-form {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--spacing-xl);
 }
 
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-lg);
 }
 
 .form-section h2 {
-  color: #1ca463;
-  font-size: 1.3rem;
-  margin-bottom: 0.5rem;
-  text-align: left;
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--spacing-sm);
+  text-align: center;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #2e2519;
-  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  font-size: var(--font-size-base);
 }
 
 .form-group input {
-  padding: 0.9rem;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-base);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #1ca463;
+  border-color: var(--border-color-focus);
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-md);
   justify-content: center;
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
 .form-actions button {
-  padding: 0.9rem 2rem;
-  font-size: 1.1rem;
-  font-weight: bold;
+  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--border-radius-lg);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1ca463, #28a745);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(28, 164, 99, 0.3);
+  box-shadow: var(--shadow-button-hover);
 }
 
 .btn-secondary {
-  background: #e0e0e0;
-  color: #333;
+  background: var(--color-bg-light);
+  color: var(--color-text);
 }
 
 .btn-secondary:hover {
@@ -217,25 +219,28 @@ async function handleSubmit() {
 }
 
 .success-msg {
-  color: #1ca463;
-  font-size: 1rem;
+  color: var(--color-success);
+  font-size: var(--font-size-base);
   text-align: center;
-  padding: 1rem;
-  background: #e8f5e9;
-  border-radius: 8px;
-  border: 2px solid #1ca463;
-  font-weight: bold;
+  padding: var(--spacing-md);
+  background: var(--color-success-bg);
+  border-radius: var(--border-radius-md);
+  border: var(--border-width) solid var(--color-success);
+  font-weight: var(--font-weight-bold);
 }
 
-@media (max-width: 600px) {
-  .form-container {
-    padding: 1.5rem 1rem;
+@media (max-width: 768px) {
+  .form-page {
+    padding: var(--spacing-md) var(--spacing-sm);
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
   }
-
+  .form-container {
+    padding: var(--spacing-md);
+  }
   .form-actions {
     flex-direction: column;
   }
-
   .form-actions button {
     width: 100%;
   }

@@ -49,7 +49,7 @@ async function handleLogin(e: Event) {
       if (data.login.user?.email) {
         localStorage.setItem('userEmail', data.login.user.email)
       }
-      router.push('/mes-loteries')
+      router.push('/my-loteries')
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'
     }
@@ -72,65 +72,83 @@ async function handleLogin(e: Event) {
   overflow: hidden;
   padding-top: 4vh;
 }
+
 .signup-container {
-  background: rgba(255,255,255,0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2rem 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-xl) calc(var(--spacing-xl) + 0.5rem);
   max-width: 350px;
   width: 100%;
   z-index: 20;
 }
+
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
+
 .login-form label {
-  font-weight: 500;
-  margin-bottom: 0.2rem;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
 }
+
 .login-form input {
-  padding: 0.6rem 1rem;
-  border: 1px solid #b5c6e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: #f7fbff;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  background: var(--color-bg-light);
 }
+
 .error-msg {
-  color: #d32f2f;
-  background: #fff0f0;
+  color: var(--color-error);
+  background: var(--color-error-bg);
   border: 1px solid #f8bcbc;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  margin-top: 0.5rem;
-  font-size: 0.98rem;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
   text-align: center;
 }
+
 .login-message {
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-lg);
   text-align: center;
-  font-size: 1rem;
-  color: #333;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
 }
+
 .sad-face {
-  font-size: 1.2rem;
-  margin: 0 0.2rem;
+  font-size: var(--font-size-xl);
+  margin: 0 var(--spacing-xs);
 }
+
 .login-link {
-  color: #d2232a;
-  font-weight: bold;
-  margin-left: 0.3rem;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  margin-left: var(--spacing-xs);
   text-decoration: underline;
   cursor: pointer;
 }
+
 .login-link:hover {
-  color: #ff9f1a;
+  color: var(--color-secondary);
 }
-@media (max-width: 600px) {
+
+@media (max-width: 768px) {
+  .login-page {
+    padding-top: 2vh;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-md);
+    box-sizing: border-box;
+  }
   .signup-container {
-    padding: 1.2rem 0.7rem;
-    max-width: 95vw;
+    padding: var(--spacing-md) var(--spacing-sm);
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 </style>

@@ -59,11 +59,12 @@ async function handleSignup(e: Event) {
 
   loading.value = true
   try {
-    const { data } = await mutate({
+    const result = await mutate({
       email: email.value,
       name: name.value,
       password: password.value
     })
+    const data = result?.data
 
     if (data?.register?.success && data.register.token) {
       localStorage.setItem('token', data.register.token)
@@ -73,7 +74,7 @@ async function handleSignup(e: Event) {
       if (data.register.user?.email) {
         localStorage.setItem('userEmail', data.register.user.email)
       }
-      router.push('/mes-loteries')
+      router.push('/my-loteries')
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'
     }
@@ -98,10 +99,10 @@ async function handleSignup(e: Event) {
 }
 
 .signup-container {
-  background: rgba(255,255,255,0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  padding: 2rem 2.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--spacing-xl) calc(var(--spacing-xl) + 0.5rem);
   max-width: 400px;
   width: 100%;
   z-index: 20;
@@ -109,54 +110,54 @@ async function handleSignup(e: Event) {
 
 h1 {
   text-align: center;
-  color: #1ca463;
-  margin-bottom: 1.5rem;
-  font-family: 'Montserrat', 'Arial', sans-serif;
-  text-shadow: 1px 1px 2px #2e2519;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-lg);
+  font-family: var(--font-family);
+  text-shadow: 1px 1px 2px var(--color-text);
 }
 
 .signup-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 label {
-  font-weight: 600;
-  color: #2e2519;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
   margin-bottom: -0.5rem;
-  font-size: 0.95rem;
+  font-size: var(--font-size-sm);
 }
 
 input {
-  padding: 0.8rem;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-base);
 }
 
 input:focus {
   outline: none;
-  border-color: #1ca463;
+  border-color: var(--border-color-focus);
 }
 
 button {
-  margin-top: 0.5rem;
-  padding: 0.9rem;
-  background: linear-gradient(135deg, #1ca463, #28a745);
-  color: white;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
   border: none;
-  border-radius: 8px;
-  font-size: 1.1rem;
-  font-weight: bold;
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(28, 164, 99, 0.3);
+  box-shadow: var(--shadow-button-hover);
 }
 
 button:disabled {
@@ -165,42 +166,50 @@ button:disabled {
 }
 
 .error-msg {
-  color: #d2232a;
-  font-size: 0.9rem;
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
   text-align: center;
-  padding: 0.5rem;
-  background: #ffe6e6;
-  border-radius: 6px;
-  margin-top: 0.5rem;
+  padding: var(--spacing-sm);
+  background: var(--color-error-bg);
+  border-radius: var(--border-radius-sm);
+  margin-top: var(--spacing-sm);
 }
 
 .login-message {
   text-align: center;
-  margin-top: 1.5rem;
-  color: #666;
-  font-size: 0.95rem;
+  margin-top: var(--spacing-lg);
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
 }
 
 .happy-face {
-  font-size: 1.1rem;
+  font-size: var(--font-size-lg);
 }
 
 .login-link {
-  color: #1ca463;
+  color: var(--color-primary);
   text-decoration: none;
-  font-weight: bold;
-  transition: color 0.2s;
+  font-weight: var(--font-weight-bold);
+  transition: color var(--transition-base);
 }
 
 .login-link:hover {
-  color: #28a745;
+  color: var(--color-primary-light);
   text-decoration: underline;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 768px) {
+  .signup-page {
+    padding-top: 2vh;
+    padding-left: var(--spacing-sm);
+    padding-right: var(--spacing-md);
+    box-sizing: border-box;
+  }
   .signup-container {
-    padding: 1.5rem 1.8rem;
-    max-width: 90%;
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 </style>

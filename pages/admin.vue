@@ -219,6 +219,7 @@ import {
 } from '~/graphql/queries'
 
 const router = useRouter()
+const { success, error: showError } = useToast()
 
 // Vérification de l'authentification
 onMounted(() => {
@@ -294,9 +295,10 @@ async function handleAddParticipant() {
     newParticipant.value = { name: '', email: '', isActive: true }
     showAddParticipantForm.value = false
     await refetch()
+    success('Participant ajouté avec succès')
   } catch (err) {
     console.error('Erreur:', err)
-    alert('Erreur lors de l\'ajout du participant')
+    showError('Erreur lors de l\'ajout du participant')
   }
 }
 
@@ -311,9 +313,10 @@ async function handleAddExclusion() {
     newExclusion.value = { participantId: '', excludedId: '' }
     showAddExclusionForm.value = false
     await refetch()
+    success('Exclusion ajoutée avec succès')
   } catch (err) {
     console.error('Erreur:', err)
-    alert('Erreur lors de l\'ajout de l\'exclusion')
+    showError('Erreur lors de l\'ajout de l\'exclusion')
   }
 }
 
@@ -323,9 +326,10 @@ async function handleDeleteExclusion(exclusionId: string) {
   try {
     await deleteExclusion({ exclusionId })
     await refetch()
+    success('Exclusion supprimée avec succès')
   } catch (err) {
     console.error('Erreur:', err)
-    alert('Erreur lors de la suppression de l\'exclusion')
+    showError('Erreur lors de la suppression de l\'exclusion')
   }
 }
 
@@ -340,9 +344,10 @@ async function handlePerformDraw() {
     const result = await performDraw({ lotteryId: selectedLotteryId.value })
     drawResult.value = result?.data?.performDraw
     await refetch()
+    success('Tirage effectué avec succès !')
   } catch (err: any) {
     console.error('Erreur:', err)
-    alert(err.message || 'Erreur lors du tirage')
+    showError(err.message || 'Erreur lors du tirage')
   } finally {
     performingDraw.value = false
   }
@@ -368,65 +373,67 @@ async function handleSendDrawResults() {
 
 <style scoped>
 .admin-page {
-  max-width: 900px;
+  max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: var(--spacing-xl) var(--spacing-md);
+  box-sizing: border-box;
 }
 
 .lottery-selector {
-  background: rgba(255, 255, 255, 0.97);
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  margin-top: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .lottery-selector label {
   display: block;
-  font-weight: 600;
-  margin-bottom: 0.8rem;
-  color: #1ca463;
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-primary);
 }
 
 .lottery-selector select {
   width: 100%;
-  padding: 0.8rem;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
+  padding: var(--spacing-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-base);
 }
 
 .lottery-details {
-  background: rgba(255, 255, 255, 0.97);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
 }
 
 .lottery-header {
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #1ca463, #28a745);
-  color: white;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
 }
 
 .lottery-header h2 {
-  margin: 0 0 1rem 0;
-  color: white;
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-inverse);
 }
 
 .lottery-stats {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
   flex-wrap: wrap;
 }
 
 .stat-badge {
   background: rgba(255, 255, 255, 0.2);
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-badge);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .stat-badge.success {
@@ -439,150 +446,158 @@ async function handleSendDrawResults() {
 
 .tab {
   flex: 1;
-  padding: 1rem;
+  padding: var(--spacing-md);
   background: none;
   border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #666;
+  border-bottom: 3px solid transparent;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-light);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
+  position: relative;
+  box-shadow: none;
+  border-radius: 0;
 }
 
 .tab:hover {
-  background: #f5f5f5;
-  color: #1ca463;
+  background: var(--color-bg-light);
+  color: var(--color-primary);
 }
 
 .tab.active {
-  color: #1ca463;
+  color: var(--color-primary);
+  background: var(--color-bg-light);
+  border-bottom-color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
 }
 
 .tab-content {
-  padding: 2rem;
+  padding: var(--spacing-xl);
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
 }
 
 .section-header h3 {
   margin: 0;
-  color: #1ca463;
+  color: var(--color-primary);
 }
 
 .btn-add {
-  padding: 0.6rem 1.2rem;
-  background: #1ca463;
-  color: white;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background 0.2s;
-  margin-left: 1rem;
+  transition: background var(--transition-base);
+  margin-left: var(--spacing-md);
 }
 
 .btn-add:hover {
-  background: #178a52;
+  background: var(--color-primary-dark);
 }
 
 .card {
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-lg);
 }
 
 .card h4 {
-  margin: 0 0 1rem 0;
-  color: #333;
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text);
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr auto;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .participants-list {
   display: grid;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .participant-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  background: var(--color-bg-card);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .participant-info h4 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--color-text);
 }
 
 .participant-info p {
-  margin: 0.3rem 0;
-  font-size: 0.9rem;
-  color: #666;
+  margin: var(--spacing-xs) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
 }
-
 
 .badge {
   display: inline-block;
-  padding: 0.3rem 0.6rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-lg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--spacing-sm);
 }
 
 .badge.active {
-  background: #e8f5e9;
-  color: #1ca463;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .badge.inactive {
-  background: #fff3cd;
+  background: var(--color-warning-bg);
   color: #856404;
 }
 
 .gift-count {
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--color-text-light);
+  font-size: var(--font-size-sm);
 }
 
 .exclusions-list {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: var(--spacing-md);
 }
 
 .exclusion-item {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  background: var(--color-bg-card);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .exclusion-text {
-  color: #333;
+  color: var(--color-text);
   flex: 1;
 }
 
@@ -590,56 +605,71 @@ async function handleSendDrawResults() {
   background: transparent;
   border: none;
   box-shadow: none;
-  font-size: 1.2rem;
+  font-size: var(--font-size-xl);
   cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  transition: background 0.2s;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  transition: background var(--transition-base);
 }
 
 .btn-delete-exclusion:hover {
-  background: #ffe6e6;
+  background: var(--color-error-bg);
 }
 
 .no-data {
   text-align: center;
-  color: #999;
-  padding: 2rem;
+  color: var(--color-text-lighter);
+  padding: var(--spacing-xl);
+}
+
+.no-loterie {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.no-loterie p {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
 }
 
 .action-cards {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--spacing-lg);
 }
 
 .action-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #e0e0e0;
+  background: var(--color-bg-card);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-color);
 }
 
 .action-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: #1ca463;
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--color-primary);
 }
 
 .action-card p {
   text-align: center;
-  margin: 0 0 1rem 0;
-  color: #666;
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-text-light);
 }
 
 .btn-warning {
   display: block;
   margin: 0 auto;
-  background: #ffc107;
-  color: #333;
-  padding: 0.8rem 1.5rem;
+  background: var(--color-warning);
+  color: var(--color-text);
+  padding: var(--spacing-md) var(--spacing-lg);
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-base);
 }
 
 .btn-warning:hover:not(:disabled) {
@@ -648,41 +678,66 @@ async function handleSendDrawResults() {
 
 .warning-text {
   color: #856404;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-sm);
 }
 
 .result-message {
   text-align: center;
-  margin-top: 1rem;
-  padding: 0.8rem;
-  border-radius: 6px;
-  font-weight: 600;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .result-message.success {
-  background: #e8f5e9;
-  color: #1ca463;
+  background: var(--color-success-bg);
+  color: var(--color-success);
 }
 
 .result-message.error {
-  background: #ffe6e6;
-  color: #d2232a;
+  background: var(--color-error-bg);
+  color: var(--color-error);
 }
 
 @media (max-width: 768px) {
+  .admin-page {
+    padding: var(--spacing-md) var(--spacing-sm);
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
+  }
   .form-row {
     grid-template-columns: 1fr;
   }
-
   .participant-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: var(--spacing-md);
   }
-
   .tabs {
     flex-direction: column;
+    border: none;
+  }
+  
+  .tab {
+    border-bottom: 2px solid var(--border-color);
+    text-align: center;
+    border-radius: 0;
+  }
+  
+  .tab.active {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--color-success-bg);
+    border-radius: 0;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .btn-add {
+    margin-left: 0;
+    width: 100%;
   }
 }
 </style>

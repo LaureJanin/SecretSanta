@@ -16,16 +16,32 @@
         </NuxtLink>
         <h1 class="header-title">Loterie de Noël</h1>
       </div>
-      <nav class="header-nav">
+      <button 
+        class="burger-menu" 
+        :class="{ 'menu-open': menuOpen }"
+        @click="toggleMenu"
+        :aria-expanded="menuOpen"
+        aria-label="Menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div 
+        v-if="menuOpen" 
+        class="menu-overlay" 
+        @click="closeMenu"
+      ></div>
+      <nav class="header-nav" :class="{ 'menu-open': menuOpen }">
         <template v-if="isLoggedIn">
-          <NuxtLink to="/mes-loteries">Mes loteries</NuxtLink>
-          <NuxtLink to="/gift-ideas">Mes idées cadeaux</NuxtLink>
-          <NuxtLink to="/admin">Admin</NuxtLink>
+          <NuxtLink to="/my-loteries" @click="closeMenu">Mes loteries</NuxtLink>
+          <NuxtLink to="/gift-ideas" @click="closeMenu">Mes idées cadeaux</NuxtLink>
+          <NuxtLink to="/admin" @click="closeMenu">Admin</NuxtLink>
           <button @click="logout" class="btn-logout">Déconnexion</button>
         </template>
         <template v-else>
-          <NuxtLink to="/login">Connexion</NuxtLink>
-          <NuxtLink to="/signup">Inscription</NuxtLink>
+          <NuxtLink to="/login" @click="closeMenu">Connexion</NuxtLink>
+          <NuxtLink to="/signup" @click="closeMenu">Inscription</NuxtLink>
         </template>
       </nav>
     </header>
@@ -37,6 +53,8 @@
     <footer class="main-footer">
       © Loterie de Noël - Tous droits fortement peu réservés
     </footer>
+
+    <Toast />
   </div>
 </template>
 
@@ -46,6 +64,7 @@ import { useRouter } from 'vue-router';
 
 const isClient = ref(false);
 const isLoggedIn = ref(false);
+const menuOpen = ref(false);
 const router = useRouter();
 
 onMounted(() => {
@@ -64,14 +83,24 @@ const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     isLoggedIn.value = false;
+    menuOpen.value = false;
     router.push('/');
   }
 };
 
-// Surveiller les changements de route pour mettre à jour l'état de connexion
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value;
+};
+
+const closeMenu = () => {
+  menuOpen.value = false;
+};
+
+// Surveiller les changements de route pour mettre à jour l'état de connexion et fermer le menu
 if (process.client) {
   router.afterEach(() => {
     checkAuth();
+    closeMenu();
   });
 }
 
@@ -102,19 +131,21 @@ const generateFlakeStyle = () => {
 .main-header {
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   background: transparent;
   border-bottom: none;
   box-shadow: none;
-  padding: 0.5rem 2rem;
-  z-index: 30;
+  padding: var(--spacing-sm) var(--spacing-xl);
+  z-index: var(--z-index-header);
   position: relative;
-  gap: 0;
+  gap: var(--spacing-md);
 }
+
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
+  flex: 1;
 }
 .header-logo-link {
   display: flex;
@@ -130,46 +161,74 @@ const generateFlakeStyle = () => {
   transform: scale(1.08) rotate(-8deg);
 }
 .header-title {
-  font-family: 'Pacifico', cursive, Arial, sans-serif;
-  color: #d2232a;
-  font-size: 2rem;
+  font-family: var(--font-family-title);
+  color: var(--color-accent);
+  font-size: var(--font-size-3xl);
   margin: 0;
   text-align: left;
-  text-shadow: 2px 2px 4px #fff3;
+  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.2);
 }
+.burger-menu {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  z-index: calc(var(--z-index-header) + 1);
+  align-items: center;
+  justify-content: center;
+}
+
+.burger-menu span {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background-color: var(--color-accent);
+  border-radius: 3px;
+  transition: all var(--transition-base);
+  transform-origin: center;
+}
+
+.burger-menu:hover span {
+  background-color: var(--color-secondary);
+}
+
 .header-nav {
   display: flex;
-  gap: 1.5rem;
-  margin-left: 1rem;
+  gap: var(--spacing-lg);
   align-items: center;
 }
+
 .header-nav a {
-  color: #d2232a;
-  font-weight: bold;
-  font-size: 1.1rem;
+  color: var(--color-accent);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-lg);
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--transition-base);
 }
+
 .header-nav a:hover {
-  color: #ff9f1a;
+  color: var(--color-secondary);
   text-decoration: underline;
 }
 
 .btn-logout {
   background: transparent;
-  color: #d2232a;
-  border: 2px solid #d2232a;
-  padding: 0.4rem 1rem;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 1rem;
+  color: var(--color-accent);
+  border: var(--border-width) solid var(--color-accent);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-base);
 }
 
 .btn-logout:hover {
-  background: #d2232a;
-  color: white;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
   transform: none;
   box-shadow: none;
 }
@@ -184,33 +243,120 @@ main {
 
 .main-footer {
   background: transparent;
-  color: #333;
-  font-size: 14px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
   text-align: center;
   margin-top: 2vh;
+  padding: var(--spacing-md);
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
   .main-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.7rem 0.5rem;
+    flex-wrap: nowrap;
+    padding: var(--spacing-md) var(--spacing-sm);
+    position: relative;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
   }
+
   .header-left {
-    gap: 0.7rem;
+    justify-content: center;
+    flex: 1;
+    order: 1;
   }
+
   .header-title {
-    font-size: 1.3rem;
-    margin: 0.5rem 0 0.5rem 0;
-    text-align: left;
+    font-size: var(--font-size-xl);
+    margin: 0;
+    text-align: center;
   }
+
+  .burger-menu {
+    display: flex;
+    order: 2;
+    flex-shrink: 0;
+    margin-right: var(--spacing-sm);
+  }
+
+
   .header-nav {
-    gap: 0.7rem;
-    font-size: 1rem;
-    flex-wrap: wrap;
-    margin-left: 0;
-    justify-content: flex-start;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
+    background: var(--color-bg);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius-md);
+    z-index: calc(var(--z-index-header) - 1);
+    order: 3;
+    box-sizing: border-box;
+  }
+
+  .header-nav.menu-open {
+    display: flex;
+  }
+
+  .header-nav a {
+    padding: var(--spacing-md);
+    font-size: var(--font-size-base);
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .header-nav a:last-child {
+    border-bottom: none;
+  }
+
+  .header-nav .btn-logout {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: calc(var(--z-index-header) - 2);
+    animation: fadeIn var(--transition-base);
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Animation du burger menu */
+  .burger-menu.menu-open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .burger-menu.menu-open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .burger-menu.menu-open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
   }
 }
 </style>

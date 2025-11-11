@@ -1,5 +1,5 @@
 <template>
-  <div class="mes-loteries-page">
+  <div class="my-loteries-page">
     <h1>Mes loteries</h1>
     <div v-if="loading" class="loading">Chargement...</div>
       <div v-else-if="error" class="error">Erreur: {{ error?.message || 'Une erreur est survenue' }}</div>
@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
 import { useRouter } from 'vue-router'
@@ -118,140 +118,145 @@ function getMyDraw(loterie: any) {
 </script>
 
 <style scoped>
-.mes-loteries-page {
-  max-width: 700px;
+.my-loteries-page {
+  max-width: var(--max-width-lg);
   margin: 0 auto;
-  padding: 2rem 1rem 3rem 1rem;
+  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-2xl) var(--spacing-md);
+  box-sizing: border-box;
 }
 
 .loterie-card {
-  background: rgba(255,255,255,0.97);
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(44, 62, 80, 0.08);
-  margin-bottom: 2rem;
-  padding: 1.5rem 1.2rem;
+  background: var(--color-bg);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) var(--spacing-md);
 }
+
 .desc {
-  color: #6b7a8f;
-  font-size: 1rem;
-  margin-bottom: 1rem;
+  color: var(--color-text-light);
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-md);
   text-align: center;
 }
 
 .loterie-info {
   display: flex;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .info-badge {
   display: inline-block;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: #e0e0e0;
-  color: #333;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-badge);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  background: var(--color-bg-light);
+  color: var(--color-text);
 }
 
 .info-badge.owner {
-  background: #fff3e0;
+  background: var(--color-warning-bg);
   color: #e65100;
-  border: 1px solid #ff9800;
+  border: 1px solid var(--color-secondary);
 }
 
 .info-badge.success {
-  background: #e8f5e9;
-  color: #1ca463;
-  border: 1px solid #1ca463;
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
 }
 
 .info-badge.warning {
-  background: #fff3cd;
+  background: var(--color-warning-bg);
   color: #856404;
-  border: 1px solid #ffc107;
+  border: 1px solid var(--color-warning);
 }
 
 .admin-link {
-  margin-top: 1rem;
+  margin-top: var(--spacing-md);
   text-align: center;
 }
 
 .btn-admin {
-  background: #ff9800;
-  color: white;
+  background: var(--color-secondary);
+  color: var(--color-text-inverse);
   border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background var(--transition-base);
 }
 
 .btn-admin:hover {
-  background: #e65100;
+  background: var(--color-secondary-dark);
 }
 
 .tirage-section, .mes-cadeaux-section {
-  margin-bottom: 1.2rem;
+  margin-bottom: var(--spacing-md);
 }
 
 ul {
-  margin: 0.3rem 0 0.7rem 1.2rem;
+  margin: var(--spacing-xs) 0 var(--spacing-md) var(--spacing-md);
 }
+
 .loading {
   text-align: center;
-  color: #888;
+  color: var(--color-text-light);
 }
+
 .no-loterie {
   text-align: center;
-  color: #d32f2f;
-  font-size: 1.1rem;
-  margin-top: 2rem;
+  color: var(--color-error);
+  font-size: var(--font-size-lg);
+  margin-top: var(--spacing-xl);
 }
 
 .btn-create-container {
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .btn-create {
-  margin-top: 1.2rem;
-  background: #1ca463;
-  color: #fff;
+  margin-top: var(--spacing-md);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
   border: none;
-  border-radius: 8px;
-  padding: 0.7rem 1.4rem;
-  font-size: 1.08rem;
-  font-weight: 600;
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.08);
-  transition: background 0.2s;
+  box-shadow: var(--shadow-button);
+  transition: background var(--transition-base);
 }
+
 .btn-create:hover {
-  background: #178a52;
+  background: var(--color-primary-dark);
 }
 
 .draw-result {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #e8f5e9, #f1f8f4);
-  border-radius: 12px;
-  border: 2px solid #1ca463;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-success-bg), #f1f8f4);
+  border-radius: var(--border-radius-lg);
+  border: var(--border-width) solid var(--color-success);
 }
 
 .draw-header {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .draw-header h3 {
-  color: #1ca463;
+  color: var(--color-primary);
   margin: 0;
-  font-size: 1.3rem;
+  font-size: var(--font-size-xl);
 }
 
 .receiver-info {
@@ -259,61 +264,60 @@ ul {
 }
 
 .receiver-name {
-  font-size: 1.1rem;
-  color: #333;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  margin-bottom: var(--spacing-md);
 }
 
 .receiver-name strong {
-  color: #1ca463;
-  font-size: 1.2rem;
+  color: var(--color-primary);
+  font-size: var(--font-size-xl);
 }
 
 .gift-ideas-section {
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-lg);
   text-align: left;
 }
 
 .gift-ideas-section h4 {
-  color: #1ca463;
-  margin-bottom: 1rem;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-md);
   text-align: center;
 }
 
 .gift-ideas-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .gift-idea-item {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #ff9f1a;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-card);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .gift-idea-content h5 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 1.1rem;
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--color-text);
+  font-size: var(--font-size-lg);
 }
 
 .gift-idea-description {
-  margin: 0.5rem 0;
-  color: #666;
+  margin: var(--spacing-sm) 0;
+  color: var(--color-text-light);
   font-style: italic;
   line-height: 1.5;
 }
 
 .gift-idea-link {
-  color: #1ca463;
+  color: var(--color-primary);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   display: inline-block;
-  margin-top: 0.5rem;
+  margin-top: var(--spacing-sm);
 }
 
 .gift-idea-link:hover {
@@ -322,23 +326,32 @@ ul {
 
 .no-gift-ideas {
   text-align: center;
-  padding: 1rem;
-  color: #666;
+  padding: var(--spacing-md);
+  color: var(--color-text-light);
   font-style: italic;
-  background: white;
-  border-radius: 8px;
-  margin-top: 1rem;
+  background: var(--color-bg-card);
+  border-radius: var(--border-radius-md);
+  margin-top: var(--spacing-md);
 }
 
-@media (max-width: 600px) {
-  .mes-loteries-page {
-    padding: 1rem 0.2rem 2rem 0.2rem;
+@media (max-width: 768px) {
+  .my-loteries-page {
+    padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xl) var(--spacing-sm);
+    margin-left: var(--spacing-sm);
+    margin-right: var(--spacing-md);
   }
   .loterie-card {
-    padding: 1rem 0.3rem;
+    padding: var(--spacing-md) var(--spacing-sm);
   }
   .draw-result {
-    padding: 1rem;
+    padding: var(--spacing-md);
+  }
+  .loterie-info {
+    gap: var(--spacing-sm);
+  }
+  .info-badge {
+    font-size: var(--font-size-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
   }
 }
 </style>
