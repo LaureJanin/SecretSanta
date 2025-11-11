@@ -134,7 +134,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
 
 <style scoped>
 .gift-ideas-page {
-  max-width: var(--max-width-lg);
+  width: 100%;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
   box-sizing: border-box;
@@ -155,9 +155,11 @@ async function handleDeleteIdea(giftIdeaId: string) {
   color: var(--color-text-inverse);
   padding: var(--spacing-lg);
   border-radius: var(--border-radius-lg);
-  margin-bottom: var(--spacing-xl);
-  margin-top: var(--spacing-xl);
+  margin: var(--spacing-xl) auto;
   text-align: center;
+  width: 60%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .intro p {
@@ -178,7 +180,10 @@ async function handleDeleteIdea(giftIdeaId: string) {
 }
 
 .lottery-section {
-  margin-bottom: var(--spacing-xl);
+  margin: 0 auto var(--spacing-xl) auto;
+  width: 60%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card {
@@ -348,6 +353,12 @@ async function handleDeleteIdea(giftIdeaId: string) {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
     margin-right: var(--spacing-sm);
+  }
+  .intro {
+    width: 100%;
+  }
+  .lottery-section {
+    width: 100%;
   }
   .card {
     padding: var(--spacing-md);

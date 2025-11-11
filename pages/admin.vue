@@ -343,7 +343,7 @@ async function handleSendDrawResults() {
 
 <style scoped>
 .admin-page {
-  max-width: var(--max-width-lg);
+  width: 100%;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
   box-sizing: border-box;
@@ -353,9 +353,11 @@ async function handleSendDrawResults() {
   background: var(--color-bg);
   padding: var(--spacing-lg);
   border-radius: var(--border-radius-lg);
-  margin-top: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
+  margin: var(--spacing-xl) auto;
   box-shadow: var(--shadow-md);
+  width: 60%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .lottery-selector label {
@@ -378,6 +380,10 @@ async function handleSendDrawResults() {
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
+  width: 60%;
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .lottery-header {
@@ -691,6 +697,12 @@ async function handleSendDrawResults() {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
     margin-right: var(--spacing-sm);
+  }
+  .lottery-selector {
+    width: 100%;
+  }
+  .lottery-details {
+    width: 100%;
   }
   .form-row {
     grid-template-columns: 1fr;

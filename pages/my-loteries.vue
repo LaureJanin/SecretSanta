@@ -12,8 +12,9 @@
         <div class="btn-create-container">
           <button class="btn-create" @click="router.push('/form')">Créer une loterie</button>
         </div>
-        <div v-for="loterie in loteries" :key="loterie.id" class="loterie-card">
-          <div>
+        <div class="loteries-container">
+          <div v-for="loterie in loteries" :key="loterie.id" class="loterie-card">
+          <div class="loterie-header">
             <h2>{{ loterie.name }}</h2>
             <div v-if="isOwner(loterie)" class="admin-link">
               <button @click="router.push('/admin')" class="btn-admin">⚙️ Gérer cette loterie</button>
@@ -52,6 +53,7 @@
                 <p>Cette personne n'a pas encore ajouté d'idées cadeaux.</p>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -106,9 +108,14 @@ function getMyDraw(loterie: LotteryResponse): DrawResponse | undefined {
 
 <style scoped>
 .my-loteries-page {
-  max-width: var(--max-width-lg);
+  width: 100%;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-md) var(--spacing-2xl) var(--spacing-md);
+  padding: var(--spacing-xl) var(--spacing-md);
+  box-sizing: border-box;
+}
+
+.loteries-container {
+  width: 100%;
   box-sizing: border-box;
 }
 
@@ -116,8 +123,18 @@ function getMyDraw(loterie: LotteryResponse): DrawResponse | undefined {
   background: var(--color-bg);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-md);
-  margin-bottom: var(--spacing-xl);
+  margin: 0 auto var(--spacing-xl) auto;
   padding: var(--spacing-lg) var(--spacing-md);
+  width: 60%;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
+}
+
+.loterie-header {
+  width: 100%;
+  box-sizing: border-box;
+  display: block;
 }
 
 .desc {
@@ -326,9 +343,12 @@ ul {
     padding: var(--spacing-md) var(--spacing-sm) var(--spacing-xl) var(--spacing-sm);
     margin-left: var(--spacing-sm);
     margin-right: var(--spacing-sm);
+    width: calc(100% - var(--spacing-sm) * 2);
+    box-sizing: border-box;
   }
   .loterie-card {
     padding: var(--spacing-md) var(--spacing-sm);
+    width: 100%;
   }
   .draw-result {
     padding: var(--spacing-md);

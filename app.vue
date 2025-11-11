@@ -258,7 +258,7 @@ main {
   }
 
   .header-title {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-3xl);
     margin: 0;
     text-align: center;
   }

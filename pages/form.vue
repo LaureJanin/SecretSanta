@@ -99,7 +99,6 @@ async function handleSubmit() {
 
 <style scoped>
 .form-page {
-  max-width: var(--max-width-lg);
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
   box-sizing: border-box;
@@ -110,6 +109,7 @@ async function handleSubmit() {
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
 }
 
 .lottery-form {

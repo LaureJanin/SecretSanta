@@ -91,7 +91,7 @@ const repeatedItems = [...items, ...items];
 .lottery-wheel {
   display: flex;
   flex-direction: column;
-  animation: scroll 12s linear infinite;
+  animation: scroll 18s linear infinite;
   text-align: center;
 }
 
