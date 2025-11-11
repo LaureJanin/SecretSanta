@@ -24,9 +24,6 @@
         :aria-expanded="menuOpen"
         aria-label="Menu"
       >
-        <span></span>
-        <span></span>
-        <span></span>
       </button>
       <div 
         v-if="menuOpen" 

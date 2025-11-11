@@ -24,12 +24,14 @@ withDefaults(defineProps<Props>(), {
   gap: var(--spacing-md);
   padding: var(--spacing-xl);
   text-align: center;
+  min-height: 200px;
+  width: 100%;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--color-bg-light);
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--color-bg-light);
   border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;

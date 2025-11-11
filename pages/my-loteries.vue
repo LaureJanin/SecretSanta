@@ -62,8 +62,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useQuery } from '@vue/apollo-composable'
+definePageMeta({ ssr: false })
+
+import { computed, onMounted, ref } from 'vue'
+import { useLazyQuery } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
@@ -71,12 +73,26 @@ import { compareEmails } from '~/utils/email'
 import type { LotteryResponse, DrawResponse } from '~/types'
 
 const router = useRouter()
-const { requireAuth } = useAuth()
+const { requireAuth, getToken } = useAuth()
 
 requireAuth()
 
-const { result: meResult } = useQuery(ME_QUERY)
-const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
+const loading = ref(true)
+
+const { result: meResult, load: loadMe } = useLazyQuery(ME_QUERY)
+const { result, load, error } = useLazyQuery(MY_LOTERIES_QUERY)
+
+onMounted(async () => {
+  if (process.client && getToken()) {
+    try {
+      await Promise.all([loadMe(), load()])
+    } finally {
+      loading.value = false
+    }
+  } else {
+    loading.value = false
+  }
+})
 
 const loteries = computed(() => {
   return result.value?.myLotteries || []

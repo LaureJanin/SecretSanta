@@ -81,8 +81,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useQuery, useMutation } from '@vue/apollo-composable'
+definePageMeta({ ssr: false })
+
+import { ref, computed, onMounted } from 'vue'
+import { useLazyQuery, useMutation } from '@vue/apollo-composable'
 import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
@@ -90,14 +92,28 @@ import { useConfirm } from '~/composables/useConfirm'
 import { compareEmails } from '~/utils/email'
 import type { LotteryResponse, ParticipantResponse } from '~/types'
 
-const { requireAuth } = useAuth()
+const { requireAuth, getToken } = useAuth()
 const { success, error: showError } = useToast()
 const { confirm } = useConfirm()
 
 requireAuth()
 
-const { result: meResult } = useQuery(ME_QUERY)
-const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
+const loading = ref(true)
+
+const { result: meResult, load: loadMe } = useLazyQuery(ME_QUERY)
+const { result, load, error, refetch } = useLazyQuery(MY_LOTERIES_QUERY)
+
+onMounted(async () => {
+  if (process.client && getToken()) {
+    try {
+      await Promise.all([loadMe(), load()])
+    } finally {
+      loading.value = false
+    }
+  } else {
+    loading.value = false
+  }
+})
 const { mutate: addGiftIdea } = useMutation(ADD_GIFT_IDEA_MUTATION)
 const { mutate: deleteGiftIdea } = useMutation(DELETE_GIFT_IDEA_MUTATION)
 

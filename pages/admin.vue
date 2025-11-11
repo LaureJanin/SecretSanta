@@ -209,8 +209,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useQuery, useMutation } from '@vue/apollo-composable'
+definePageMeta({ ssr: false })
+
+import { ref, computed, onMounted } from 'vue'
+import { useLazyQuery, useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
@@ -230,10 +232,24 @@ const router = useRouter()
 const { success, error: showError } = useToast()
 const { confirm } = useConfirm()
 
-const { requireAuth } = useAuth()
+const { requireAuth, getToken } = useAuth()
 requireAuth()
 
-const { result, loading, error, refetch } = useQuery(MY_OWNED_LOTTERIES_QUERY)
+const loading = ref(true)
+
+const { result, load, error, refetch } = useLazyQuery(MY_OWNED_LOTTERIES_QUERY)
+
+onMounted(async () => {
+  if (process.client && getToken()) {
+    try {
+      await load()
+    } finally {
+      loading.value = false
+    }
+  } else {
+    loading.value = false
+  }
+})
 
 const loteries = computed(() => result.value?.myOwnedLotteries || [])
 

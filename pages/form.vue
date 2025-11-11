@@ -48,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ ssr: false })
+
 import { ref, computed } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
