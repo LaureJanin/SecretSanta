@@ -198,6 +198,35 @@ class DatabaseService {
     })
   }
 
+  async deleteLottery(lotteryId: string) {
+    const participants = await this.prisma.participant.findMany({
+      where: { lotteryId },
+      select: { id: true }
+    })
+    const participantIds = participants.map(p => p.id)
+
+    await this.prisma.draw.deleteMany({ where: { lotteryId } })
+    await this.prisma.exclusion.deleteMany({ where: { lotteryId } })
+    await this.prisma.giftIdea.deleteMany({
+      where: {
+        participantId: {
+          in: participantIds
+        }
+      }
+    })
+    await this.prisma.participantManager.deleteMany({
+      where: {
+        OR: [
+          { childId: { in: participantIds } },
+          { managerId: { in: participantIds } }
+        ]
+      }
+    })
+    await this.prisma.participant.deleteMany({ where: { lotteryId } })
+    await this.prisma.lottery.delete({ where: { id: lotteryId } })
+    return true
+  }
+
   async disconnect() {
     await this.prisma.$disconnect()
   }

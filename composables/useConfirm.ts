@@ -8,11 +8,11 @@ export interface ConfirmOptions {
   type?: 'danger' | 'warning' | 'info'
 }
 
-export const useConfirm = () => {
-  const isOpen = ref(false)
-  const options = ref<ConfirmOptions>({ message: '' })
-  const resolveRef = ref<((value: boolean) => void) | null>(null)
+const isOpen = ref(false)
+const options = ref<ConfirmOptions>({ message: '' })
+const resolveRef = ref<((value: boolean) => void) | null>(null)
 
+export const useConfirm = () => {
   const confirm = (opts: ConfirmOptions): Promise<boolean> => {
     return new Promise((resolve) => {
       options.value = {

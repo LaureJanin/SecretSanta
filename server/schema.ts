@@ -74,6 +74,7 @@ export const typeDefs = `#graphql
     
     # Gestion des loteries (authentification requise)
     createLottery(name: String!, year: Int!): Lottery
+    deleteLottery(lotteryId: ID!): Boolean
     
     # Gestion des participants (authentification requise + propriétaire)
     addParticipant(lotteryId: ID!, name: String!, email: String, isActive: Boolean!): Participant

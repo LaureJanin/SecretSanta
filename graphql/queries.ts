@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client/core'
 
-// === AUTHENTIFICATION ===
 export const REGISTER_MUTATION = gql`
 mutation Register($email: String!, $name: String!, $password: String!) {
   register(email: $email, name: $name, password: $password) {
@@ -29,7 +28,6 @@ mutation Login($email: String!, $password: String!) {
   }
 }`
 
-// === LOTERIES ===
 export const CREATE_LOTTERY_MUTATION = gql`
 mutation CreateLottery($name: String!, $year: Int!) {
   createLottery(name: $name, year: $year) {
@@ -37,6 +35,11 @@ mutation CreateLottery($name: String!, $year: Int!) {
     name
     year
   }
+}`
+
+export const DELETE_LOTTERY_MUTATION = gql`
+mutation DeleteLottery($lotteryId: ID!) {
+  deleteLottery(lotteryId: $lotteryId)
 }`
 
 export const ADD_PARTICIPANT_MUTATION = gql`

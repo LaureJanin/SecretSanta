@@ -55,6 +55,7 @@
     </footer>
 
     <Toast />
+    <Confirm />
   </div>
 </template>
 

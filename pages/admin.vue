@@ -21,7 +21,10 @@
 
       <div v-if="selectedLottery" class="lottery-details">
         <div class="lottery-header">
-          <h2>{{ selectedLottery.name }} - {{ selectedLottery.year }}</h2>
+          <div class="lottery-header-top">
+            <h2>{{ selectedLottery.name }} - {{ selectedLottery.year }}</h2>
+            <button @click="handleDeleteLottery" class="btn-delete-lottery" title="Supprimer la loterie">🗑️</button>
+          </div>
           <div class="lottery-stats">
             <span class="stat-badge">👥 {{ selectedLottery.participants.length }} participants</span>
             <span v-if="hasDrawBeenDone" class="stat-badge success">✅ Tirage effectué</span>
@@ -198,6 +201,7 @@ import { useQuery, useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
+import { useConfirm } from '~/composables/useConfirm'
 import type { LotteryResponse, ParticipantResponse } from '~/types'
 import {
   MY_OWNED_LOTTERIES_QUERY,
@@ -205,11 +209,13 @@ import {
   ADD_EXCLUSION_MUTATION,
   DELETE_EXCLUSION_MUTATION,
   PERFORM_DRAW_MUTATION,
-  SEND_DRAW_RESULTS_MUTATION
+  SEND_DRAW_RESULTS_MUTATION,
+  DELETE_LOTTERY_MUTATION
 } from '~/graphql/queries'
 
 const router = useRouter()
 const { success, error: showError } = useToast()
+const { confirm } = useConfirm()
 
 const { requireAuth } = useAuth()
 requireAuth()
@@ -248,6 +254,7 @@ const { mutate: addExclusion } = useMutation(ADD_EXCLUSION_MUTATION)
 const { mutate: deleteExclusion } = useMutation(DELETE_EXCLUSION_MUTATION)
 const { mutate: performDraw } = useMutation(PERFORM_DRAW_MUTATION)
 const { mutate: sendDrawResults } = useMutation(SEND_DRAW_RESULTS_MUTATION)
+const { mutate: deleteLottery } = useMutation(DELETE_LOTTERY_MUTATION)
 function onLotteryChange() {
   activeTab.value = 'participants'
   showAddParticipantForm.value = false
@@ -292,7 +299,15 @@ async function handleAddExclusion() {
 }
 
 async function handleDeleteExclusion(exclusionId: string) {
-  if (!confirm('Supprimer cette règle d\'exclusion ?')) return
+  const confirmed = await confirm({
+    title: 'Supprimer l\'exclusion',
+    message: 'Supprimer cette règle d\'exclusion ?',
+    confirmText: 'Supprimer',
+    cancelText: 'Annuler',
+    type: 'danger'
+  })
+
+  if (!confirmed) return
 
   try {
     await deleteExclusion({ exclusionId })
@@ -305,7 +320,15 @@ async function handleDeleteExclusion(exclusionId: string) {
 
 
 async function handlePerformDraw() {
-  if (!confirm('Effectuer le tirage au sort maintenant ? Cette action remplacera un éventuel tirage précédent.')) return
+  const confirmed = await confirm({
+    title: 'Effectuer le tirage',
+    message: 'Effectuer le tirage au sort maintenant ? Cette action remplacera un éventuel tirage précédent.',
+    confirmText: 'Effectuer le tirage',
+    cancelText: 'Annuler',
+    type: 'warning'
+  })
+
+  if (!confirmed) return
 
   performingDraw.value = true
   drawResult.value = null
@@ -323,8 +346,37 @@ async function handlePerformDraw() {
   }
 }
 
+async function handleDeleteLottery() {
+  const confirmed = await confirm({
+    title: 'Supprimer la loterie',
+    message: `Êtes-vous sûr de vouloir supprimer la loterie "${selectedLottery.value?.name}" ? Cette action est irréversible et supprimera tous les participants, exclusions, tirages et idées cadeaux associés.`,
+    confirmText: 'Supprimer',
+    cancelText: 'Annuler',
+    type: 'danger'
+  })
+
+  if (!confirmed) return
+
+  try {
+    await deleteLottery({ lotteryId: selectedLotteryId.value })
+    selectedLotteryId.value = ''
+    await refetch()
+    success('Loterie supprimée avec succès')
+  } catch (err: unknown) {
+    showError('Erreur lors de la suppression de la loterie')
+  }
+}
+
 async function handleSendDrawResults() {
-  if (!confirm('Envoyer les résultats du tirage par email à tous les participants ?')) return
+  const confirmed = await confirm({
+    title: 'Envoyer les résultats',
+    message: 'Envoyer les résultats du tirage par email à tous les participants ?',
+    confirmText: 'Envoyer',
+    cancelText: 'Annuler',
+    type: 'info'
+  })
+
+  if (!confirmed) return
 
   sendingResults.value = true
   drawResultsResult.value = null
@@ -392,9 +444,32 @@ async function handleSendDrawResults() {
   color: var(--color-text-inverse);
 }
 
+.lottery-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
 .lottery-header h2 {
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0;
   color: var(--color-text-inverse);
+}
+
+.btn-delete-lottery {
+  background: var(--color-secondary);
+  border: none;
+  color: var(--color-text-inverse);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.btn-delete-lottery:hover {
+  background: var(--color-text-lighter);
+  transform: scale(1.05);
 }
 
 .lottery-stats {
@@ -697,6 +772,7 @@ async function handleSendDrawResults() {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
     margin-right: var(--spacing-sm);
+    width: calc(100% - var(--spacing-sm) * 2);
   }
   .lottery-selector {
     width: 100%;

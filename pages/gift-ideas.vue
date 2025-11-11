@@ -69,11 +69,13 @@ import { useQuery, useMutation } from '@vue/apollo-composable'
 import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
+import { useConfirm } from '~/composables/useConfirm'
 import { compareEmails } from '~/utils/email'
 import type { LotteryResponse, ParticipantResponse } from '~/types'
 
 const { requireAuth } = useAuth()
 const { success, error: showError } = useToast()
+const { confirm } = useConfirm()
 
 requireAuth()
 
@@ -120,7 +122,15 @@ async function handleAddIdea(participantId: string) {
 }
 
 async function handleDeleteIdea(giftIdeaId: string) {
-  if (!confirm('Supprimer cette idée cadeau ?')) return
+  const confirmed = await confirm({
+    title: 'Supprimer l\'idée cadeau',
+    message: 'Supprimer cette idée cadeau ?',
+    confirmText: 'Supprimer',
+    cancelText: 'Annuler',
+    type: 'danger'
+  })
+
+  if (!confirmed) return
 
   try {
     await deleteGiftIdea({ giftIdeaId })
@@ -353,6 +363,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
     padding: var(--spacing-md) var(--spacing-sm);
     margin-left: var(--spacing-sm);
     margin-right: var(--spacing-sm);
+    width: calc(100% - var(--spacing-sm) * 2);
   }
   .intro {
     width: 100%;

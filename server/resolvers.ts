@@ -93,6 +93,12 @@ export const resolvers = {
       return dbService.createLottery(name, year, user.id)
     },
 
+    deleteLottery: async (_: unknown, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
+      const user = requireAuth(context.user)
+      await requireOwnership(lotteryId, user.id)
+      return dbService.deleteLottery(lotteryId)
+    },
+
     addParticipant: async (_: unknown, { lotteryId, name, email, isActive }: { lotteryId: string; name: string; email?: string | null; isActive: boolean }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
