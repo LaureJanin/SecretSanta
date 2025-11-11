@@ -24,6 +24,10 @@
         :aria-expanded="menuOpen"
         aria-label="Menu"
       >
+      <span></span>
+      <span></span>
+      <span></span>
+      
       </button>
       <div 
         v-if="menuOpen" 
@@ -181,6 +185,7 @@ const generateFlakeStyle = () => {
   z-index: calc(var(--z-index-header) + 1);
   align-items: center;
   justify-content: center;
+  box-shadow: none;
 }
 
 .burger-menu span {
