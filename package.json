@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run apollo\" --names \"Nuxt,Apollo\" --prefix-colors \"cyan,magenta\"",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -36,6 +37,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
+    "concurrently": "^9.2.1",
     "prettier": "^3.3.3",
     "prisma": "^5.10.2",
     "ts-node": "^10.9.2",
