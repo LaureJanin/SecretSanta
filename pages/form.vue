@@ -40,8 +40,6 @@
           </button>
         </div>
 
-        <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
-        <div v-if="successMsg" class="success-msg">{{ successMsg }}</div>
       </form>
     </div>
   </div>
@@ -52,69 +50,47 @@ import { ref, computed } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { CREATE_LOTTERY_MUTATION } from '~/graphql/queries'
+import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
 
 const router = useRouter()
+const { requireAuth } = useAuth()
+const { success, error: showError } = useToast()
 
-// Données du formulaire
+requireAuth()
+
 const lotteryName = ref('')
 const lotteryYear = ref(new Date().getFullYear())
-const errorMsg = ref('')
-const successMsg = ref('')
 const loading = ref(false)
 
-// Vérifier l'authentification
-onMounted(() => {
-  if (process.client) {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-    }
-  }
-})
-
-// Mutation GraphQL
 const { mutate: createLottery } = useMutation(CREATE_LOTTERY_MUTATION)
 
-// Validation
 const isFormValid = computed(() => {
   return lotteryName.value.trim().length > 0 && lotteryYear.value >= new Date().getFullYear()
 })
 
-// Soumission du formulaire
 async function handleSubmit() {
-  errorMsg.value = ''
-  successMsg.value = ''
   loading.value = true
 
   try {
-    console.log('🎄 Création de la loterie:', { name: lotteryName.value.trim(), year: lotteryYear.value })
-
     const result = await createLottery({
       name: lotteryName.value.trim(),
       year: lotteryYear.value
     })
 
-    console.log('✅ Résultat de la mutation:', result)
     const data = result?.data
 
     if (data?.createLottery) {
-      successMsg.value = `Loterie "${data.createLottery.name}" créée avec succès ! 🎉`
-      console.log('🎉 Loterie créée:', data.createLottery)
-
-      // Redirection vers la page de détail de la loterie après 1.5 secondes
+      success(`Loterie "${data.createLottery.name}" créée avec succès ! 🎉`)
       setTimeout(() => {
         router.push('/my-loteries')
       }, 1500)
     } else {
-      errorMsg.value = 'Erreur lors de la création de la loterie'
-      console.error('❌ Pas de données retournées')
+      showError('Erreur lors de la création de la loterie')
     }
-  } catch (err: any) {
-    console.error('❌ Erreur complète:', err)
-    console.error('❌ Message:', err.message)
-    console.error('❌ GraphQL Errors:', err.graphQLErrors)
-    console.error('❌ Network Error:', err.networkError)
-    errorMsg.value = err.message || 'Erreur lors de la création de la loterie'
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création de la loterie'
+    showError(errorMessage)
   } finally {
     loading.value = false
   }

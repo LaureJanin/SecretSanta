@@ -11,7 +11,6 @@
         <p>Aide tes proches à trouver le cadeau parfait ! Ajoute tes idées de cadeaux pour que ton Père Noël secret sache ce qui te ferait plaisir.</p>
       </div>
 
-      <!-- Liste des loteries où je participe -->
       <div v-if="myLotteries.length === 0" class="no-lotteries">
         <p>Tu ne participes à aucune loterie pour le moment.</p>
       </div>
@@ -26,7 +25,6 @@
         <div v-if="getMyParticipant(lottery)" class="my-ideas">
           <h3>Mes idées de cadeaux</h3>
 
-          <!-- Liste des idées existantes -->
           <div v-if="getMyParticipant(lottery)?.giftIdeas?.length" class="ideas-list">
             <div v-for="idea in getMyParticipant(lottery)?.giftIdeas" :key="idea.id" class="idea-card">
               <div class="idea-content">
@@ -41,10 +39,9 @@
             Aucune idée cadeau pour le moment. Ajoute-en une ci-dessous ! 👇
           </div>
 
-          <!-- Formulaire d'ajout -->
           <div class="add-idea-form">
             <h4>➕ Ajouter une idée</h4>
-            <form @submit.prevent="handleAddIdea(getMyParticipant(lottery)?.id)">
+            <form @submit.prevent="() => { const participant = getMyParticipant(lottery); if (participant?.id) handleAddIdea(participant.id); }">
               <div class="form-group">
                 <label>Titre *</label>
                 <input v-model="newIdea.title" type="text" required placeholder="Ex: Un livre, un jeu vidéo...">
@@ -67,13 +64,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
-import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries';
+import { ME_QUERY, MY_LOTERIES_QUERY, ADD_GIFT_IDEA_MUTATION, DELETE_GIFT_IDEA_MUTATION } from '~/graphql/queries'
+import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
+import { compareEmails } from '~/utils/email'
+import type { LotteryResponse, ParticipantResponse } from '~/types'
 
-const router = useRouter()
+const { requireAuth } = useAuth()
 const { success, error: showError } = useToast()
+
+requireAuth()
 
 const { result: meResult } = useQuery(ME_QUERY)
 const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
@@ -82,16 +84,6 @@ const { mutate: deleteGiftIdea } = useMutation(DELETE_GIFT_IDEA_MUTATION)
 
 const newIdea = ref({ title: '', description: '', link: '' })
 
-onMounted(() => {
-  if (process.client) {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-    }
-  }
-})
-
-// Récupérer l'email de l'utilisateur connecté
 const userEmail = computed(() => {
   return meResult.value?.me?.email || ''
 })
@@ -100,15 +92,9 @@ const myLotteries = computed(() => {
   return result.value?.myLotteries || []
 })
 
-// Récupérer mon participant dans une loterie
-function getMyParticipant(lottery: any) {
-  if (!userEmail.value) return null
-  // Comparaison insensible à la casse et aux espaces
-  const normalizedEmail = userEmail.value.toLowerCase().trim()
-  return lottery.participants.find((p: any) => {
-    if (!p.email) return false
-    return p.email.toLowerCase().trim() === normalizedEmail
-  })
+function getMyParticipant(lottery: LotteryResponse): ParticipantResponse | undefined {
+  if (!userEmail.value) return undefined
+  return lottery.participants?.find((p: ParticipantResponse) => compareEmails(p.email, userEmail.value))
 }
 
 async function handleAddIdea(participantId: string) {
@@ -123,17 +109,13 @@ async function handleAddIdea(participantId: string) {
     })
 
     if (result?.data?.addGiftIdea) {
-      // Réinitialiser le formulaire
       newIdea.value = { title: '', description: '', link: '' }
-
-      // Rafraîchir les données
       await refetch()
-
       success('Idée cadeau ajoutée !')
     }
-  } catch (err: any) {
-    console.error('Erreur:', err)
-    showError('Erreur lors de l\'ajout : ' + (err.message || 'Erreur inconnue'))
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue'
+    showError('Erreur lors de l\'ajout : ' + errorMessage)
   }
 }
 
@@ -144,8 +126,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
     await deleteGiftIdea({ giftIdeaId })
     await refetch()
     success('Idée supprimée !')
-  } catch (err: any) {
-    console.error('Erreur:', err)
+  } catch (err: unknown) {
     showError('Erreur lors de la suppression')
   }
 }

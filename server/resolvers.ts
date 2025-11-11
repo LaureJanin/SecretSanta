@@ -2,10 +2,11 @@ import { dbService } from './database.js'
 import { emailService } from './emailService.js'
 import { authService } from './authService.js'
 import { DrawService } from './drawService.js'
-import type { GraphQLContext } from './types.js'
+import type { GraphQLContext, User } from './types.js'
+import type { GraphQLParent } from '../types/index.js'
 
 // Middleware d'authentification
-const requireAuth = (user: any) => {
+const requireAuth = (user: User | null | undefined): User => {
   if (!user) {
     throw new Error('Authentification requise')
   }
@@ -24,40 +25,40 @@ const requireOwnership = async (lotteryId: string, userId: string) => {
 export const resolvers = {
   // === RESOLVERS RELATIONNELS ===
   User: {
-    lotteries: async (parent: any) => dbService.getUserLotteries(parent.id)
+    lotteries: async (parent: GraphQLParent) => dbService.getUserLotteries(parent.id as string)
   },
 
   Lottery: {
-    owner: async (parent: any) => dbService.getUserById(parent.ownerId)
+    owner: async (parent: GraphQLParent) => dbService.getUserById(parent.ownerId as string)
   },
 
   Participant: {
-    managedChildren: async (parent: any) => dbService.getManagedChildren(parent.id)
+    managedChildren: async (parent: GraphQLParent) => dbService.getManagedChildren(parent.id as string)
   },
 
   Exclusion: {
-    participant: async (parent: any) => dbService.getParticipantForRelation(parent.participantId),
-    excluded: async (parent: any) => dbService.getParticipantForRelation(parent.excludedId)
+    participant: async (parent: GraphQLParent) => dbService.getParticipantForRelation(parent.participantId as string),
+    excluded: async (parent: GraphQLParent) => dbService.getParticipantForRelation(parent.excludedId as string)
   },
 
   Draw: {
-    giver: async (parent: any) => dbService.getParticipantForRelation(parent.giverId),
-    receiver: async (parent: any) => dbService.getParticipantForRelation(parent.receiverId)
+    giver: async (parent: GraphQLParent) => dbService.getParticipantForRelation(parent.giverId as string),
+    receiver: async (parent: GraphQLParent) => dbService.getParticipantForRelation(parent.receiverId as string)
   },
 
   // === QUERIES ===
   Query: {
     // Queries sécurisées
-    me: async (_: any, __: any, context: GraphQLContext) => {
+    me: async (_: unknown, __: unknown, context: GraphQLContext) => {
       return requireAuth(context.user)
     },
 
-    myLotteries: async (_: any, __: any, context: GraphQLContext) => {
+    myLotteries: async (_: unknown, __: unknown, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       return dbService.getUserLotteries(user.id)
     },
 
-    myOwnedLotteries: async (_: any, __: any, context: GraphQLContext) => {
+    myOwnedLotteries: async (_: unknown, __: unknown, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       return dbService.getOwnedLotteries(user.id)
     },
@@ -67,41 +68,41 @@ export const resolvers = {
   // === MUTATIONS ===
   Mutation: {
     // Authentification
-    register: async (_: any, { email, name, password }: { email: string; name: string; password: string }) =>
+    register: async (_: unknown, { email, name, password }: { email: string; name: string; password: string }) =>
       authService.register(email, name, password),
 
-    login: async (_: any, { email, password }: { email: string; password: string }) =>
+    login: async (_: unknown, { email, password }: { email: string; password: string }) =>
       authService.login(email, password),
 
     // Gestion des loteries (authentification requise)
-    createLottery: async (_: any, { name, year }: { name: string; year: number }, context: GraphQLContext) => {
+    createLottery: async (_: unknown, { name, year }: { name: string; year: number }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       return dbService.createLottery(name, year, user.id)
     },
 
     // Gestion des participants (authentification requise + propriétaire)
-    addParticipant: async (_: any, { lotteryId, name, email, isActive }: any, context: GraphQLContext) => {
+    addParticipant: async (_: unknown, { lotteryId, name, email, isActive }: { lotteryId: string; name: string; email?: string | null; isActive: boolean }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
       return dbService.createParticipant(lotteryId, name, email || null, isActive)
     },
 
-    addExclusion: async (_: any, { lotteryId, participantId, excludedId }: any, context: GraphQLContext) => {
+    addExclusion: async (_: unknown, { lotteryId, participantId, excludedId }: { lotteryId: string; participantId: string; excludedId: string }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
       return dbService.createExclusion(lotteryId, participantId, excludedId)
     },
 
-    deleteExclusion: async (_: any, { exclusionId }: { exclusionId: string }, context: GraphQLContext) => {
+    deleteExclusion: async (_: unknown, { exclusionId }: { exclusionId: string }, context: GraphQLContext) => {
       requireAuth(context.user)
       // Note: On devrait vérifier que l'exclusion appartient à une loterie de l'user
       // mais pour simplifier, on fait confiance au frontend pour ne montrer que ses exclusions
       return dbService.deleteExclusion(exclusionId)
     },
 
-    performDraw: async (_: any, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
+    performDraw: async (_: unknown, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
@@ -122,7 +123,7 @@ export const resolvers = {
     },
 
 
-    sendDrawResults: async (_: any, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
+    sendDrawResults: async (_: unknown, { lotteryId }: { lotteryId: string }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
@@ -130,12 +131,12 @@ export const resolvers = {
     },
 
     // Gestion des idées cadeaux
-    addGiftIdea: async (_: any, { participantId, title, description, link }: any, context: GraphQLContext) => {
+    addGiftIdea: async (_: unknown, { participantId, title, description, link }: { participantId: string; title: string; description?: string | null; link?: string | null }, context: GraphQLContext) => {
       requireAuth(context.user)
       return dbService.createGiftIdea(participantId, title, description, link)
     },
 
-    deleteGiftIdea: async (_: any, { giftIdeaId }: { giftIdeaId: string }, context: GraphQLContext) => {
+    deleteGiftIdea: async (_: unknown, { giftIdeaId }: { giftIdeaId: string }, context: GraphQLContext) => {
       requireAuth(context.user)
       return dbService.deleteGiftIdea(giftIdeaId)
     }

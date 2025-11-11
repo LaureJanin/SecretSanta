@@ -99,7 +99,6 @@ const { toasts, removeToast } = useToast()
   color: var(--color-text);
 }
 
-/* Animations */
 .toast-enter-active,
 .toast-leave-active {
   transition: all var(--transition-slow);

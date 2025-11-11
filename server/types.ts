@@ -1,31 +1,12 @@
-// Types pour l'API GraphQL
-export interface EmailResult {
-  sent: number
-  errors: string[]
-  success: boolean
-}
-
-export interface DrawAssignment {
-  giverId: string
-  receiverId: string
-}
-
-// Types d'authentification
-export interface User {
-  id: string
-  email: string
-  name: string
-  createdAt: string | Date  // Accepter les deux types pour compatibilité Prisma
-}
-
-export interface AuthResult {
-  success: boolean
-  user: User | null
-  token: string | null
-  error: string | null
-}
+// Réexporter les types depuis le dossier types centralisé
+export type {
+  EmailResult,
+  DrawAssignment,
+  User,
+  AuthResult
+} from '../types/index.js'
 
 // Context GraphQL avec utilisateur authentifié
 export interface GraphQLContext {
-  user?: User | null
+  user?: import('../types/index.js').User | null
 }

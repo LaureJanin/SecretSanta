@@ -46,7 +46,6 @@ async function handleSignup(e: Event) {
   e.preventDefault()
   errorMsg.value = ''
 
-  // Validation du mot de passe
   if (password.value !== confirmPassword.value) {
     errorMsg.value = 'Les mots de passe ne correspondent pas'
     return
@@ -78,8 +77,9 @@ async function handleSignup(e: Event) {
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'
     }
-  } catch (err: any) {
-    errorMsg.value = err.message || 'Erreur lors de la création du compte'
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la création du compte'
+    errorMsg.value = errorMessage
   } finally {
     loading.value = false
   }

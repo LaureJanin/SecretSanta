@@ -53,8 +53,9 @@ async function handleLogin(e: Event) {
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'
     }
-  } catch (err: any) {
-    errorMsg.value = err.message || 'Erreur lors de la connexion.'
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la connexion.'
+    errorMsg.value = errorMessage
   } finally {
     loading.value = false
   }

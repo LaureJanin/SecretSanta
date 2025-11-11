@@ -9,7 +9,6 @@
       <button @click="router.push('/form')" class="btn-primary">Créer une loterie</button>
     </div>
     <div v-else>
-      <!-- Sélection de la loterie -->
       <div class="lottery-selector">
         <label for="lotterySelect">Sélectionner une loterie :</label>
         <select id="lotterySelect" v-model="selectedLotteryId" @change="onLotteryChange">
@@ -20,7 +19,6 @@
         </select>
       </div>
 
-      <!-- Détails de la loterie sélectionnée -->
       <div v-if="selectedLottery" class="lottery-details">
         <div class="lottery-header">
           <h2>{{ selectedLottery.name }} - {{ selectedLottery.year }}</h2>
@@ -31,7 +29,6 @@
           </div>
         </div>
 
-        <!-- Onglets -->
         <div class="tabs">
           <button
             :class="['tab', { active: activeTab === 'participants' }]"
@@ -50,9 +47,7 @@
           </button>
         </div>
 
-        <!-- Contenu des onglets -->
         <div class="tab-content">
-          <!-- Onglet Participants -->
           <div v-if="activeTab === 'participants'" class="participants-section">
             <div class="section-header">
               <h3>Gestion des participants</h3>
@@ -61,7 +56,6 @@
               </button>
             </div>
 
-            <!-- Formulaire d'ajout -->
             <div v-if="showAddParticipantForm" class="add-participant-form card">
               <h4>Nouveau participant</h4>
               <form @submit.prevent="handleAddParticipant">
@@ -79,7 +73,6 @@
               </form>
             </div>
 
-            <!-- Liste des participants -->
             <div class="participants-list">
               <div v-for="participant in selectedLottery.participants" :key="participant.id" class="participant-card">
                 <div class="participant-info">
@@ -95,7 +88,6 @@
             </div>
           </div>
 
-          <!-- Onglet Exclusions -->
           <div v-if="activeTab === 'exclusions'" class="exclusions-section">
             <div class="section-header">
               <h3>Règles d'exclusion</h3>
@@ -104,7 +96,6 @@
               </button>
             </div>
 
-            <!-- Formulaire d'ajout d'exclusion -->
             <div v-if="showAddExclusionForm" class="add-exclusion-form card">
               <h4>Nouvelle exclusion</h4>
               <form @submit.prevent="handleAddExclusion">
@@ -138,7 +129,6 @@
               </form>
             </div>
 
-            <!-- Liste des exclusions -->
             <div v-if="selectedLottery.exclusions && selectedLottery.exclusions.length > 0" class="exclusions-list">
               <div v-for="exclusion in selectedLottery.exclusions" :key="exclusion.id" class="exclusion-item">
                 <span class="exclusion-text">
@@ -154,13 +144,11 @@
             </div>
           </div>
 
-          <!-- Onglet Actions -->
           <div v-if="activeTab === 'actions'" class="actions-section">
             <h3>Actions administrateur</h3>
 
             <div class="action-cards">
 
-              <!-- Effectuer le tirage -->
               <div class="action-card">
                 <h4>🎲 Effectuer le tirage au sort</h4>
                 <p>Lance le tirage au sort en respectant les exclusions.</p>
@@ -178,7 +166,6 @@
                 </div>
               </div>
 
-              <!-- Envoyer les résultats -->
               <div class="action-card">
                 <h4>🎁 Envoyer les résultats du tirage</h4>
                 <p>Envoie un email à chaque participant avec le nom de la personne qu'il doit gâter.</p>
@@ -193,8 +180,8 @@
                 </p>
                 <div v-if="drawResultsResult" class="result-message" :class="drawResultsResult.success ? 'success' : 'error'">
                   {{ drawResultsResult.success
-                    ? `✅ ${drawResultsResult.sent} email(s) envoyé(s)`
-                    : `❌ Erreur: ${drawResultsResult.errors.join(', ')}` }}
+                    ? `✅ Email(s) envoyé(s) avec succès`
+                    : `❌ Erreur: ${drawResultsResult.errors?.join(', ') || 'Erreur inconnue'}` }}
                 </div>
               </div>
             </div>
@@ -209,6 +196,9 @@
 import { ref, computed } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
+import { useToast } from '~/composables/useToast'
+import type { LotteryResponse, ParticipantResponse } from '~/types'
 import {
   MY_OWNED_LOTTERIES_QUERY,
   ADD_PARTICIPANT_MUTATION,
@@ -221,60 +211,43 @@ import {
 const router = useRouter()
 const { success, error: showError } = useToast()
 
-// Vérification de l'authentification
-onMounted(() => {
-  if (process.client) {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-    }
-  }
-})
+const { requireAuth } = useAuth()
+requireAuth()
 
-// Récupérer les loteries CRÉÉES par l'utilisateur (pas celles où il est juste participant)
 const { result, loading, error, refetch } = useQuery(MY_OWNED_LOTTERIES_QUERY)
 
 const loteries = computed(() => result.value?.myOwnedLotteries || [])
 
-// État de la page
 const selectedLotteryId = ref('')
 const activeTab = ref('participants')
 const showAddParticipantForm = ref(false)
 const showAddExclusionForm = ref(false)
 
-// Formulaires
 const newParticipant = ref({ name: '', email: '', isActive: true })
 const newExclusion = ref({ participantId: '', excludedId: '' })
 
-// États des actions
 const performingDraw = ref(false)
 const sendingResults = ref(false)
-const drawResult = ref<any>(null)
-const drawResultsResult = ref<any>(null)
+const drawResult = ref<{ success: boolean; draws?: unknown[] } | null>(null)
+const drawResultsResult = ref<{ success: boolean; errors?: string[] } | null>(null)
 
-// Loterie sélectionnée
 const selectedLottery = computed(() => {
-  return loteries.value.find((l: any) => l.id === selectedLotteryId.value)
+  return loteries.value.find((l: LotteryResponse) => l.id === selectedLotteryId.value)
 })
 
-// Participants actifs uniquement
 const activeParticipants = computed(() => {
-  return selectedLottery.value?.participants.filter((p: any) => p.isActive) || []
+  return selectedLottery.value?.participants?.filter((p: ParticipantResponse) => p.isActive) || []
 })
 
-// Vérifier si le tirage a été effectué
 const hasDrawBeenDone = computed(() => {
   return selectedLottery.value?.draws && selectedLottery.value.draws.length > 0
 })
 
-// Mutations
 const { mutate: addParticipant } = useMutation(ADD_PARTICIPANT_MUTATION)
 const { mutate: addExclusion } = useMutation(ADD_EXCLUSION_MUTATION)
 const { mutate: deleteExclusion } = useMutation(DELETE_EXCLUSION_MUTATION)
 const { mutate: performDraw } = useMutation(PERFORM_DRAW_MUTATION)
 const { mutate: sendDrawResults } = useMutation(SEND_DRAW_RESULTS_MUTATION)
-
-// Handlers
 function onLotteryChange() {
   activeTab.value = 'participants'
   showAddParticipantForm.value = false
@@ -296,8 +269,7 @@ async function handleAddParticipant() {
     showAddParticipantForm.value = false
     await refetch()
     success('Participant ajouté avec succès')
-  } catch (err) {
-    console.error('Erreur:', err)
+  } catch (err: unknown) {
     showError('Erreur lors de l\'ajout du participant')
   }
 }
@@ -314,8 +286,7 @@ async function handleAddExclusion() {
     showAddExclusionForm.value = false
     await refetch()
     success('Exclusion ajoutée avec succès')
-  } catch (err) {
-    console.error('Erreur:', err)
+  } catch (err: unknown) {
     showError('Erreur lors de l\'ajout de l\'exclusion')
   }
 }
@@ -327,8 +298,7 @@ async function handleDeleteExclusion(exclusionId: string) {
     await deleteExclusion({ exclusionId })
     await refetch()
     success('Exclusion supprimée avec succès')
-  } catch (err) {
-    console.error('Erreur:', err)
+  } catch (err: unknown) {
     showError('Erreur lors de la suppression de l\'exclusion')
   }
 }
@@ -345,9 +315,9 @@ async function handlePerformDraw() {
     drawResult.value = result?.data?.performDraw
     await refetch()
     success('Tirage effectué avec succès !')
-  } catch (err: any) {
-    console.error('Erreur:', err)
-    showError(err.message || 'Erreur lors du tirage')
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : 'Erreur lors du tirage'
+    showError(errorMessage)
   } finally {
     performingDraw.value = false
   }
@@ -362,9 +332,9 @@ async function handleSendDrawResults() {
   try {
     const result = await sendDrawResults({ lotteryId: selectedLotteryId.value })
     drawResultsResult.value = result?.data?.sendDrawResults
-  } catch (err) {
-    console.error('Erreur:', err)
+  } catch (err: unknown) {
     drawResultsResult.value = { success: false, errors: ['Erreur réseau'] }
+    showError('Erreur lors de l\'envoi des résultats')
   } finally {
     sendingResults.value = false
   }

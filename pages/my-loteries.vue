@@ -29,7 +29,6 @@
             <span v-else class="info-badge warning">⏳ Tirage non effectué</span>
           </div>
 
-          <!-- Affichage du résultat du tirage pour l'utilisateur -->
           <div v-if="getMyDraw(loterie)" class="draw-result">
             <div class="draw-header">
               <h3>🎯 Votre mission de Noël</h3>
@@ -37,10 +36,10 @@
             <div class="receiver-info">
               <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
               
-              <div v-if="getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)?.receiver?.giftIdeas.length > 0" class="gift-ideas-section">
+              <div v-if="getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)!.receiver!.giftIdeas!.length > 0" class="gift-ideas-section">
                 <h4>🎁 Ses idées cadeaux :</h4>
                 <div class="gift-ideas-list">
-                  <div v-for="idea in getMyDraw(loterie)?.receiver?.giftIdeas" :key="idea.id" class="gift-idea-item">
+                  <div v-for="idea in getMyDraw(loterie)!.receiver!.giftIdeas" :key="idea.id" class="gift-idea-item">
                     <div class="gift-idea-content">
                       <h5>{{ idea.title }}</h5>
                       <p v-if="idea.description" class="gift-idea-description">{{ idea.description }}</p>
@@ -61,58 +60,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
-import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
 import { useRouter } from 'vue-router'
+import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
+import { useAuth } from '~/composables/useAuth'
+import { compareEmails } from '~/utils/email'
+import type { LotteryResponse, DrawResponse } from '~/types'
 
 const router = useRouter()
+const { requireAuth, getToken } = useAuth()
 
-// Récupérer l'utilisateur connecté
+requireAuth()
+
 const { result: meResult } = useQuery(ME_QUERY)
-
-// Utiliser useQuery directement (pas dans onMounted)
 const { result, loading, error, refetch } = useQuery(MY_LOTERIES_QUERY)
 
-// Computed pour réagir aux changements de result
 const loteries = computed(() => {
   return result.value?.myLotteries || []
 })
 
-// Récupérer l'email de l'utilisateur connecté
 const userEmail = computed(() => {
   return meResult.value?.me?.email || ''
 })
 
-// Rafraîchir les loteries quand la page est montée
 onMounted(async () => {
-  if (process.client) {
-    const token = localStorage.getItem('token') || ''
-    if (!token) {
-      router.push('/login')
-    } else {
-      // Forcer le rechargement des données
-      await refetch()
-    }
+  if (process.client && getToken()) {
+    await refetch()
   }
 })
 
-// Vérifier si l'utilisateur est le créateur de la loterie
-function isOwner(loterie: any) {
+function isOwner(loterie: LotteryResponse): boolean {
   return loterie.owner?.id === meResult.value?.me?.id
 }
 
-// Récupérer le tirage où l'utilisateur est le donneur
-function getMyDraw(loterie: any) {
-  if (!loterie.draws || loterie.draws.length === 0) return null
-  if (!userEmail.value) return null
+function getMyDraw(loterie: LotteryResponse): DrawResponse | undefined {
+  if (!loterie.draws || loterie.draws.length === 0) return undefined
+  if (!userEmail.value) return undefined
   
-  const normalizedEmail = userEmail.value.toLowerCase().trim()
-  
-  // Trouver le draw où l'utilisateur est le giver
-  return loterie.draws.find((draw: any) => {
-    if (!draw.giver?.email) return false
-    return draw.giver.email.toLowerCase().trim() === normalizedEmail
+  return loterie.draws?.find((draw: DrawResponse) => {
+    return compareEmails(draw.giver?.email, userEmail.value)
   })
 }
 </script>

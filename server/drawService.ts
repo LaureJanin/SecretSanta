@@ -1,8 +1,9 @@
 import type { DrawAssignment } from './types.js'
+import type { ParticipantWithExclusions } from '../types/index.js'
 
 export class DrawService {
 
-  static performDraw(participants: any[]): DrawAssignment[] {
+  static performDraw(participants: ParticipantWithExclusions[]): DrawAssignment[] {
     if (participants.length < 2) {
       throw new Error('Il faut au moins 2 participants pour effectuer un tirage')
     }
@@ -11,12 +12,12 @@ export class DrawService {
     console.log(`📊 Nombre de participants: ${participants.length}`)
     participants.forEach(p => {
       console.log(`   - ${p.name} (id: ${p.id})`)
-      const exclusionsList = p.exclusions?.map((e: any) => {
-        const excluded = participants.find((x: any) => x.id === e.excludedId)
+      const exclusionsList = p.exclusions?.map((e) => {
+        const excluded = participants.find((x) => x.id === e.excludedId)
         return excluded?.name || 'inconnu'
       }) || []
-      const excludedByList = p.excluded?.map((e: any) => {
-        const excluder = participants.find((x: any) => x.id === e.participantId)
+      const excludedByList = p.excluded?.map((e) => {
+        const excluder = participants.find((x) => x.id === e.participantId)
         return excluder?.name || 'inconnu'
       }) || []
 
@@ -42,8 +43,8 @@ export class DrawService {
 
     console.log('✅ Tirage réussi :')
     solution.forEach(assignment => {
-      const giver = participants.find((p: any) => p.id === assignment.giverId)
-      const receiver = participants.find((p: any) => p.id === assignment.receiverId)
+      const giver = participants.find((p) => p.id === assignment.giverId)
+      const receiver = participants.find((p) => p.id === assignment.receiverId)
       console.log(`   ${giver?.name} → ${receiver?.name}`)
     })
 
@@ -53,7 +54,7 @@ export class DrawService {
   /**
    * Algorithme de backtracking pour trouver une assignation valide
    */
-  private static findValidAssignment(participants: any[]): DrawAssignment[] | null {
+  private static findValidAssignment(participants: ParticipantWithExclusions[]): DrawAssignment[] | null {
     // Tenter plusieurs fois avec différents ordres si nécessaire
     for (let attempt = 0; attempt < 1000; attempt++) {
       // Mélanger l'ordre des donneurs pour CHAQUE tentative (important !)
@@ -83,8 +84,8 @@ export class DrawService {
 
           // Vérifier les exclusions
           const isExcluded =
-            giver.exclusions?.some((excl: any) => excl.excludedId === receiver.id) ||
-            giver.excluded?.some((excl: any) => excl.participantId === receiver.id)
+            giver.exclusions?.some((excl) => excl.excludedId === receiver.id) ||
+            giver.excluded?.some((excl) => excl.participantId === receiver.id)
 
           if (isExcluded) continue
 
@@ -118,7 +119,7 @@ export class DrawService {
     return null
   }
 
-  static validateDrawPossibility(participants: any[]): boolean {
+  static validateDrawPossibility(participants: ParticipantWithExclusions[]): boolean {
     if (participants.length < 2) return false
 
     // Vérification : chaque participant doit pouvoir donner à au moins une personne
@@ -126,8 +127,8 @@ export class DrawService {
       const possibleReceivers = participants.filter(receiver => {
         if (receiver.id === giver.id) return false
         const isExcluded =
-          giver.exclusions?.some((excl: any) => excl.excludedId === receiver.id) ||
-          giver.excluded?.some((excl: any) => excl.participantId === receiver.id)
+          giver.exclusions?.some((excl) => excl.excludedId === receiver.id) ||
+          giver.excluded?.some((excl) => excl.participantId === receiver.id)
         return !isExcluded
       })
       return possibleReceivers.length > 0

@@ -61,31 +61,22 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuth } from '~/composables/useAuth';
 
 const isClient = ref(false);
-const isLoggedIn = ref(false);
 const menuOpen = ref(false);
 const router = useRouter();
+const { isAuthenticated, logout: authLogout } = useAuth();
+
+const isLoggedIn = isAuthenticated;
 
 onMounted(() => {
   isClient.value = true;
-  checkAuth();
 });
 
-const checkAuth = () => {
-  if (process.client) {
-    isLoggedIn.value = !!localStorage.getItem('token');
-  }
-};
-
 const logout = () => {
-  if (process.client) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    isLoggedIn.value = false;
-    menuOpen.value = false;
-    router.push('/');
-  }
+  authLogout();
+  menuOpen.value = false;
 };
 
 const toggleMenu = () => {
@@ -96,10 +87,8 @@ const closeMenu = () => {
   menuOpen.value = false;
 };
 
-// Surveiller les changements de route pour mettre à jour l'état de connexion et fermer le menu
 if (process.client) {
   router.afterEach(() => {
-    checkAuth();
     closeMenu();
   });
 }
@@ -156,9 +145,11 @@ const generateFlakeStyle = () => {
   height: 60px;
   cursor: pointer;
   transition: transform 0.15s;
+  animation: logoFloat 3s ease-in-out infinite;
 }
 .header-logo-link:hover .header-logo {
   transform: scale(1.08) rotate(-8deg);
+  animation: logoHover 0.5s ease-in-out;
 }
 .header-title {
   font-family: var(--font-family-title);
@@ -287,7 +278,7 @@ main {
     left: 0;
     right: 0;
     margin-left: var(--spacing-sm);
-    margin-right: var(--spacing-md);
+    margin-right: var(--spacing-sm);
     background: var(--color-bg);
     flex-direction: column;
     align-items: stretch;
@@ -346,7 +337,6 @@ main {
     }
   }
 
-  /* Animation du burger menu */
   .burger-menu.menu-open span:nth-child(1) {
     transform: translateY(8px) rotate(45deg);
   }
@@ -357,6 +347,27 @@ main {
 
   .burger-menu.menu-open span:nth-child(3) {
     transform: translateY(-8px) rotate(-45deg);
+  }
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(5deg);
+  }
+}
+
+@keyframes logoHover {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(-12deg);
+  }
+  100% {
+    transform: scale(1.08) rotate(-8deg);
   }
 }
 </style>
