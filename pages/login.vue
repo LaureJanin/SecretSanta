@@ -4,13 +4,36 @@
       <h1>Connexion</h1>
       <form class="login-form" @submit="handleLogin">
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" v-model="email" required />
+        <input 
+          id="email" 
+          name="email" 
+          type="email" 
+          v-model="email" 
+          required 
+          maxlength="255"
+          autocomplete="email"
+          aria-required="true"
+          aria-describedby="email-error"
+        />
 
         <label for="password">Mot de passe</label>
-        <input id="password" name="password" type="password" v-model="password" required />
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          v-model="password" 
+          required 
+          maxlength="100"
+          autocomplete="current-password"
+          aria-required="true"
+          aria-describedby="password-error"
+        />
 
-        <button type="submit" :disabled="loading">Se connecter</button>
-        <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
+        <button type="submit" :disabled="loading" :aria-busy="loading">
+          <span v-if="loading">Connexion...</span>
+          <span v-else>Se connecter</span>
+        </button>
+        <div v-if="errorMsg" id="email-error" class="error-msg" role="alert">{{ errorMsg }}</div>
       </form>
       <div class="login-message">
         Tu n'as pas de compte <span class="sad-face">😢</span> ?
@@ -25,6 +48,7 @@ import { ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { LOGIN_MUTATION } from '~/graphql/queries'
+import { useAuth } from '~/composables/useAuth'
 
 const email = ref('')
 const password = ref('')
@@ -33,6 +57,7 @@ const loading = ref(false)
 
 const router = useRouter()
 const { mutate } = useMutation(LOGIN_MUTATION)
+const { setAuthData } = useAuth()
 
 async function handleLogin(e: Event) {
   e.preventDefault()
@@ -42,13 +67,11 @@ async function handleLogin(e: Event) {
     const result = await mutate({ email: email.value, password: password.value })
     const data = result?.data
     if (data?.login?.success && data.login.token) {
-      localStorage.setItem('token', data.login.token)
-      if (data.login.user?.id) {
-        localStorage.setItem('userId', data.login.user.id)
-      }
-      if (data.login.user?.email) {
-        localStorage.setItem('userEmail', data.login.user.email)
-      }
+      setAuthData(
+        data.login.token,
+        data.login.user?.id,
+        data.login.user?.email
+      )
       router.push('/my-loteries')
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'

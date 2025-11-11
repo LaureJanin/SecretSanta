@@ -15,6 +15,8 @@
               type="text"
               placeholder="Ex: Loterie de Noël Famille Dupont"
               required
+              maxlength="100"
+              aria-required="true"
             />
           </div>
 

@@ -4,19 +4,64 @@
       <h1>Créer un compte</h1>
       <form class="signup-form" @submit="handleSignup">
         <label for="name">Nom complet</label>
-        <input id="name" name="name" type="text" v-model="name" required />
+        <input 
+          id="name" 
+          name="name" 
+          type="text" 
+          v-model="name" 
+          required 
+          maxlength="100"
+          autocomplete="name"
+          aria-required="true"
+          aria-describedby="name-error"
+        />
 
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" v-model="email" required />
+        <input 
+          id="email" 
+          name="email" 
+          type="email" 
+          v-model="email" 
+          required 
+          maxlength="255"
+          autocomplete="email"
+          aria-required="true"
+          aria-describedby="email-error"
+        />
 
         <label for="password">Mot de passe</label>
-        <input id="password" name="password" type="password" v-model="password" required minlength="6" />
+        <input 
+          id="password" 
+          name="password" 
+          type="password" 
+          v-model="password" 
+          required 
+          minlength="6"
+          maxlength="100"
+          autocomplete="new-password"
+          aria-required="true"
+          aria-describedby="password-error"
+        />
 
         <label for="confirmPassword">Confirmer le mot de passe</label>
-        <input id="confirmPassword" name="confirmPassword" type="password" v-model="confirmPassword" required minlength="6" />
+        <input 
+          id="confirmPassword" 
+          name="confirmPassword" 
+          type="password" 
+          v-model="confirmPassword" 
+          required 
+          minlength="6"
+          maxlength="100"
+          autocomplete="new-password"
+          aria-required="true"
+          aria-describedby="confirm-password-error"
+        />
 
-        <button type="submit" :disabled="loading">Créer mon compte</button>
-        <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
+        <button type="submit" :disabled="loading" :aria-busy="loading">
+          <span v-if="loading">Création...</span>
+          <span v-else>Créer mon compte</span>
+        </button>
+        <div v-if="errorMsg" id="email-error" class="error-msg" role="alert">{{ errorMsg }}</div>
       </form>
       <div class="login-message">
         Tu as déjà un compte <span class="happy-face">😊</span> ?
@@ -31,6 +76,7 @@ import { ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { REGISTER_MUTATION } from '~/graphql/queries'
+import { useAuth } from '~/composables/useAuth'
 
 const name = ref('')
 const email = ref('')
@@ -41,6 +87,7 @@ const loading = ref(false)
 
 const router = useRouter()
 const { mutate } = useMutation(REGISTER_MUTATION)
+const { setAuthData } = useAuth()
 
 async function handleSignup(e: Event) {
   e.preventDefault()
@@ -66,13 +113,11 @@ async function handleSignup(e: Event) {
     const data = result?.data
 
     if (data?.register?.success && data.register.token) {
-      localStorage.setItem('token', data.register.token)
-      if (data.register.user?.id) {
-        localStorage.setItem('userId', data.register.user.id)
-      }
-      if (data.register.user?.email) {
-        localStorage.setItem('userEmail', data.register.user.email)
-      }
+      setAuthData(
+        data.register.token,
+        data.register.user?.id,
+        data.register.user?.email
+      )
       router.push('/my-loteries')
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'
@@ -161,8 +206,12 @@ button:hover:not(:disabled) {
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: var(--color-bg-light) !important;
+  color: var(--color-text-lighter) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
 }
 
 .error-msg {

@@ -1,7 +1,7 @@
 <template>
   <div class="my-loteries-page">
     <h1>Mes loteries</h1>
-    <div v-if="loading" class="loading">Chargement...</div>
+    <Loader v-if="loading" />
       <div v-else-if="error" class="error">Erreur: {{ error?.message || 'Une erreur est survenue' }}</div>
     <div v-else>
       <div v-if="loteries.length === 0" class="no-loterie">
@@ -37,14 +37,14 @@
             <div class="receiver-info">
               <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
               
-              <div v-if="getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)?.receiver?.giftIdeas && getMyDraw(loterie)!.receiver!.giftIdeas!.length > 0" class="gift-ideas-section">
+              <div v-if="getMyDrawGiftIdeas(loterie).length > 0" class="gift-ideas-section">
                 <h4>🎁 Ses idées cadeaux :</h4>
                 <div class="gift-ideas-list">
-                  <div v-for="idea in getMyDraw(loterie)!.receiver!.giftIdeas" :key="idea.id" class="gift-idea-item">
+                  <div v-for="idea in getMyDrawGiftIdeas(loterie)" :key="idea.id" class="gift-idea-item">
                     <div class="gift-idea-content">
                       <h5>{{ idea.title }}</h5>
                       <p v-if="idea.description" class="gift-idea-description">{{ idea.description }}</p>
-                      <a v-if="idea.link" :href="idea.link" target="_blank" class="gift-idea-link">🔗 Voir le lien</a>
+                      <a v-if="idea.link" :href="idea.link" target="_blank" rel="noopener noreferrer" class="gift-idea-link">🔗 Voir le lien</a>
                     </div>
                   </div>
                 </div>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
@@ -71,7 +71,7 @@ import { compareEmails } from '~/utils/email'
 import type { LotteryResponse, DrawResponse } from '~/types'
 
 const router = useRouter()
-const { requireAuth, getToken } = useAuth()
+const { requireAuth } = useAuth()
 
 requireAuth()
 
@@ -86,12 +86,6 @@ const userEmail = computed(() => {
   return meResult.value?.me?.email || ''
 })
 
-onMounted(async () => {
-  if (process.client && getToken()) {
-    await refetch()
-  }
-})
-
 function isOwner(loterie: LotteryResponse): boolean {
   return loterie.owner?.id === meResult.value?.me?.id
 }
@@ -103,6 +97,11 @@ function getMyDraw(loterie: LotteryResponse): DrawResponse | undefined {
   return loterie.draws?.find((draw: DrawResponse) => {
     return compareEmails(draw.giver?.email, userEmail.value)
   })
+}
+
+function getMyDrawGiftIdeas(loterie: LotteryResponse) {
+  const draw = getMyDraw(loterie)
+  return draw?.receiver?.giftIdeas || []
 }
 </script>
 
@@ -206,11 +205,6 @@ function getMyDraw(loterie: LotteryResponse): DrawResponse | undefined {
 
 ul {
   margin: var(--spacing-xs) 0 var(--spacing-md) var(--spacing-md);
-}
-
-.loading {
-  text-align: center;
-  color: var(--color-text-light);
 }
 
 .no-loterie {

@@ -4,7 +4,7 @@
       <h1>🎁 Mes idées cadeaux</h1>
     </div>
 
-    <div v-if="loading" class="loading">Chargement...</div>
+    <Loader v-if="loading" />
     <div v-else-if="error" class="error">Erreur: {{ error?.message }}</div>
     <div v-else>
       <div class="intro">
@@ -30,7 +30,7 @@
               <div class="idea-content">
                 <h4>{{ idea.title }}</h4>
                 <p v-if="idea.description">{{ idea.description }}</p>
-                <a v-if="idea.link" :href="idea.link" target="_blank" class="idea-link">🔗 Voir le lien</a>
+                <a v-if="idea.link" :href="idea.link" target="_blank" rel="noopener noreferrer" class="idea-link">🔗 Voir le lien</a>
               </div>
               <button @click="handleDeleteIdea(idea.id)" class="btn-delete" title="Supprimer">🗑️</button>
             </div>
@@ -44,15 +44,32 @@
             <form @submit.prevent="() => { const participant = getMyParticipant(lottery); if (participant?.id) handleAddIdea(participant.id); }">
               <div class="form-group">
                 <label>Titre *</label>
-                <input v-model="newIdea.title" type="text" required placeholder="Ex: Un livre, un jeu vidéo...">
+                <input 
+                  v-model="newIdea.title" 
+                  type="text" 
+                  required 
+                  placeholder="Ex: Un livre, un jeu vidéo..."
+                  maxlength="200"
+                  aria-required="true"
+                >
               </div>
               <div class="form-group">
                 <label>Description</label>
-                <textarea v-model="newIdea.description" placeholder="Précisions, genre préféré, taille..." rows="3"></textarea>
+                <textarea 
+                  v-model="newIdea.description" 
+                  placeholder="Précisions, genre préféré, taille..." 
+                  rows="3"
+                  maxlength="1000"
+                ></textarea>
               </div>
               <div class="form-group">
                 <label>Lien (optionnel)</label>
-                <input v-model="newIdea.link" type="url" placeholder="https://...">
+                <input 
+                  v-model="newIdea.link" 
+                  type="url" 
+                  placeholder="https://..."
+                  maxlength="500"
+                >
               </div>
               <button type="submit" :disabled="!newIdea.title">Ajouter cette idée</button>
             </form>
@@ -150,13 +167,10 @@ async function handleDeleteIdea(giftIdeaId: string) {
   box-sizing: border-box;
 }
 
-.loading, .error {
+.error {
   text-align: center;
   padding: var(--spacing-xl);
   font-size: var(--font-size-lg);
-}
-
-.error {
   color: var(--color-error);
 }
 
@@ -356,6 +370,10 @@ async function handleDeleteIdea(giftIdeaId: string) {
 .add-idea-form button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  background: var(--color-bg-light) !important;
+  color: var(--color-text-lighter) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
 }
 
 @media (max-width: 768px) {

@@ -43,6 +43,18 @@ export const useAuth = () => {
     })
   }
 
+  const setAuthData = (token: string, userId?: string, userEmail?: string) => {
+    if (process.client) {
+      localStorage.setItem('token', token)
+      if (userId) {
+        localStorage.setItem('userId', userId)
+      }
+      if (userEmail) {
+        localStorage.setItem('userEmail', userEmail)
+      }
+    }
+  }
+
   const logout = () => {
     if (process.client) {
       localStorage.removeItem('token')
@@ -57,6 +69,7 @@ export const useAuth = () => {
     getToken,
     getUserId,
     getUserEmail,
+    setAuthData,
     requireAuth,
     logout
   }

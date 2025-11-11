@@ -17,6 +17,7 @@
         <h1 class="header-title">Loterie de Noël</h1>
       </div>
       <button 
+        type="button"
         class="burger-menu" 
         :class="{ 'menu-open': menuOpen }"
         @click="toggleMenu"
@@ -32,7 +33,7 @@
         class="menu-overlay" 
         @click="closeMenu"
       ></div>
-      <nav class="header-nav" :class="{ 'menu-open': menuOpen }">
+      <nav id="main-navigation" class="header-nav" :class="{ 'menu-open': menuOpen }" role="navigation">
         <template v-if="isLoggedIn">
           <NuxtLink to="/my-loteries" @click="closeMenu">Mes loteries</NuxtLink>
           <NuxtLink to="/gift-ideas" @click="closeMenu">Mes idées cadeaux</NuxtLink>
@@ -60,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '~/composables/useAuth';
 
@@ -70,10 +71,6 @@ const router = useRouter();
 const { isAuthenticated, logout: authLogout } = useAuth();
 
 const isLoggedIn = isAuthenticated;
-
-onMounted(() => {
-  isClient.value = true;
-});
 
 const logout = () => {
   authLogout();
@@ -88,11 +85,27 @@ const closeMenu = () => {
   menuOpen.value = false;
 };
 
-if (process.client) {
-  router.afterEach(() => {
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && menuOpen.value) {
     closeMenu();
-  });
-}
+  }
+};
+
+onMounted(() => {
+  isClient.value = true;
+  if (process.client) {
+    document.addEventListener('keydown', handleKeydown);
+    router.afterEach(() => {
+      closeMenu();
+    });
+  }
+});
+
+onUnmounted(() => {
+  if (process.client) {
+    document.removeEventListener('keydown', handleKeydown);
+  }
+});
 
 const generateFlakeStyle = () => {
   const size = Math.random() * 8 + 4;

@@ -2,7 +2,7 @@
   <div class="admin-page">
     <h1>🎅 Administration des loteries</h1>
 
-    <div v-if="loading" class="loading">Chargement...</div>
+    <Loader v-if="loading" />
     <div v-else-if="error" class="error">{{ error.message }}</div>
     <div v-else-if="loteries.length === 0" class="no-loterie">
       <p>Vous n'avez créé aucune loterie.</p>
@@ -65,11 +65,24 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label>Nom *</label>
-                    <input v-model="newParticipant.name" type="text" required placeholder="Prénom Nom" />
+                    <input 
+                      v-model="newParticipant.name" 
+                      type="text" 
+                      required 
+                      placeholder="Prénom Nom"
+                      maxlength="100"
+                      aria-required="true"
+                    />
                   </div>
                   <div class="form-group">
                     <label>Email</label>
-                    <input v-model="newParticipant.email" type="email" placeholder="email@example.com" />
+                    <input 
+                      v-model="newParticipant.email" 
+                      type="email" 
+                      placeholder="email@example.com"
+                      maxlength="255"
+                      autocomplete="email"
+                    />
                   </div>
                 </div>
                 <button type="submit" :disabled="!newParticipant.name" class="btn-primary">Ajouter</button>
@@ -680,6 +693,13 @@ async function handleSendDrawResults() {
 
 .btn-delete-exclusion:hover {
   background: var(--color-error-bg);
+}
+
+.error {
+  text-align: center;
+  padding: var(--spacing-xl);
+  font-size: var(--font-size-lg);
+  color: var(--color-error);
 }
 
 .no-data {
