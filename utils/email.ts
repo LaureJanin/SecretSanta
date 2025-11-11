@@ -1,3 +1,9 @@
+export function validateEmail(email: string | null | undefined): boolean {
+  if (!email) return false
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email.trim())
+}
+
 export function normalizeEmail(email: string | null | undefined): string | null {
   if (!email) return null
   return email.toLowerCase().trim() || null

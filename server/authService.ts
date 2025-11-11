@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { dbService } from './database.js'
 import type { AuthResult, User } from './types.js'
+import { validateEmail } from '../utils/email.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production'
 const JWT_EXPIRES_IN = '7d'
@@ -9,6 +10,15 @@ const JWT_EXPIRES_IN = '7d'
 export class AuthService {
   async register(email: string, name: string, password: string): Promise<AuthResult> {
     try {
+      if (!validateEmail(email)) {
+        return {
+          success: false,
+          user: null,
+          token: null,
+          error: 'Format d\'email invalide'
+        }
+      }
+
       const existingUser = await dbService.getUserByEmail(email)
       if (existingUser) {
         return {
@@ -43,6 +53,15 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<AuthResult> {
     try {
+      if (!validateEmail(email)) {
+        return {
+          success: false,
+          user: null,
+          token: null,
+          error: 'Format d\'email invalide'
+        }
+      }
+
       const user = await dbService.getUserByEmail(email)
       if (!user) {
         return {

@@ -49,6 +49,7 @@ import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { LOGIN_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
+import { validateEmail } from '~/utils/email'
 
 const email = ref('')
 const password = ref('')
@@ -62,6 +63,12 @@ const { setAuthData } = useAuth()
 async function handleLogin(e: Event) {
   e.preventDefault()
   errorMsg.value = ''
+
+  if (!validateEmail(email.value)) {
+    errorMsg.value = 'Format d\'email invalide'
+    return
+  }
+
   loading.value = true
   try {
     const result = await mutate({ email: email.value, password: password.value })

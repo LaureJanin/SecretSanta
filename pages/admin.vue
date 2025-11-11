@@ -217,6 +217,7 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 import { useConfirm } from '~/composables/useConfirm'
+import { validateEmail } from '~/utils/email'
 import type { LotteryResponse, ParticipantResponse } from '~/types'
 import {
   MY_OWNED_LOTTERIES_QUERY,
@@ -293,6 +294,11 @@ function onLotteryChange() {
 }
 
 async function handleAddParticipant() {
+  if (newParticipant.value.email && !validateEmail(newParticipant.value.email)) {
+    showError('Format d\'email invalide')
+    return
+  }
+
   try {
     await addParticipant({
       lotteryId: selectedLotteryId.value,

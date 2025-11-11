@@ -77,6 +77,7 @@ import { useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { REGISTER_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
+import { validateEmail } from '~/utils/email'
 
 const name = ref('')
 const email = ref('')
@@ -92,6 +93,11 @@ const { setAuthData } = useAuth()
 async function handleSignup(e: Event) {
   e.preventDefault()
   errorMsg.value = ''
+
+  if (!validateEmail(email.value)) {
+    errorMsg.value = 'Format d\'email invalide'
+    return
+  }
 
   if (password.value !== confirmPassword.value) {
     errorMsg.value = 'Les mots de passe ne correspondent pas'

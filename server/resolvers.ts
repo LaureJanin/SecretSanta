@@ -4,7 +4,7 @@ import { authService } from './authService.js'
 import { DrawService } from './drawService.js'
 import type { GraphQLContext, User } from './types.js'
 import type { GraphQLParent } from '../types/index.js'
-import { compareEmails } from '../utils/email.js'
+import { compareEmails, validateEmail } from '../utils/email.js'
 
 const requireAuth = (user: User | null | undefined): User => {
   if (!user) {
@@ -102,6 +102,10 @@ export const resolvers = {
     addParticipant: async (_: unknown, { lotteryId, name, email, isActive }: { lotteryId: string; name: string; email?: string | null; isActive: boolean }, context: GraphQLContext) => {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
+
+      if (email && !validateEmail(email)) {
+        throw new Error('Format d\'email invalide')
+      }
 
       return dbService.createParticipant(lotteryId, name, email || null, isActive)
     },
