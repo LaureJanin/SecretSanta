@@ -14,7 +14,7 @@
     "db:reset": "npx prisma db reset",
     "apollo": "node --loader ts-node/esm server/index.ts",
     "start:backend": "./scripts/start-backend.sh",
-    "start:backend:pm2": "dotenv -e .env -- pm2 start ecosystem.config.js",
+    "start:backend:pm2": "dotenv -e .env -- pm2 start ecosystem.config.cjs",
     "stop:backend:pm2": "pm2 stop loterie-backend",
     "restart:backend:pm2": "pm2 restart loterie-backend",
     "migrate:sqlite-to-postgres": "node --loader ts-node/esm scripts/migrate-data-prisma.ts"
