@@ -14,7 +14,7 @@
 // Logs: pm2 logs loterie-backend
 // Redémarrage: pm2 restart loterie-backend
 
-export default {
+module.exports = {
   apps: [
     {
       name: 'loterie-backend',
