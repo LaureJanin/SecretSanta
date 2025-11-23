@@ -5,8 +5,21 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Configuration de la base de données
+// 
+// Pour le développement et petits déploiements, SQLite est suffisant :
+//   provider = "sqlite"
+//   DATABASE_URL = "file:./prisma/dev.db"
+//
+// Pour la production avec plusieurs utilisateurs simultanés, PostgreSQL est recommandé :
+//   1. Changer provider = "postgresql"
+//   2. Configurer DATABASE_URL = "postgresql://user:password@localhost:5432/loterie_noel?schema=public"
+//   3. Exécuter: npx prisma migrate deploy
+//   4. Exécuter: npx prisma generate
+//
+// Voir deployment/database-migration.md pour le guide complet de migration.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"  // Migration vers PostgreSQL effectuée
   url      = env("DATABASE_URL")
 }
 

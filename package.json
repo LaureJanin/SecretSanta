@@ -12,7 +12,12 @@
     "db:studio": "npx prisma studio",
     "db:push": "npx prisma db push",
     "db:reset": "npx prisma db reset",
-    "apollo": "node --loader ts-node/esm server/index.ts"
+    "apollo": "node --loader ts-node/esm server/index.ts",
+    "start:backend": "./scripts/start-backend.sh",
+    "start:backend:pm2": "dotenv -e .env -- pm2 start ecosystem.config.js",
+    "stop:backend:pm2": "pm2 stop loterie-backend",
+    "restart:backend:pm2": "pm2 restart loterie-backend",
+    "migrate:sqlite-to-postgres": "node --loader ts-node/esm scripts/migrate-data-prisma.ts"
   },
   "dependencies": {
     "@apollo/client": "^3.14.0",
@@ -36,7 +41,9 @@
     "vue-router": "latest"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^24.3.1",
+    "better-sqlite3": "^12.4.6",
     "concurrently": "^9.2.1",
     "prettier": "^3.3.3",
     "prisma": "^5.10.2",

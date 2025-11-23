@@ -3,9 +3,12 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
-  // Configurer Nitro pour utiliser les fonctions serverless de Netlify
-  nitro: {
-    preset: 'netlify',
+  // Configuration runtime (variables d'environnement)
+  runtimeConfig: {
+    // Variables publiques (accessibles côté client)
+    public: {
+      graphqlUrl: process.env.GRAPHQL_URL || 'http://localhost:4000/graphql',
+    },
   },
 
   // Configuration de l'application

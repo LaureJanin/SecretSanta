@@ -98,8 +98,9 @@ Créer un fichier `.env` à la racine du projet :
 ```env
 DATABASE_URL="file:./dev.db"
 JWT_SECRET="votre-secret-jwt-tres-securise"
-GMAIL_USER="votre-email@gmail.com"
-GMAIL_PASS="votre-mot-de-passe-application"
+ADMIN_EMAIL="votre-email@gmail.com"
+GMAIL_APP_PASSWORD="votre-mot-de-passe-application-gmail"
+SITE_URL="http://localhost:3000"
 ```
 
 4. **Initialiser la base de données**
@@ -210,28 +211,239 @@ L'application envoie des emails via Gmail SMTP :
 
 Configuration requise dans `.env` :
 ```env
-GMAIL_USER="votre-email@gmail.com"
-GMAIL_PASS="mot-de-passe-application"
+ADMIN_EMAIL="votre-email@gmail.com"
+GMAIL_APP_PASSWORD="mot-de-passe-application-gmail"
+SITE_URL="http://localhost:3000"
 ```
 
-## 🚢 Déploiement
+**Note importante** : Pour `GMAIL_APP_PASSWORD`, vous devez utiliser un [mot de passe d'application Gmail](https://support.google.com/accounts/answer/185833), pas votre mot de passe de compte Gmail classique.
 
-L'application est configurée pour Netlify :
-- **Preset Netlify** dans `nuxt.config.ts`
-- **Build** : `npm run build`
-- **Fichiers de configuration** : `dist/_headers` et `dist/_redirects`
+## 🚢 Déploiement sur serveur maison
+
+L'application est conçue pour être déployée sur votre propre serveur avec une architecture séparée :
+- **Frontend** : Nuxt 3 (fichiers statiques servis par Nginx)
+- **Backend** : Apollo Server GraphQL (processus Node.js séparé)
+
+### 📚 Documentation complète
+
+Pour un guide de déploiement détaillé étape par étape, consultez :
+- **Guide complet** : [`deployment/DEPLOYMENT.md`](deployment/DEPLOYMENT.md)
+- **Script de déploiement rapide** : `./deployment/quick-deploy.sh`
+
+### Déploiement rapide
+
+```bash
+# Sur votre serveur, après avoir cloné le projet
+./deployment/quick-deploy.sh
+```
+
+Ce script automatise :
+- Vérification des prérequis
+- Installation des dépendances
+- Génération du client Prisma
+- Initialisation de la base de données
+- Build de production
+
+### Prérequis
+
+- Node.js 18+ et npm
+- Nginx (pour servir le frontend et reverse proxy)
+- PostgreSQL (recommandé pour production) ou SQLite
+- PM2 (optionnel mais recommandé pour gérer le backend)
+
+### Étapes de déploiement (résumé)
+
+#### 1. Préparer l'environnement
+
+```bash
+# Cloner le projet
+git clone <votre-repo>
+cd nuxt-loterie-noel
+
+# Installer les dépendances
+npm install
+
+# Copier et configurer les variables d'environnement
+cp .env.example .env
+# Éditer .env avec vos valeurs
+```
+
+#### 2. Configurer les variables d'environnement
+
+Éditez le fichier `.env` avec vos valeurs :
+
+```env
+# Base de données (SQLite pour débuter, PostgreSQL pour production)
+DATABASE_URL="file:./prisma/dev.db"
+# ou pour PostgreSQL:
+# DATABASE_URL="postgresql://user:password@localhost:5432/loterie_noel?schema=public"
+
+# Authentification
+JWT_SECRET="votre-secret-jwt-tres-securise"
+
+# Email
+ADMIN_EMAIL="votre-email@gmail.com"
+GMAIL_APP_PASSWORD="votre-mot-de-passe-application-gmail"
+
+# URLs
+SITE_URL="https://votre-domaine.com"
+GRAPHQL_URL="https://votre-domaine.com/graphql"
+```
+
+#### 3. Base de données
+
+**Option A : SQLite (simple, pour petits déploiements)**
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+**Option B : PostgreSQL (recommandé pour production)**
+```bash
+# Voir deployment/database-migration.md pour le guide complet
+./deployment/postgres-setup.sh loterie_noel loterie_user votre_mot_de_passe
+# Modifier prisma/schema.prisma: provider = "postgresql"
+npx prisma generate
+npx prisma migrate deploy
+```
+
+#### 4. Build de l'application
+
+```bash
+# Build automatique avec vérifications
+./scripts/build-production.sh
+
+# Ou manuellement:
+npm run build
+```
+
+#### 5. Démarrer le backend Apollo
+
+**Avec PM2 (recommandé) :**
+```bash
+# Installer PM2 et dotenv-cli globalement
+npm install -g pm2 dotenv-cli
+
+# Démarrer le backend (le script npm charge automatiquement .env)
+npm run start:backend:pm2
+
+# Note: Le dossier logs/ sera créé automatiquement par PM2 pour les logs
+
+# Vérifier le statut
+pm2 status
+pm2 logs loterie-backend
+```
+
+**Sans PM2 :**
+```bash
+npm run start:backend
+```
+
+#### 6. Configurer Nginx
+
+```bash
+# Copier la configuration exemple
+sudo cp deployment/nginx.conf.example /etc/nginx/sites-available/loterie-noel
+
+# Éditer la configuration
+sudo nano /etc/nginx/sites-available/loterie-noel
+# Adapter: server_name, root, et autres paramètres
+
+# Activer le site
+sudo ln -s /etc/nginx/sites-available/loterie-noel /etc/nginx/sites-enabled/
+
+# Tester la configuration
+sudo nginx -t
+
+# Recharger Nginx
+sudo systemctl reload nginx
+```
+
+#### 7. HTTPS (recommandé)
+
+```bash
+# Installer Certbot
+sudo apt install certbot python3-certbot-nginx  # Ubuntu/Debian
+
+# Obtenir un certificat SSL
+sudo certbot --nginx -d votre-domaine.com
+
+# Certbot configurera automatiquement HTTPS
+```
+
+### Checklist de déploiement
+
+- [ ] Variables d'environnement configurées dans `.env`
+- [ ] Base de données initialisée (SQLite ou PostgreSQL)
+- [ ] Build de production effectué (`dist/` créé)
+- [ ] Backend Apollo démarré et accessible
+- [ ] Nginx configuré et actif
+- [ ] HTTPS configuré (optionnel mais recommandé)
+- [ ] Test de l'application complète
+
+### Scripts disponibles
+
+```bash
+# Build
+./scripts/build-production.sh        # Build complet avec vérifications
+
+# Backend
+npm run start:backend               # Démarrer le backend (script bash)
+npm run start:backend:pm2           # Démarrer avec PM2
+npm run stop:backend:pm2             # Arrêter avec PM2
+npm run restart:backend:pm2          # Redémarrer avec PM2
+
+# Base de données
+npm run db:studio                    # Interface graphique Prisma
+npm run db:push                      # Synchroniser le schéma
+```
+
+### Architecture de déploiement
+
+```
+Internet
+   ↓
+Nginx (port 80/443)
+   ├── / → Fichiers statiques Nuxt (dist/)
+   └── /graphql → Reverse proxy → Backend Apollo (port 4000)
+```
+
+### Migration SQLite → PostgreSQL
+
+Voir le guide complet dans `deployment/database-migration.md`
+
+### Dépannage
+
+**Le backend ne démarre pas :**
+- Vérifier que le port 4000 est libre
+- Vérifier les variables d'environnement dans `.env`
+- Vérifier les logs : `pm2 logs loterie-backend` ou dans la console
+
+**Nginx ne sert pas les fichiers :**
+- Vérifier que le chemin `root` pointe vers `dist/`
+- Vérifier les permissions : `sudo chown -R www-data:www-data dist/`
+- Vérifier les logs : `sudo tail -f /var/log/nginx/loterie-noel-error.log`
+
+**Erreurs de connexion GraphQL :**
+- Vérifier que le backend Apollo est démarré
+- Vérifier que `GRAPHQL_URL` dans `.env` correspond à votre configuration
+- Vérifier la configuration Nginx pour `/graphql`
 
 ## 🔧 Configuration
 
 ### Variables d'environnement
 
-Créer un fichier `.env` :
+Créer un fichier `.env` à partir de `.env.example` :
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="file:./prisma/dev.db"
 JWT_SECRET="votre-secret-jwt"
-GMAIL_USER="votre-email@gmail.com"
-GMAIL_PASS="votre-mot-de-passe-application"
+ADMIN_EMAIL="votre-email@gmail.com"
+GMAIL_APP_PASSWORD="votre-mot-de-passe-application-gmail"
+SITE_URL="http://localhost:3000"
+GRAPHQL_URL="http://localhost:4000/graphql"
 ```
+
+Voir `.env.example` pour tous les détails et exemples (SQLite et PostgreSQL).
 
 ### Base de données
 
@@ -272,7 +484,9 @@ Tous les espacements sont définis dans `variables.css` et utilisés via `var(--
 
 ### Nuxt ne se connecte pas à Apollo
 - Vérifier que le serveur Apollo est démarré
+- Vérifier que `GRAPHQL_URL` est correctement configuré dans `.env`
 - Vérifier la configuration dans `plugins/apollo-composable.client.ts`
+- En production, vérifier que Nginx proxy correctement `/graphql`
 
 ### Erreurs de base de données
 - Exécuter `npm run db:push` pour synchroniser le schéma
