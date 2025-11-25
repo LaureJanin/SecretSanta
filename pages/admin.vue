@@ -396,6 +396,10 @@ async function handleDeleteLottery() {
     await deleteLottery({ lotteryId: selectedLotteryId.value })
     selectedLotteryId.value = ''
     await refetch()
+    if (process.client) {
+      sessionStorage.setItem('lottery-just-deleted', 'true')
+      window.dispatchEvent(new Event('lottery-deleted'))
+    }
     success('Loterie supprimée avec succès')
   } catch (err: unknown) {
     showError('Erreur lors de la suppression de la loterie')

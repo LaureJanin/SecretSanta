@@ -37,7 +37,7 @@
           <button type="submit" :disabled="loading || !isFormValid" class="btn-primary">
             {{ loading ? 'Création en cours...' : 'Créer la loterie' }}
           </button>
-          <button type="button" @click="router.push('/my-loteries')" class="btn-secondary">
+          <button type="button" @click="navigateTo('/my-loteries')" class="btn-secondary">
             Annuler
           </button>
         </div>
@@ -52,12 +52,10 @@ definePageMeta({ ssr: false })
 
 import { ref, computed } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { useRouter } from 'vue-router'
 import { CREATE_LOTTERY_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 
-const router = useRouter()
 const { requireAuth } = useAuth()
 const { success, error: showError } = useToast()
 
@@ -86,8 +84,12 @@ async function handleSubmit() {
 
     if (data?.createLottery) {
       success(`Loterie "${data.createLottery.name}" créée avec succès ! 🎉`)
+      if (process.client) {
+        sessionStorage.setItem('lottery-just-created', 'true')
+        window.dispatchEvent(new Event('lottery-created'))
+      }
       setTimeout(() => {
-        router.push('/my-loteries')
+        navigateTo('/my-loteries')
       }, 1500)
     } else {
       showError('Erreur lors de la création de la loterie')

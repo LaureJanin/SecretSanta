@@ -46,7 +46,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { useRouter } from 'vue-router'
 import { LOGIN_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { validateEmail } from '~/utils/email'
@@ -56,7 +55,6 @@ const password = ref('')
 const errorMsg = ref('')
 const loading = ref(false)
 
-const router = useRouter()
 const { mutate } = useMutation(LOGIN_MUTATION)
 const { setAuthData } = useAuth()
 
@@ -74,12 +72,12 @@ async function handleLogin(e: Event) {
     const result = await mutate({ email: email.value, password: password.value })
     const data = result?.data
     if (data?.login?.success && data.login.token) {
-      setAuthData(
+      await setAuthData(
         data.login.token,
         data.login.user?.id,
         data.login.user?.email
       )
-      router.push('/my-loteries')
+      await navigateTo('/my-loteries')
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'
     }

@@ -1,15 +1,19 @@
-import { computed, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+
+// État global réactif pour l'authentification
+const authState = ref<boolean>(false)
+
+// Initialiser l'état au chargement
+if (process.client) {
+  authState.value = !!localStorage.getItem('token')
+}
 
 export const useAuth = () => {
   const router = useRouter()
 
-  const isAuthenticated = computed(() => {
-    if (process.client) {
-      return !!localStorage.getItem('token')
-    }
-    return false
-  })
+  // Computed qui utilise le ref réactif
+  const isAuthenticated = computed(() => authState.value)
 
   const getToken = (): string | null => {
     if (process.client) {
@@ -52,6 +56,8 @@ export const useAuth = () => {
       if (userEmail) {
         localStorage.setItem('userEmail', userEmail)
       }
+      // Mettre à jour l'état réactif - cela déclenchera automatiquement la réactivité
+      authState.value = true
     }
   }
 
@@ -60,6 +66,8 @@ export const useAuth = () => {
       localStorage.removeItem('token')
       localStorage.removeItem('userId')
       localStorage.removeItem('userEmail')
+      // Mettre à jour l'état réactif
+      authState.value = false
       router.push('/')
     }
   }

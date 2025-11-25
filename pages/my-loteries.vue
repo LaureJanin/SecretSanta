@@ -64,7 +64,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLazyQuery } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
@@ -79,8 +79,38 @@ requireAuth()
 
 const loading = ref(true)
 
-const { result: meResult, load: loadMe } = useLazyQuery(ME_QUERY)
-const { result, load, error } = useLazyQuery(MY_LOTERIES_QUERY)
+const { result: meResult, load: loadMe, refetch: refetchMe } = useLazyQuery(ME_QUERY, {
+  fetchPolicy: 'cache-and-network'
+})
+const { result, load, error, refetch: refetchLoteries } = useLazyQuery(MY_LOTERIES_QUERY, {
+  fetchPolicy: 'cache-and-network'
+})
+
+async function refreshData() {
+  if (process.client && getToken()) {
+    loading.value = true
+    try {
+      await Promise.all([
+        refetchMe?.() || loadMe(),
+        refetchLoteries?.() || load()
+      ])
+    } finally {
+      loading.value = false
+    }
+  }
+}
+
+const handleLotteryCreated = async () => {
+  if (router.currentRoute.value.path === '/my-loteries') {
+    await refreshData()
+  }
+}
+
+const handleLotteryDeleted = async () => {
+  if (router.currentRoute.value.path === '/my-loteries') {
+    await refreshData()
+  }
+}
 
 onMounted(async () => {
   if (process.client && getToken()) {
@@ -89,8 +119,27 @@ onMounted(async () => {
     } finally {
       loading.value = false
     }
+    
+    window.addEventListener('lottery-created', handleLotteryCreated)
+    window.addEventListener('lottery-deleted', handleLotteryDeleted)
+    
+    const justCreated = sessionStorage.getItem('lottery-just-created') === 'true'
+    const justDeleted = sessionStorage.getItem('lottery-just-deleted') === 'true'
+    
+    if (justCreated || justDeleted) {
+      await refreshData()
+      if (justCreated) sessionStorage.removeItem('lottery-just-created')
+      if (justDeleted) sessionStorage.removeItem('lottery-just-deleted')
+    }
   } else {
     loading.value = false
+  }
+})
+
+onUnmounted(() => {
+  if (process.client) {
+    window.removeEventListener('lottery-created', handleLotteryCreated)
+    window.removeEventListener('lottery-deleted', handleLotteryDeleted)
   }
 })
 

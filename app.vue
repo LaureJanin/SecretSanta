@@ -34,8 +34,8 @@
         class="menu-overlay" 
         @click="closeMenu"
       ></div>
-      <nav id="main-navigation" class="header-nav" :class="{ 'menu-open': menuOpen }" role="navigation">
-        <template v-if="isLoggedIn">
+      <nav id="main-navigation" class="header-nav" :class="{ 'menu-open': menuOpen }" :key="isAuthenticated" role="navigation">
+        <template v-if="isAuthenticated">
           <NuxtLink to="/my-loteries" @click="closeMenu">Mes loteries</NuxtLink>
           <NuxtLink to="/gift-ideas" @click="closeMenu">Mes idées cadeaux</NuxtLink>
           <NuxtLink to="/admin" @click="closeMenu">Admin</NuxtLink>
@@ -70,8 +70,6 @@ const isClient = ref(false);
 const menuOpen = ref(false);
 const router = useRouter();
 const { isAuthenticated, logout: authLogout } = useAuth();
-
-const isLoggedIn = isAuthenticated;
 
 const logout = () => {
   authLogout();

@@ -74,7 +74,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { useRouter } from 'vue-router'
 import { REGISTER_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { validateEmail } from '~/utils/email'
@@ -86,7 +85,6 @@ const confirmPassword = ref('')
 const errorMsg = ref('')
 const loading = ref(false)
 
-const router = useRouter()
 const { mutate } = useMutation(REGISTER_MUTATION)
 const { setAuthData } = useAuth()
 
@@ -119,12 +117,12 @@ async function handleSignup(e: Event) {
     const data = result?.data
 
     if (data?.register?.success && data.register.token) {
-      setAuthData(
+      await setAuthData(
         data.register.token,
         data.register.user?.id,
         data.register.user?.email
       )
-      router.push('/my-loteries')
+      await navigateTo('/my-loteries')
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'
     }
