@@ -24,12 +24,18 @@ echo -e "${BLUE}📦 Installation des dépendances...${NC}"
 npm install
 echo ""
 
+echo -e "${BLUE}🔐 Préparation des permissions...${NC}"
+if [ -d ".output" ]; then
+    sudo chown -R laure:laure .output 2>/dev/null || true
+    sudo rm -rf .output
+fi
+echo ""
+
 echo -e "${BLUE}🏗️  Génération du frontend...${NC}"
 npm run generate
 echo ""
 
-echo -e "${BLUE}🔐 Configuration des permissions...${NC}"
-sudo chown -R laure:laure .output
+echo -e "${BLUE}🔐 Configuration des permissions pour Nginx...${NC}"
 sudo chmod -R 755 .output
 sudo chown -R www-data:www-data .output
 echo ""
