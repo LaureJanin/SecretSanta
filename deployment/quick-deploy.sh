@@ -35,7 +35,7 @@ echo -e "${GREEN}✅ npm $(npm --version)${NC}"
 
 # Vérifier PostgreSQL
 if ! command -v psql &> /dev/null; then
-    echo -e "${YELLOW}⚠️  PostgreSQL n'est pas installé (optionnel si vous utilisez SQLite)${NC}"
+    echo -e "${YELLOW}⚠️  PostgreSQL n'est pas installé${NC}"
 else
     echo -e "${GREEN}✅ PostgreSQL installé${NC}"
 fi
@@ -122,8 +122,8 @@ echo -e "${GREEN}✅ Base de données initialisée${NC}"
 echo ""
 
 # Build de production
-echo -e "${BLUE}🏗️  Build de production...${NC}"
-npm run build
+echo -e "${BLUE}🏗️  Génération du site statique...${NC}"
+npm run generate
 echo -e "${GREEN}✅ Build terminé${NC}"
 echo ""
 

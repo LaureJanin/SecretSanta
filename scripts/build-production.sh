@@ -108,13 +108,13 @@ npx prisma migrate deploy || npx prisma db push
 echo ""
 
 # Build Nuxt
-echo -e "${BLUE}🏗️  Build de l'application Nuxt...${NC}"
-NODE_ENV=production npm run build
+echo -e "${BLUE}🏗️  Génération du site statique Nuxt...${NC}"
+NODE_ENV=production npm run generate
 echo ""
 
-# Vérifier que le dossier dist existe
-if [ ! -d "dist" ]; then
-    echo -e "${RED}❌ Le dossier dist/ n'a pas été créé${NC}"
+# Vérifier que le dossier .output/public existe
+if [ ! -d ".output/public" ]; then
+    echo -e "${RED}❌ Le dossier .output/public/ n'a pas été créé${NC}"
     exit 1
 fi
 
@@ -122,12 +122,12 @@ echo -e "${GREEN}✅ Build terminé avec succès !${NC}"
 echo ""
 echo -e "${BLUE}📋 Prochaines étapes:${NC}"
 echo ""
-echo "1. Vérifier que le dossier dist/ contient les fichiers"
+echo "1. Vérifier que le dossier .output/public/ contient les fichiers"
 echo "2. Configurer Nginx (voir deployment/nginx.conf.example)"
 echo "3. Démarrer le backend Apollo:"
 echo "   - Avec PM2: npm run start:backend:pm2"
 echo "   - Ou manuellement: npm run start:backend"
-echo "4. Configurer Nginx pour servir les fichiers depuis dist/"
+echo "4. Configurer Nginx pour servir les fichiers depuis .output/public/"
 echo "5. Redémarrer Nginx: sudo systemctl restart nginx"
 echo ""
 echo -e "${GREEN}🎉 Votre application est prête pour la production !${NC}"

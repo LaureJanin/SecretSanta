@@ -8,7 +8,7 @@
 #
 # Variables à adapter:
 #   - server_name: votre domaine
-#   - root: chemin vers le dossier dist/ de Nuxt
+#   - root: chemin vers le dossier .output/public de Nuxt
 #   - proxy_pass: URL du backend Apollo (par défaut localhost:4000)
 
 # Redirection HTTP vers HTTPS (décommenter si vous avez HTTPS)
@@ -28,7 +28,7 @@ server {
     server_name votre-domaine.com www.votre-domaine.com;
     
     # Chemin vers les fichiers statiques Nuxt (après build)
-    root /chemin/vers/votre/projet/dist;
+    root /chemin/vers/votre/projet/.output/public;
     index index.html;
     
     # Taille maximale des uploads

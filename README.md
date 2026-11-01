@@ -25,7 +25,7 @@ Loterie de Noël est une application complète qui permet de :
 - **Apollo Server** - Serveur GraphQL
 - **Express** - Framework Node.js
 - **Prisma ORM** - Gestion de base de données
-- **SQLite** - Base de données
+- **PostgreSQL** - Base de données
 - **JWT** - Authentification par tokens
 - **bcrypt** - Hashage des mots de passe
 - **Nodemailer** - Envoi d'emails via Gmail SMTP
@@ -57,8 +57,7 @@ nuxt-loterie-noel/
 ├── plugins/
 │   └── apollo-composable.client.ts  # Configuration Apollo Client
 ├── prisma/
-│   ├── schema.prisma          # Schéma de base de données
-│   └── dev.db                 # Base de données SQLite
+│   └── schema.prisma          # Schéma de base de données
 ├── server/
 │   ├── index.ts               # Point d'entrée Apollo Server
 │   ├── schema.ts              # Schéma GraphQL
@@ -96,7 +95,7 @@ npm install
 
 Créer un fichier `.env` à la racine du projet :
 ```env
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/loterie_noel?schema=public"
 JWT_SECRET="votre-secret-jwt-tres-securise"
 ADMIN_EMAIL="votre-email@gmail.com"
 GMAIL_APP_PASSWORD="votre-mot-de-passe-application-gmail"
@@ -121,9 +120,8 @@ npm run db:push      # Synchroniser le schéma avec la base de données
 npm run db:reset     # Réinitialiser la base de données
 
 # Production
-npm run build        # Construire l'application pour la production
-npm run preview      # Prévisualiser le build de production
-npm run generate     # Générer une version statique
+npm run generate     # Générer le site statique (déployé par Nginx)
+npm run preview      # Prévisualiser le build
 ```
 
 ## 🏃 Démarrage rapide
@@ -242,13 +240,13 @@ Ce script automatise :
 - Installation des dépendances
 - Génération du client Prisma
 - Initialisation de la base de données
-- Build de production
+- Génération du site statique
 
 ### Prérequis
 
 - Node.js 18+ et npm
 - Nginx (pour servir le frontend et reverse proxy)
-- PostgreSQL (recommandé pour production) ou SQLite
+- PostgreSQL
 - PM2 (optionnel mais recommandé pour gérer le backend)
 
 ### Étapes de déploiement (résumé)
@@ -273,10 +271,8 @@ cp .env.example .env
 Éditez le fichier `.env` avec vos valeurs :
 
 ```env
-# Base de données (SQLite pour débuter, PostgreSQL pour production)
-DATABASE_URL="file:./prisma/dev.db"
-# ou pour PostgreSQL:
-# DATABASE_URL="postgresql://user:password@localhost:5432/loterie_noel?schema=public"
+# Base de données PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/loterie_noel?schema=public"
 
 # Authentification
 JWT_SECRET="votre-secret-jwt-tres-securise"
@@ -292,13 +288,7 @@ GRAPHQL_URL="https://votre-domaine.com/graphql"
 
 #### 3. Base de données
 
-**Option A : SQLite (simple, pour petits déploiements)**
-```bash
-npx prisma generate
-npx prisma db push
-```
-
-**Option B : PostgreSQL (recommandé pour production)**
+**PostgreSQL**
 ```bash
 # Voir deployment/database-migration.md pour le guide complet
 ./deployment/postgres-setup.sh loterie_noel loterie_user votre_mot_de_passe
@@ -307,14 +297,14 @@ npx prisma generate
 npx prisma migrate deploy
 ```
 
-#### 4. Build de l'application
+#### 4. Génération du site statique
 
 ```bash
-# Build automatique avec vérifications
+# Avec vérifications
 ./scripts/build-production.sh
 
 # Ou manuellement:
-npm run build
+npm run generate
 ```
 
 #### 5. Démarrer le backend Apollo
@@ -374,8 +364,8 @@ sudo certbot --nginx -d votre-domaine.com
 ### Checklist de déploiement
 
 - [ ] Variables d'environnement configurées dans `.env`
-- [ ] Base de données initialisée (SQLite ou PostgreSQL)
-- [ ] Build de production effectué (`dist/` créé)
+- [ ] Base de données PostgreSQL initialisée
+- [ ] Site statique généré (`.output/public/` créé)
 - [ ] Backend Apollo démarré et accessible
 - [ ] Nginx configuré et actif
 - [ ] HTTPS configuré (optionnel mais recommandé)
@@ -404,13 +394,9 @@ npm run db:push                      # Synchroniser le schéma
 Internet
    ↓
 Nginx (port 80/443)
-   ├── / → Fichiers statiques Nuxt (dist/)
+   ├── / → Fichiers statiques Nuxt (.output/public/)
    └── /graphql → Reverse proxy → Backend Apollo (port 4000)
 ```
-
-### Migration SQLite → PostgreSQL
-
-Voir le guide complet dans `deployment/database-migration.md`
 
 ### Dépannage
 
@@ -420,8 +406,8 @@ Voir le guide complet dans `deployment/database-migration.md`
 - Vérifier les logs : `pm2 logs loterie-backend` ou dans la console
 
 **Nginx ne sert pas les fichiers :**
-- Vérifier que le chemin `root` pointe vers `dist/`
-- Vérifier les permissions : `sudo chown -R www-data:www-data dist/`
+- Vérifier que le chemin `root` pointe vers `.output/public/`
+- Vérifier les permissions : `sudo chown -R www-data:www-data .output/`
 - Vérifier les logs : `sudo tail -f /var/log/nginx/loterie-noel-error.log`
 
 **Erreurs de connexion GraphQL :**
@@ -435,7 +421,7 @@ Voir le guide complet dans `deployment/database-migration.md`
 
 Créer un fichier `.env` à partir de `.env.example` :
 ```env
-DATABASE_URL="file:./prisma/dev.db"
+DATABASE_URL="postgresql://user:password@localhost:5432/loterie_noel?schema=public"
 JWT_SECRET="votre-secret-jwt"
 ADMIN_EMAIL="votre-email@gmail.com"
 GMAIL_APP_PASSWORD="votre-mot-de-passe-application-gmail"
@@ -443,7 +429,7 @@ SITE_URL="http://localhost:3000"
 GRAPHQL_URL="http://localhost:4000/graphql"
 ```
 
-Voir `.env.example` pour tous les détails et exemples (SQLite et PostgreSQL).
+Voir `.env.example` pour tous les détails et exemples (PostgreSQL).
 
 ### Base de données
 
@@ -474,7 +460,7 @@ Tous les espacements sont définis dans `variables.css` et utilisés via `var(--
 - **Apollo Server** doit tourner sur le port 4000
 - **Nuxt** tourne sur le port 3000
 - Les deux serveurs doivent être démarrés simultanément
-- La base de données SQLite est locale (`prisma/dev.db`)
+- La base de données est PostgreSQL (voir `DATABASE_URL`)
 
 ## 🐛 Dépannage
 
@@ -490,7 +476,7 @@ Tous les espacements sont définis dans `variables.css` et utilisés via `var(--
 
 ### Erreurs de base de données
 - Exécuter `npm run db:push` pour synchroniser le schéma
-- Vérifier que `DATABASE_URL` dans `.env` pointe vers le bon fichier
+- Vérifier que `DATABASE_URL` dans `.env` est correct
 
 ## 📄 Licence
 

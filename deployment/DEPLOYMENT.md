@@ -5,7 +5,7 @@ Guide étape par étape pour déployer l'application Loterie de Noël sur votre 
 ## Prérequis sur le serveur
 
 - **Node.js 18+** et npm
-- **PostgreSQL** (ou SQLite si vous préférez)
+- **PostgreSQL**
 - **Nginx** (pour servir le frontend et reverse proxy)
 - **PM2** (optionnel, pour gérer le backend)
 - **Git** (pour cloner le projet)
@@ -70,7 +70,7 @@ cd loterie-noel
 
 ```bash
 # Depuis votre machine locale
-rsync -avz --exclude 'node_modules' --exclude '.nuxt' --exclude 'dist' \
+rsync -avz --exclude 'node_modules' --exclude '.nuxt' --exclude '.output' \
   ./ user@votre-serveur:/var/www/loterie-noel/
 ```
 
@@ -148,7 +148,7 @@ npx prisma migrate deploy
 ./scripts/build-production.sh
 
 # Ou manuellement
-npm run build
+npm run generate
 ```
 
 Vérifier que le dossier `.output/` a été créé.

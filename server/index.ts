@@ -39,7 +39,7 @@ async function startServer() {
 
     console.log('🚀 Démarrage du serveur sur le port 4000...')
     const { url } = await startStandaloneServer(server, {
-      listen: { port: 4000 },
+      listen: { port: Number(process.env.PORT) || 4000 },
       context: async ({ req }: { req: any }): Promise<GraphQLContext> => {
         const authHeader = req.headers.authorization
         const token = authService.extractTokenFromHeader(authHeader)
