@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { dbService } from './database.js'
+import { emailService } from './emailService.js'
 import type { AuthResult, User } from './types.js'
 import { validateEmail } from '../utils/email.js'
 
@@ -109,6 +110,60 @@ export class AuthService {
         token: null,
         error: 'Erreur lors de la connexion'
       }
+    }
+  }
+
+  // Lien de réinitialisation : le jeton est signé avec le mot de passe actuel,
+  // il devient donc invalide dès que le mot de passe change (usage unique).
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      const user = await dbService.getUserByEmail(email)
+      if (!user) return
+
+      const token = jwt.sign(
+        { userId: user.id, purpose: 'reset' },
+        JWT_SECRET + (user.password || ''),
+        { expiresIn: '1h' }
+      )
+      const link = `${process.env.SITE_URL || 'http://localhost:3000'}/reset-password?token=${encodeURIComponent(token)}`
+      await emailService.sendPasswordReset(user.email, user.name, link)
+    } catch (error) {
+      console.error('❌ Erreur lors de la demande de réinitialisation:', error)
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<AuthResult> {
+    const invalid: AuthResult = {
+      success: false,
+      user: null,
+      token: null,
+      error: 'Lien invalide ou expiré. Refais une demande de mot de passe oublié.'
+    }
+
+    try {
+      if (newPassword.length < 6) {
+        return { ...invalid, error: 'Le mot de passe doit contenir au moins 6 caractères' }
+      }
+
+      const payload = jwt.decode(token) as { userId?: string; purpose?: string } | null
+      if (!payload?.userId || payload.purpose !== 'reset') return invalid
+
+      const user = await dbService.getUserById(payload.userId)
+      if (!user) return invalid
+
+      jwt.verify(token, JWT_SECRET + (user.password || ''))
+
+      await dbService.updateUserPassword(user.id, await bcrypt.hash(newPassword, 12))
+
+      const { password: _, ...userWithoutPassword } = user
+      return {
+        success: true,
+        user: userWithoutPassword as User,
+        token: this.generateToken(user.id),
+        error: null
+      }
+    } catch (error) {
+      return invalid
     }
   }
 

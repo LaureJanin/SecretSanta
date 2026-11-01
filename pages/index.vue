@@ -71,7 +71,7 @@ const countdownText = computed(() => {
 }
 
 .home-intro {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--color-bg-glass-soft);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-md) var(--spacing-xl);

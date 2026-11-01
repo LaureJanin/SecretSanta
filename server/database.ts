@@ -29,9 +29,13 @@ class DatabaseService {
     })
   }
 
-  async createLottery(name: string, year: number, ownerId: string) {
+  async updateUserPassword(userId: string, hashedPassword: string) {
+    await this.prisma.user.update({ where: { id: userId }, data: { password: hashedPassword } })
+  }
+
+  async createLottery(name: string, year: number, ownerId: string, budget?: number | null) {
     return this.prisma.lottery.create({
-      data: { name, year, ownerId },
+      data: { name, year, ownerId, budget: budget ?? null },
       include: { owner: true, participants: true, exclusions: true, draws: true }
     })
   }
@@ -106,6 +110,22 @@ class DatabaseService {
     })
   }
 
+  async setLotteryBudget(lotteryId: string, budget: number | null) {
+    return this.prisma.lottery.update({ where: { id: lotteryId }, data: { budget } })
+  }
+
+  async setInviteCode(lotteryId: string, inviteCode: string) {
+    await this.prisma.lottery.update({ where: { id: lotteryId }, data: { inviteCode } })
+    return inviteCode
+  }
+
+  async getLotteryByInviteCode(inviteCode: string) {
+    return this.prisma.lottery.findFirst({
+      where: { inviteCode },
+      include: { owner: true, participants: true, draws: true }
+    })
+  }
+
   async getLotteryById(id: string) {
     return this.prisma.lottery.findUnique({
       where: { id },
@@ -128,10 +148,18 @@ class DatabaseService {
     })
   }
 
-  async createGiftIdea(participantId: string, title: string, description?: string, link?: string) {
+  async createGiftIdea(participantId: string, title: string, description?: string, link?: string, imageUrl?: string, price?: number) {
     return this.prisma.giftIdea.create({
-      data: { title, description, link, participant: { connect: { id: participantId } } }
+      data: { title, description, link, imageUrl, price, participant: { connect: { id: participantId } } }
     })
+  }
+
+  async getGiftIdeaById(giftIdeaId: string) {
+    return this.prisma.giftIdea.findUnique({ where: { id: giftIdeaId } })
+  }
+
+  async setGiftIdeaPurchased(giftIdeaId: string, purchased: boolean) {
+    return this.prisma.giftIdea.update({ where: { id: giftIdeaId }, data: { purchased } })
   }
 
   async deleteGiftIdea(giftIdeaId: string) {

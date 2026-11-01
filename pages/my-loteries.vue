@@ -26,6 +26,7 @@
           <div class="loterie-info">
             <span v-if="isOwner(loterie)" class="info-badge owner">👑 Organisateur</span>
             <span class="info-badge">👥 {{ loterie.participants.length }} participant(s)</span>
+            <span v-if="loterie.budget" class="info-badge">💶 {{ loterie.budget }} € par cadeau</span>
             <span v-if="loterie.draws && loterie.draws.length > 0" class="info-badge success">✅ Tirage effectué</span>
             <span v-else class="info-badge warning">⏳ Tirage non effectué</span>
           </div>
@@ -35,9 +36,13 @@
               <h3>🎯 Votre mission de Noël</h3>
             </div>
             <div class="receiver-info">
-              <div v-if="!revealed[loterie.id]" class="gift-box">
-                <button class="btn-reveal" @click="reveal(loterie.id)">🎁 Ouvrir mon cadeau</button>
+              <div v-if="!revealed[loterie.id] && spinning[loterie.id] === undefined" class="gift-box">
+                <button class="btn-reveal" @click="reveal(loterie)">🎁 Ouvrir mon cadeau</button>
                 <p class="reveal-hint">Chut ! Vérifie que personne ne regarde par-dessus ton épaule 👀</p>
+              </div>
+              <div v-else-if="!revealed[loterie.id]" class="roulette" aria-live="polite">
+                <p class="roulette-label">🥁 Roulements de tambour…</p>
+                <div class="roulette-name">{{ avatarFor(spinning[loterie.id]) }} {{ spinning[loterie.id] }}</div>
               </div>
               <template v-else>
               <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ avatarFor(getMyDraw(loterie)?.receiver?.name || '') }} {{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
@@ -46,11 +51,17 @@
                 <h4>🎁 Ses idées cadeaux :</h4>
                 <div class="gift-ideas-list">
                   <div v-for="idea in getMyDrawGiftIdeas(loterie)" :key="idea.id" class="gift-idea-item">
+                    <img v-if="idea.imageUrl" :src="idea.imageUrl" alt="" class="gift-idea-image" loading="lazy" referrerpolicy="no-referrer" @error="($event.target as HTMLImageElement).style.display = 'none'">
                     <div class="gift-idea-content">
-                      <h5>{{ idea.title }}</h5>
+                      <h5>{{ idea.title }} <span v-if="idea.price" class="gift-idea-price">~{{ idea.price }} €</span></h5>
                       <p v-if="idea.description" class="gift-idea-description">{{ idea.description }}</p>
                       <a v-if="idea.link" :href="idea.link" target="_blank" rel="noopener noreferrer" class="gift-idea-link">🔗 Voir le lien</a>
                     </div>
+                    <button
+                      class="btn-purchased"
+                      :class="{ done: idea.isPurchased }"
+                      @click="togglePurchased(idea)"
+                    >{{ idea.isPurchased ? '✅ Déjà acheté' : '🛒 Je l\'ai acheté' }}</button>
                   </div>
                 </div>
               </div>
@@ -71,14 +82,15 @@
 definePageMeta({ ssr: false })
 
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useLazyQuery } from '@vue/apollo-composable'
+import { useLazyQuery, useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
-import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
+import { ME_QUERY, MY_LOTERIES_QUERY, SET_GIFT_IDEA_PURCHASED_MUTATION } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
 import { useConfetti } from '~/composables/useConfetti'
 import { compareEmails } from '~/utils/email'
 import { avatarFor } from '~/utils/avatar'
-import type { LotteryResponse, DrawResponse } from '~/types'
+import { useToast } from '~/composables/useToast'
+import type { LotteryResponse, DrawResponse, GiftIdeaResponse } from '~/types'
 
 const router = useRouter()
 const { requireAuth, getToken } = useAuth()
@@ -90,9 +102,43 @@ const loading = ref(true)
 const { confetti } = useConfetti()
 const revealed = ref<Record<string, boolean>>({})
 
-function reveal(lotteryId: string) {
-  revealed.value[lotteryId] = true
-  confetti()
+const { error: showError } = useToast()
+const { mutate: setPurchased } = useMutation(SET_GIFT_IDEA_PURCHASED_MUTATION)
+
+async function togglePurchased(idea: GiftIdeaResponse) {
+  try {
+    await setPurchased({ giftIdeaId: idea.id, purchased: !idea.isPurchased })
+  } catch (err: unknown) {
+    showError(err instanceof Error ? err.message : 'Erreur lors de la mise à jour')
+  }
+}
+
+// Roulette : les noms défilent de plus en plus lentement, puis s'arrêtent sur le bon
+const spinning = ref<Record<string, string>>({})
+
+function reveal(loterie: LotteryResponse) {
+  const id = loterie.id
+  const target = getMyDraw(loterie)?.receiver?.name || ''
+  const names = (loterie.participants || []).filter(p => p.isActive).map(p => p.name)
+  const pool = names.length > 1 ? names : [target]
+
+  let step = 0
+  let delay = 60
+  const tick = () => {
+    if (delay > 450) {
+      spinning.value[id] = target
+      setTimeout(() => {
+        delete spinning.value[id]
+        revealed.value[id] = true
+        confetti()
+      }, 700)
+      return
+    }
+    spinning.value[id] = pool[step++ % pool.length]
+    delay *= 1.18
+    setTimeout(tick, delay)
+  }
+  tick()
 }
 
 const { result: meResult, load: loadMe, refetch: refetchMe } = useLazyQuery(ME_QUERY, {
@@ -191,6 +237,60 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
   text-align: center;
 }
 
+.roulette {
+  text-align: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.roulette-label {
+  color: var(--color-text-light);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.roulette-name {
+  display: inline-block;
+  min-width: 220px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: var(--font-size-2xl, 1.6rem);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  background: var(--color-bg-light);
+  border: 2px dashed var(--color-gold, #f5b942);
+  border-radius: var(--border-radius-lg);
+}
+
+.gift-idea-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.gift-idea-price {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning-text);
+  white-space: nowrap;
+}
+
+.btn-purchased {
+  margin-left: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  background: var(--color-bg-light);
+  color: var(--color-text);
+  border: 1px solid var(--border-color);
+  box-shadow: none;
+}
+
+.btn-purchased.done {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
 .btn-reveal {
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -272,7 +372,7 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
 
 .info-badge.owner {
   background: var(--color-warning-bg);
-  color: #e65100;
+  color: var(--color-warning-text);
   border: 1px solid var(--color-secondary);
 }
 
@@ -284,7 +384,7 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
 
 .info-badge.warning {
   background: var(--color-warning-bg);
-  color: #856404;
+  color: var(--color-warning-text);
   border: 1px solid var(--color-warning);
 }
 
@@ -350,7 +450,7 @@ ul {
 .draw-result {
   margin-top: var(--spacing-lg);
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-success-bg), #f1f8f4);
+  background: linear-gradient(135deg, var(--color-success-bg), var(--color-bg-card));
   border-radius: var(--border-radius-lg);
   border: var(--border-width) solid var(--color-success);
 }
@@ -399,10 +499,16 @@ ul {
 }
 
 .gift-idea-item {
+  display: flex;
+  align-items: center;
   background: var(--color-bg-card);
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+.gift-idea-content {
+  flex: 1;
 }
 
 .gift-idea-content h5 {

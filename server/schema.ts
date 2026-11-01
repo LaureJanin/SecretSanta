@@ -11,6 +11,8 @@ export const typeDefs = `#graphql
     id: ID!
     name: String!
     year: Int!
+    budget: Int
+    inviteCode: String
     createdAt: String!
     owner: User!
     participants: [Participant!]!
@@ -32,7 +34,19 @@ export const typeDefs = `#graphql
     title: String!
     description: String
     link: String
+    imageUrl: String
+    price: Int
+    isPurchased: Boolean!
     createdAt: String!
+  }
+
+  type LotteryInvite {
+    name: String!
+    year: Int!
+    budget: Int
+    ownerName: String!
+    participantCount: Int!
+    drawDone: Boolean!
   }
 
   type Exclusion {
@@ -65,15 +79,23 @@ export const typeDefs = `#graphql
     me: User
     myLotteries: [Lottery!]!
     myOwnedLotteries: [Lottery!]!
+
+    # Public : aperçu d'une loterie à partir de son lien d'invitation
+    lotteryInvite(code: String!): LotteryInvite
   }
 
   type Mutation {
     # Authentification
     register(email: String!, name: String!, password: String!): AuthResult!
     login(email: String!, password: String!): AuthResult!
+    requestPasswordReset(email: String!): Boolean!
+    resetPassword(token: String!, password: String!): AuthResult!
     
     # Gestion des loteries (authentification requise)
-    createLottery(name: String!, year: Int!): Lottery
+    createLottery(name: String!, year: Int!, budget: Int): Lottery
+    setLotteryBudget(lotteryId: ID!, budget: Int): Lottery
+    generateInviteCode(lotteryId: ID!): String!
+    joinLottery(code: String!): Lottery
     deleteLottery(lotteryId: ID!): Boolean
     
     # Gestion des participants (authentification requise + propriétaire)
@@ -84,7 +106,8 @@ export const typeDefs = `#graphql
     sendDrawResults(lotteryId: ID!): EmailResult!
     
     # Gestion des idées cadeaux
-    addGiftIdea(participantId: ID!, title: String!, description: String, link: String): GiftIdea
+    addGiftIdea(participantId: ID!, title: String!, description: String, link: String, imageUrl: String, price: Int): GiftIdea
+    setGiftIdeaPurchased(giftIdeaId: ID!, purchased: Boolean!): GiftIdea
     deleteGiftIdea(giftIdeaId: ID!): Boolean
   }
 `

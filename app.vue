@@ -49,6 +49,9 @@
           <NuxtLink to="/login" @click="closeMenu">Connexion</NuxtLink>
           <NuxtLink to="/signup" @click="closeMenu">Inscription</NuxtLink>
         </template>
+        <button type="button" class="theme-toggle" :title="isDark ? 'Mode jour' : 'Mode nuit'" :aria-label="isDark ? 'Passer en mode jour' : 'Passer en mode nuit'" @click="toggleTheme">
+          {{ isDark ? '☀️' : '🌙' }}
+        </button>
       </nav>
     </header>
 
@@ -69,11 +72,13 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '~/composables/useAuth';
+import { useTheme } from '~/composables/useTheme';
 
 const isClient = ref(false);
 const menuOpen = ref(false);
 const router = useRouter();
 const { isAuthenticated, logout: authLogout } = useAuth();
+const { isDark, initTheme, toggleTheme } = useTheme();
 
 const logout = () => {
   authLogout();
@@ -95,6 +100,7 @@ const handleKeydown = (e) => {
 };
 
 onMounted(() => {
+  initTheme();
   isClient.value = true;
   if (process.client) {
     document.addEventListener('keydown', handleKeydown);
@@ -269,6 +275,23 @@ const generateFlakeStyle = () => {
   font-size: var(--font-size-base);
   cursor: pointer;
   transition: all var(--transition-base);
+}
+
+.theme-toggle {
+  background: transparent;
+  border: 2px solid transparent;
+  box-shadow: none;
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  background: var(--color-bg-light);
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-logout:hover {

@@ -21,6 +21,8 @@
   --color-bg: rgba(255, 255, 255, 0.97);
   --color-bg-light: #f8f9fa;
   --color-bg-card: white;
+  --color-bg-glass: rgba(255, 255, 255, 0.95);
+  --color-bg-glass-soft: rgba(255, 255, 255, 0.85);
   --color-bg-gradient: linear-gradient(135deg, #ffe6b7 0%, #ffb88c 40%, #e57373 100%);
   
   /* Couleurs d'état */
@@ -30,6 +32,7 @@
   --color-error-bg: #ffe6e6;
   --color-warning: #ffc107;
   --color-warning-bg: #fff3cd;
+  --color-warning-text: #856404;
   --color-info: #007bff;
   --color-info-bg: #e7f3ff;
   
@@ -99,3 +102,29 @@
   --breakpoint-xl: 1280px;
 }
 
+/* Mode nuit : on ne redéfinit que les couleurs */
+:root[data-theme="dark"] {
+  --color-text: #e8ecf8;
+  --color-text-light: #b5bdd6;
+  --color-text-lighter: #8f98b8;
+
+  --color-bg: rgba(27, 34, 70, 0.96);
+  --color-bg-light: #262f5c;
+  --color-bg-card: #1e2652;
+  --color-bg-glass: rgba(27, 34, 70, 0.95);
+  --color-bg-glass-soft: rgba(27, 34, 70, 0.85);
+  --color-bg-gradient: linear-gradient(180deg, #080c2a 0%, #141b4d 55%, #2a2a62 100%);
+
+  --color-accent: #ff6b6b;
+  --color-success-bg: #17382b;
+  --color-error-bg: #4a1f26;
+  --color-warning-bg: #4a3d12;
+  --color-warning-text: #ffd36b;
+  --color-info-bg: #17304f;
+
+  --border-color: #3a4575;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.55);
+}

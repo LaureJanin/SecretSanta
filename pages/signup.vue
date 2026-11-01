@@ -65,7 +65,7 @@
       </form>
       <div class="login-message">
         Tu as déjà un compte <span class="happy-face">😊</span> ?
-        <NuxtLink to="/login" class="login-link">Connecte-toi !</NuxtLink>
+        <NuxtLink :to="{ path: '/login', query: route.query }" class="login-link">Connecte-toi !</NuxtLink>
       </div>
     </div>
   </div>
@@ -84,6 +84,12 @@ const password = ref('')
 const confirmPassword = ref('')
 const errorMsg = ref('')
 const loading = ref(false)
+
+const route = useRoute()
+// Redirection après connexion (ex : lien d'invitation) : uniquement vers une page du site
+const redirectTo = typeof route.query.redirect === 'string' && /^\/(?!\/)/.test(route.query.redirect)
+  ? route.query.redirect
+  : '/my-loteries'
 
 const { mutate } = useMutation(REGISTER_MUTATION)
 const { setAuthData } = useAuth()
@@ -122,7 +128,7 @@ async function handleSignup(e: Event) {
         data.register.user?.id,
         data.register.user?.email
       )
-      await navigateTo('/my-loteries')
+      await navigateTo(redirectTo)
     } else {
       errorMsg.value = data?.register?.error || 'Erreur lors de la création du compte'
     }
@@ -148,7 +154,7 @@ async function handleSignup(e: Event) {
 }
 
 .signup-container {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-bg-glass);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-xl) calc(var(--spacing-xl) + 0.5rem);

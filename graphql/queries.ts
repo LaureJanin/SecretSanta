@@ -29,11 +29,12 @@ mutation Login($email: String!, $password: String!) {
 }`
 
 export const CREATE_LOTTERY_MUTATION = gql`
-mutation CreateLottery($name: String!, $year: Int!) {
-  createLottery(name: $name, year: $year) {
+mutation CreateLottery($name: String!, $year: Int!, $budget: Int) {
+  createLottery(name: $name, year: $year, budget: $budget) {
     id
     name
     year
+    budget
   }
 }`
 
@@ -112,6 +113,7 @@ export const MY_LOTERIES_QUERY = gql`
       id
       name
       year
+      budget
       owner {
         id
         name
@@ -126,6 +128,9 @@ export const MY_LOTERIES_QUERY = gql`
           title
           description
           link
+          imageUrl
+          price
+          isPurchased
         }
       }
       draws {
@@ -144,6 +149,9 @@ export const MY_LOTERIES_QUERY = gql`
             title
             description
             link
+            imageUrl
+            price
+            isPurchased
           }
         }
       }
@@ -157,6 +165,8 @@ export const MY_OWNED_LOTTERIES_QUERY = gql`
       id
       name
       year
+      budget
+      inviteCode
       owner {
         id
         name
@@ -171,6 +181,9 @@ export const MY_OWNED_LOTTERIES_QUERY = gql`
           title
           description
           link
+          imageUrl
+          price
+          isPurchased
         }
       }
       exclusions {
@@ -194,6 +207,9 @@ export const MY_OWNED_LOTTERIES_QUERY = gql`
             title
             description
             link
+            imageUrl
+            price
+            isPurchased
           }
         }
         receiver {
@@ -204,6 +220,9 @@ export const MY_OWNED_LOTTERIES_QUERY = gql`
             title
             description
             link
+            imageUrl
+            price
+            isPurchased
           }
         }
       }
@@ -212,12 +231,15 @@ export const MY_OWNED_LOTTERIES_QUERY = gql`
 `
 
 export const ADD_GIFT_IDEA_MUTATION = gql`
-  mutation AddGiftIdea($participantId: ID!, $title: String!, $description: String, $link: String) {
-    addGiftIdea(participantId: $participantId, title: $title, description: $description, link: $link) {
+  mutation AddGiftIdea($participantId: ID!, $title: String!, $description: String, $link: String, $imageUrl: String, $price: Int) {
+    addGiftIdea(participantId: $participantId, title: $title, description: $description, link: $link, imageUrl: $imageUrl, price: $price) {
       id
       title
       description
       link
+      imageUrl
+      price
+      isPurchased
     }
   }
 `
@@ -225,5 +247,72 @@ export const ADD_GIFT_IDEA_MUTATION = gql`
 export const DELETE_GIFT_IDEA_MUTATION = gql`
   mutation DeleteGiftIdea($giftIdeaId: ID!) {
     deleteGiftIdea(giftIdeaId: $giftIdeaId)
+  }
+`
+
+export const REQUEST_PASSWORD_RESET_MUTATION = gql`
+  mutation RequestPasswordReset($email: String!) {
+    requestPasswordReset(email: $email)
+  }
+`
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($token: String!, $password: String!) {
+    resetPassword(token: $token, password: $password) {
+      success
+      user {
+        id
+        email
+        name
+      }
+      token
+      error
+    }
+  }
+`
+
+export const SET_LOTTERY_BUDGET_MUTATION = gql`
+  mutation SetLotteryBudget($lotteryId: ID!, $budget: Int) {
+    setLotteryBudget(lotteryId: $lotteryId, budget: $budget) {
+      id
+      budget
+    }
+  }
+`
+
+export const GENERATE_INVITE_CODE_MUTATION = gql`
+  mutation GenerateInviteCode($lotteryId: ID!) {
+    generateInviteCode(lotteryId: $lotteryId)
+  }
+`
+
+export const LOTTERY_INVITE_QUERY = gql`
+  query LotteryInvite($code: String!) {
+    lotteryInvite(code: $code) {
+      name
+      year
+      budget
+      ownerName
+      participantCount
+      drawDone
+    }
+  }
+`
+
+export const JOIN_LOTTERY_MUTATION = gql`
+  mutation JoinLottery($code: String!) {
+    joinLottery(code: $code) {
+      id
+      name
+    }
+  }
+`
+
+export const SET_GIFT_IDEA_PURCHASED_MUTATION = gql`
+  mutation SetGiftIdeaPurchased($giftIdeaId: ID!, $purchased: Boolean!) {
+    setGiftIdeaPurchased(giftIdeaId: $giftIdeaId, purchased: $purchased) {
+      id
+      isPurchased
+    }
   }
 `

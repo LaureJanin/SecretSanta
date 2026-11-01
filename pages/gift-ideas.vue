@@ -27,8 +27,9 @@
 
           <div v-if="getMyParticipant(lottery)?.giftIdeas?.length" class="ideas-list">
             <div v-for="idea in getMyParticipant(lottery)?.giftIdeas" :key="idea.id" class="idea-card">
+              <img v-if="idea.imageUrl" :src="idea.imageUrl" alt="" class="idea-image" loading="lazy" referrerpolicy="no-referrer" @error="($event.target as HTMLImageElement).style.display = 'none'">
               <div class="idea-content">
-                <h4>{{ idea.title }}</h4>
+                <h4>{{ idea.title }} <span v-if="idea.price" class="idea-price">~{{ idea.price }} €</span></h4>
                 <p v-if="idea.description">{{ idea.description }}</p>
                 <a v-if="idea.link" :href="idea.link" target="_blank" rel="noopener noreferrer" class="idea-link">🔗 Voir le lien</a>
               </div>
@@ -68,6 +69,25 @@
                   v-model="newIdea.link" 
                   type="url" 
                   placeholder="https://..."
+                  maxlength="500"
+                >
+              </div>
+              <div class="form-group">
+                <label>Prix approximatif en € (optionnel)</label>
+                <input
+                  v-model.number="newIdea.price"
+                  type="number"
+                  min="0"
+                  max="100000"
+                  placeholder="Ex: 25"
+                >
+              </div>
+              <div class="form-group">
+                <label>Photo (optionnel)</label>
+                <input
+                  v-model="newIdea.imageUrl"
+                  type="url"
+                  placeholder="Adresse de l'image (clic droit > copier l'adresse de l'image)"
                   maxlength="500"
                 >
               </div>
@@ -117,7 +137,7 @@ onMounted(async () => {
 const { mutate: addGiftIdea } = useMutation(ADD_GIFT_IDEA_MUTATION)
 const { mutate: deleteGiftIdea } = useMutation(DELETE_GIFT_IDEA_MUTATION)
 
-const newIdea = ref({ title: '', description: '', link: '' })
+const newIdea = ref<{ title: string; description: string; link: string; imageUrl: string; price: number | string }>({ title: '', description: '', link: '', imageUrl: '', price: '' })
 
 const userEmail = computed(() => {
   return meResult.value?.me?.email || ''
@@ -140,11 +160,13 @@ async function handleAddIdea(participantId: string) {
       participantId,
       title: newIdea.value.title,
       description: newIdea.value.description || null,
-      link: newIdea.value.link || null
+      link: newIdea.value.link || null,
+      imageUrl: newIdea.value.imageUrl || null,
+      price: newIdea.value.price === '' ? null : Number(newIdea.value.price)
     })
 
     if (result?.data?.addGiftIdea) {
-      newIdea.value = { title: '', description: '', link: '' }
+      newIdea.value = { title: '', description: '', link: '', imageUrl: '', price: '' }
       await refetch()
       success('Idée ajoutée ! Ton Père Noël secret va adorer 🎅')
     }
@@ -265,6 +287,22 @@ async function handleDeleteIdea(giftIdeaId: string) {
 
 .idea-content {
   flex: 1;
+}
+
+.idea-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--border-radius-md);
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.idea-price {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning-text);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
 }
 
 .idea-content h4 {

@@ -31,6 +31,18 @@
               required
             />
           </div>
+
+          <div class="form-group">
+            <label for="lotteryBudget">Budget par cadeau (optionnel)</label>
+            <input
+              id="lotteryBudget"
+              v-model.number="lotteryBudget"
+              type="number"
+              min="0"
+              max="100000"
+              placeholder="Ex: 20 (en euros)"
+            />
+          </div>
         </div>
 
         <div class="form-actions">
@@ -65,6 +77,7 @@ requireAuth()
 
 const lotteryName = ref('')
 const lotteryYear = ref(new Date().getFullYear())
+const lotteryBudget = ref<number | string>('')
 const loading = ref(false)
 
 const { mutate: createLottery } = useMutation(CREATE_LOTTERY_MUTATION)
@@ -79,7 +92,8 @@ async function handleSubmit() {
   try {
     const result = await createLottery({
       name: lotteryName.value.trim(),
-      year: lotteryYear.value
+      year: lotteryYear.value,
+      budget: lotteryBudget.value === '' ? null : Number(lotteryBudget.value)
     })
 
     const data = result?.data

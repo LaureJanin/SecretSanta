@@ -34,10 +34,12 @@
           <span v-else>Se connecter</span>
         </button>
         <div v-if="errorMsg" id="email-error" class="error-msg" role="alert">{{ errorMsg }}</div>
+        <NuxtLink to="/forgot-password" class="forgot-link">Mot de passe oublié ?</NuxtLink>
+        
       </form>
       <div class="login-message">
         Tu n'as pas de compte <span class="sad-face">😢</span> ?
-        <NuxtLink to="/signup" class="login-link">Crée-toi en un !</NuxtLink>
+        <NuxtLink :to="{ path: '/signup', query: route.query }" class="login-link">Crée-toi en un !</NuxtLink>
       </div>
     </div>
   </div>
@@ -54,6 +56,12 @@ const email = ref('')
 const password = ref('')
 const errorMsg = ref('')
 const loading = ref(false)
+
+const route = useRoute()
+// Redirection après connexion (ex : lien d'invitation) : uniquement vers une page du site
+const redirectTo = typeof route.query.redirect === 'string' && /^\/(?!\/)/.test(route.query.redirect)
+  ? route.query.redirect
+  : '/my-loteries'
 
 const { mutate } = useMutation(LOGIN_MUTATION)
 const { setAuthData } = useAuth()
@@ -77,7 +85,7 @@ async function handleLogin(e: Event) {
         data.login.user?.id,
         data.login.user?.email
       )
-      await navigateTo('/my-loteries')
+      await navigateTo(redirectTo)
     } else {
       errorMsg.value = data?.login?.error || 'Erreur inconnue.'
     }
@@ -103,7 +111,7 @@ async function handleLogin(e: Event) {
 }
 
 .signup-container {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-bg-glass);
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-xl) calc(var(--spacing-xl) + 0.5rem);
@@ -147,6 +155,13 @@ async function handleLogin(e: Event) {
   text-align: center;
   font-size: var(--font-size-base);
   color: var(--color-text);
+}
+
+.forgot-link {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-accent);
+  text-decoration: underline;
 }
 
 .sad-face {

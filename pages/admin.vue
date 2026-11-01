@@ -33,6 +33,24 @@
             <span class="stat-badge">👥 {{ selectedLottery.participants.length }} participants</span>
             <span v-if="hasDrawBeenDone" class="stat-badge success">✅ Tirage effectué</span>
             <span v-else class="stat-badge warning">⏳ Tirage non effectué</span>
+            <span v-if="selectedLottery.budget" class="stat-badge">💶 {{ selectedLottery.budget }} € par cadeau</span>
+          </div>
+
+          <div class="lottery-settings">
+            <div class="setting-row">
+              <label for="budgetInput">💶 Budget par cadeau</label>
+              <input id="budgetInput" v-model.number="budgetInput" type="number" min="0" max="100000" placeholder="Aucun" />
+              <button class="btn-small" @click="handleSaveBudget">Enregistrer</button>
+            </div>
+            <div v-if="!hasDrawBeenDone" class="setting-row">
+              <label>🔗 Lien d'invitation</label>
+              <template v-if="selectedLottery.inviteCode">
+                <input readonly :value="inviteLink" @focus="($event.target as HTMLInputElement).select()" />
+                <button class="btn-small" @click="copyInviteLink">📋 Copier</button>
+                <button class="btn-small" title="Créer un nouveau lien (l'ancien ne marchera plus)" @click="handleGenerateInvite(true)">🔄</button>
+              </template>
+              <button v-else class="btn-small" @click="handleGenerateInvite(false)">Créer un lien d'invitation</button>
+            </div>
           </div>
         </div>
 
@@ -228,7 +246,7 @@
 <script setup lang="ts">
 definePageMeta({ ssr: false })
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useLazyQuery, useMutation } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
@@ -245,7 +263,9 @@ import {
   DELETE_EXCLUSION_MUTATION,
   PERFORM_DRAW_MUTATION,
   SEND_DRAW_RESULTS_MUTATION,
-  DELETE_LOTTERY_MUTATION
+  DELETE_LOTTERY_MUTATION,
+  SET_LOTTERY_BUDGET_MUTATION,
+  GENERATE_INVITE_CODE_MUTATION
 } from '~/graphql/queries'
 
 const router = useRouter()
@@ -314,6 +334,59 @@ const { mutate: deleteExclusion } = useMutation(DELETE_EXCLUSION_MUTATION)
 const { mutate: performDraw } = useMutation(PERFORM_DRAW_MUTATION)
 const { mutate: sendDrawResults } = useMutation(SEND_DRAW_RESULTS_MUTATION)
 const { mutate: deleteLottery } = useMutation(DELETE_LOTTERY_MUTATION)
+const { mutate: setLotteryBudget } = useMutation(SET_LOTTERY_BUDGET_MUTATION)
+const { mutate: generateInviteCode } = useMutation(GENERATE_INVITE_CODE_MUTATION)
+
+const budgetInput = ref<number | string>('')
+watch(selectedLottery, (lottery) => { budgetInput.value = lottery?.budget ?? '' }, { immediate: true })
+
+const inviteLink = computed(() =>
+  process.client && selectedLottery.value?.inviteCode
+    ? `${window.location.origin}/join?code=${selectedLottery.value.inviteCode}`
+    : ''
+)
+
+async function handleSaveBudget() {
+  try {
+    await setLotteryBudget({
+      lotteryId: selectedLotteryId.value,
+      budget: budgetInput.value === '' ? null : Number(budgetInput.value)
+    })
+    success('Budget enregistré 💶')
+  } catch (err: unknown) {
+    showError(err instanceof Error ? err.message : 'Erreur lors de l\'enregistrement du budget')
+  }
+}
+
+async function handleGenerateInvite(isRegeneration: boolean) {
+  if (isRegeneration) {
+    const confirmed = await confirm({
+      title: 'Nouveau lien d\'invitation',
+      message: 'L\'ancien lien ne fonctionnera plus. Continuer ?',
+      confirmText: 'Créer un nouveau lien',
+      cancelText: 'Annuler',
+      type: 'info'
+    })
+    if (!confirmed) return
+  }
+
+  try {
+    await generateInviteCode({ lotteryId: selectedLotteryId.value })
+    await refetch()
+    success('Lien d\'invitation prêt, il n\'y a plus qu\'à le partager ! 🔗')
+  } catch (err: unknown) {
+    showError(err instanceof Error ? err.message : 'Erreur lors de la création du lien')
+  }
+}
+
+async function copyInviteLink() {
+  try {
+    await navigator.clipboard.writeText(inviteLink.value)
+    success('Lien copié ! 📋')
+  } catch {
+    showError('Copie impossible, sélectionne le lien et copie-le à la main')
+  }
+}
 function selectLottery(id: string) {
   selectedLotteryId.value = id
   onLotteryChange()
@@ -629,6 +702,42 @@ async function handleSendDrawResults() {
   flex-wrap: wrap;
 }
 
+.lottery-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.setting-row label {
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  color: var(--color-text-inverse);
+}
+
+.setting-row input {
+  flex: 1;
+  min-width: 120px;
+  max-width: 320px;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.btn-small {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
 .stat-badge {
   background: rgba(255, 255, 255, 0.2);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -803,7 +912,7 @@ async function handleSendDrawResults() {
 
 .badge.inactive {
   background: var(--color-warning-bg);
-  color: #856404;
+  color: var(--color-warning-text);
 }
 
 .participant-actions {
@@ -922,7 +1031,7 @@ async function handleSendDrawResults() {
 }
 
 .warning-text {
-  color: #856404;
+  color: var(--color-warning-text);
   font-size: var(--font-size-sm);
   margin-top: var(--spacing-sm);
 }

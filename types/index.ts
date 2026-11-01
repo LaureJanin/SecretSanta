@@ -20,6 +20,8 @@ export interface Lottery {
   id: string
   name: string
   year: number
+  budget?: number | null
+  inviteCode?: string | null
   createdAt?: string | Date
   owner?: User
   participants?: Participant[]
@@ -44,6 +46,9 @@ export interface GiftIdea {
   title: string
   description?: string | null
   link?: string | null
+  imageUrl?: string | null
+  price?: number | null
+  isPurchased?: boolean
   createdAt?: string | Date
 }
 
@@ -83,6 +88,8 @@ export interface LotteryResponse {
   id: string
   name: string
   year: number
+  budget?: number | null
+  inviteCode?: string | null
   owner?: {
     id: string
     name: string
@@ -104,6 +111,9 @@ export interface GiftIdeaResponse {
   title: string
   description?: string | null
   link?: string | null
+  imageUrl?: string | null
+  price?: number | null
+  isPurchased?: boolean
 }
 
 export interface DrawResponse {

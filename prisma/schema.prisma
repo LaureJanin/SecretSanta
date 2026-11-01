@@ -24,12 +24,16 @@ model Lottery {
   id           String        @id @default(uuid())
   name         String
   year         Int
+  budget       Int? // Budget par cadeau, en euros
+  inviteCode   String? // Code du lien d'invitation (long et aléatoire)
   createdAt    DateTime      @default(now())
   ownerId      String // Qui a créé cette loterie
   owner        User          @relation(fields: [ownerId], references: [id])
   participants Participant[]
   exclusions   Exclusion[]
   draws        Draw[]
+
+  @@index([inviteCode])
 }
 
 model Participant {
@@ -56,6 +60,9 @@ model GiftIdea {
   title         String
   description   String?
   link          String?
+  imageUrl      String?
+  price         Int? // Prix approximatif, en euros
+  purchased     Boolean     @default(false) // Marqué « déjà acheté » (caché au propriétaire de l'idée)
   createdAt     DateTime    @default(now())
 }
 
