@@ -1,5 +1,5 @@
 /* Import de la police Fredoka depuis Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Pacifico&display=swap');
 
 /* Corps de la page */
 body {
@@ -15,7 +15,38 @@ body {
   overflow-x: hidden;
 }
 
+/* Collines enneigées et petits décors en bas de page (derrière le contenu) */
+body::before {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 80px;
+  background:
+    radial-gradient(ellipse 40% 100% at 15% 100%, rgba(255, 255, 255, 0.9) 98%, transparent 100%),
+    radial-gradient(ellipse 45% 80% at 55% 100%, rgba(255, 255, 255, 0.9) 98%, transparent 100%),
+    radial-gradient(ellipse 35% 100% at 90% 100%, rgba(255, 255, 255, 0.9) 98%, transparent 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::after {
+  content: '🎄 ⛄ 🎄';
+  position: fixed;
+  bottom: 28px;
+  left: 4%;
+  font-size: 2rem;
+  letter-spacing: 0.5rem;
+  pointer-events: none;
+  z-index: -1;
+}
+
 @media (max-width: 768px) {
+  body::after {
+    font-size: 1.4rem;
+  }
+
   body {
     width: 100%;
     margin: 0;
@@ -31,7 +62,11 @@ h1, h2, h3, h4 {
 }
 
 h1 {
+  font-family: var(--font-family-title);
+  font-weight: var(--font-weight-normal);
   font-size: var(--font-size-3xl);
+  color: var(--color-accent);
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.7);
 }
 
 h2 {
@@ -69,8 +104,12 @@ button {
 
 button:hover:not(:disabled) {
   background-color: var(--color-primary);
-  transform: translateY(-2px);
+  transform: translateY(-3px) rotate(-1deg) scale(1.03);
   box-shadow: var(--shadow-button-hover);
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 button:disabled {
@@ -179,6 +218,25 @@ label {
 }
 
 /* Cartes/Conteneurs */
+.card,
+.loterie-card,
+.signup-container,
+.form-container,
+.home-intro,
+.action-card,
+.lottery-section {
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-sizing: border-box;
+}
+
+.loterie-card {
+  transition: transform var(--transition-slow);
+}
+
+.loterie-card:hover {
+  transform: translateY(-3px);
+}
+
 .card {
   background: var(--color-bg);
   border-radius: var(--border-radius-xl);
@@ -231,17 +289,27 @@ label {
   overflow: hidden;
 }
 
-/* Flocon individuel */
+/* Flocon individuel (❄, avec de temps en temps un 🎁 ou une ⭐) */
 .snowflake {
   position: absolute;
   top: -10px;
-  width: 10px;
-  height: 10px;
-  background-color: white;
-  border-radius: 50%;
+  line-height: 1;
+  color: white;
   opacity: 0.8;
   animation: fallAndDrift 6s linear infinite;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+}
+
+.snowflake::before {
+  content: '❄';
+}
+
+.snowflake:nth-child(9n)::before {
+  content: '🎁';
+}
+
+.snowflake:nth-child(11n)::before {
+  content: '⭐';
 }
 
 /* Variations des flocons */
@@ -307,4 +375,16 @@ label {
   opacity: 0.3;
   animation-duration: 11s;
   animation-delay: 1.5s;
+}
+
+/* Respect des préférences : pas d'animation si l'utilisateur les réduit */
+@media (prefers-reduced-motion: reduce) {
+  .snowflakes {
+    display: none;
+  }
+
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

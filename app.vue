@@ -3,10 +3,14 @@
     <div class="snowflakes" v-if="isClient">
       <div
         class="snowflake"
-        v-for="n in 100"
+        v-for="n in 60"
         :key="n"
         :style="generateFlakeStyle()"
       ></div>
+    </div>
+
+    <div class="garland" aria-hidden="true">
+      <span v-for="n in 30" :key="n" class="bulb"></span>
     </div>
 
     <header class="main-header">
@@ -113,8 +117,7 @@ const generateFlakeStyle = () => {
   const delay = Math.random() * -5;
 
   return {
-    width: `${size}px`,
-    height: `${size}px`,
+    fontSize: `${size * 2}px`,
     left: `${left}%`,
     animationDuration: `${duration}s`,
     animationDelay: `${delay}s`,
@@ -123,6 +126,42 @@ const generateFlakeStyle = () => {
 </script>
 
 <style scoped>
+.garland {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 24px;
+  display: flex;
+  justify-content: space-around;
+  border-top: 2px solid rgba(90, 60, 40, 0.5);
+  pointer-events: none;
+  z-index: 40;
+}
+
+.bulb {
+  width: 10px;
+  height: 14px;
+  margin-top: 2px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--c);
+  box-shadow: 0 0 8px 2px var(--c);
+  animation: twinkle 1.6s ease-in-out infinite;
+}
+
+.bulb:nth-child(4n+1) { --c: #d2232a; }
+.bulb:nth-child(4n+2) { --c: #f5b942; }
+.bulb:nth-child(4n+3) { --c: #1ca463; }
+.bulb:nth-child(4n)   { --c: #3b82f6; }
+.bulb:nth-child(even) { margin-top: 6px; }
+.bulb:nth-child(odd)  { animation-delay: -0.8s; }
+.bulb:nth-child(3n)   { animation-delay: -0.4s; }
+
+@keyframes twinkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
 #app {
   min-height: 100vh;
   display: flex;
@@ -134,6 +173,7 @@ const generateFlakeStyle = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 14px;
   background: transparent;
   border-bottom: none;
   box-shadow: none;
@@ -239,7 +279,7 @@ const generateFlakeStyle = () => {
 }
 
 main {
-  flex: 0 0 auto;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -272,9 +312,14 @@ main {
   }
 
   .header-title {
-    font-size: var(--font-size-3xl);
+    font-size: 1.6rem;
     margin: 0;
     text-align: center;
+  }
+
+  .header-logo {
+    width: 44px;
+    height: 44px;
   }
 
   .burger-menu {

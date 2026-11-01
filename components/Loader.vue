@@ -1,17 +1,32 @@
 <template>
   <div class="loader">
     <div class="spinner"></div>
-    <span v-if="message">{{ message }}</span>
+    <span>{{ shownMessage }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+
 interface Props {
   message?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  message: 'Chargement...'
+const props = defineProps<Props>()
+
+const FUNNY_MESSAGES = [
+  'Les lutins cherchent dans la hotte...',
+  'Les rennes se chauffent les sabots...',
+  'Le Père Noël vérifie sa liste...',
+  'On emballe tout ça...'
+]
+
+const shownMessage = ref(props.message || 'Chargement...')
+
+onMounted(() => {
+  if (!props.message) {
+    shownMessage.value = FUNNY_MESSAGES[Math.floor(Math.random() * FUNNY_MESSAGES.length)]
+  }
 })
 </script>
 
@@ -43,4 +58,3 @@ withDefaults(defineProps<Props>(), {
   }
 }
 </style>
-

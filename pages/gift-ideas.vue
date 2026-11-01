@@ -12,14 +12,14 @@
       </div>
 
       <div v-if="myLotteries.length === 0" class="no-lotteries">
-        <p>Tu ne participes à aucune loterie pour le moment.</p>
+        <p>Tu ne participes à aucune loterie pour le moment. Les lutins ne t'ont pas encore inscrit·e 🧝</p>
       </div>
 
       <div v-for="lottery in myLotteries" :key="lottery.id" class="lottery-section card">
         <h2>{{ lottery.name }} ({{ lottery.year }})</h2>
 
         <div v-if="!getMyParticipant(lottery)" class="no-participant">
-          <p>Vous n'êtes pas participant dans cette loterie.</p>
+          <p>Tu n'es pas participant·e dans cette loterie.</p>
         </div>
 
         <div v-if="getMyParticipant(lottery)" class="my-ideas">
@@ -36,7 +36,7 @@
             </div>
           </div>
           <div v-else class="no-ideas">
-            Aucune idée cadeau pour le moment. Ajoute-en une ci-dessous ! 👇
+            Aucune idée pour le moment… ton Père Noël secret va t'offrir des chaussettes 🧦 Ajoute-en une ci-dessous ! 👇
           </div>
 
           <div class="add-idea-form">
@@ -146,7 +146,7 @@ async function handleAddIdea(participantId: string) {
     if (result?.data?.addGiftIdea) {
       newIdea.value = { title: '', description: '', link: '' }
       await refetch()
-      success('Idée cadeau ajoutée !')
+      success('Idée ajoutée ! Ton Père Noël secret va adorer 🎅')
     }
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue'
@@ -168,7 +168,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
   try {
     await deleteGiftIdea({ giftIdeaId })
     await refetch()
-    success('Idée supprimée !')
+    success('Idée supprimée, poof ! ✨')
   } catch (err: unknown) {
     showError('Erreur lors de la suppression')
   }

@@ -5,7 +5,7 @@
       <div v-else-if="error" class="error">Erreur: {{ error?.message || 'Une erreur est survenue' }}</div>
     <div v-else>
       <div v-if="loteries.length === 0" class="no-loterie">
-        Aucune loterie trouvée.<br>
+        Aucune loterie trouvée… le Père Noël s'ennuie 🎅<br>
         <button class="btn-create" @click="router.push('/form')">Créer ta première loterie de Noël</button>
       </div>
       <div v-else>
@@ -35,7 +35,12 @@
               <h3>🎯 Votre mission de Noël</h3>
             </div>
             <div class="receiver-info">
-              <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
+              <div v-if="!revealed[loterie.id]" class="gift-box">
+                <button class="btn-reveal" @click="reveal(loterie.id)">🎁 Ouvrir mon cadeau</button>
+                <p class="reveal-hint">Chut ! Vérifie que personne ne regarde par-dessus ton épaule 👀</p>
+              </div>
+              <template v-else>
+              <p class="receiver-name">Vous offrez un cadeau à : <strong>{{ avatarFor(getMyDraw(loterie)?.receiver?.name || '') }} {{ getMyDraw(loterie)?.receiver?.name }}</strong></p>
               
               <div v-if="getMyDrawGiftIdeas(loterie).length > 0" class="gift-ideas-section">
                 <h4>🎁 Ses idées cadeaux :</h4>
@@ -50,8 +55,9 @@
                 </div>
               </div>
               <div v-else class="no-gift-ideas">
-                <p>Cette personne n'a pas encore ajouté d'idées cadeaux.</p>
+                <p>Cette personne n'a pas encore ajouté d'idées cadeaux. Bonne chance, devin·e 🔮</p>
               </div>
+              </template>
             </div>
           </div>
           </div>
@@ -69,7 +75,9 @@ import { useLazyQuery } from '@vue/apollo-composable'
 import { useRouter } from 'vue-router'
 import { ME_QUERY, MY_LOTERIES_QUERY } from '~/graphql/queries'
 import { useAuth } from '~/composables/useAuth'
+import { useConfetti } from '~/composables/useConfetti'
 import { compareEmails } from '~/utils/email'
+import { avatarFor } from '~/utils/avatar'
 import type { LotteryResponse, DrawResponse } from '~/types'
 
 const router = useRouter()
@@ -78,6 +86,14 @@ const { requireAuth, getToken } = useAuth()
 requireAuth()
 
 const loading = ref(true)
+
+const { confetti } = useConfetti()
+const revealed = ref<Record<string, boolean>>({})
+
+function reveal(lotteryId: string) {
+  revealed.value[lotteryId] = true
+  confetti()
+}
 
 const { result: meResult, load: loadMe, refetch: refetchMe } = useLazyQuery(ME_QUERY, {
   fetchPolicy: 'cache-and-network'
@@ -171,6 +187,34 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
 </script>
 
 <style scoped>
+.gift-box {
+  text-align: center;
+}
+
+.btn-reveal {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.reveal-hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+}
+
+.receiver-name {
+  animation: pop 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .my-loteries-page {
   width: 100%;
   margin: 0 auto;

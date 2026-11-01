@@ -9,6 +9,7 @@
   --color-secondary-dark: #e68a00;
   --color-accent: #d2232a;
   --color-accent-light: #ff9f1a;
+  --color-gold: #f5b942;
   
   /* Couleurs de texte */
   --color-text: #333;
@@ -43,8 +44,8 @@
   /* Bordures */
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --border-radius-xl: 14px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 22px;
   --border-radius-full: 50%;
   --border-radius-badge: 20px;
   
@@ -54,8 +55,8 @@
   
   /* Ombres */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 16px rgba(150, 40, 40, 0.14);
+  --shadow-lg: 0 8px 24px rgba(150, 40, 40, 0.2);
   --shadow-button: 0 2px 8px rgba(0, 0, 0, 0.07);
   --shadow-button-hover: 0 4px 12px rgba(28, 164, 99, 0.3);
   

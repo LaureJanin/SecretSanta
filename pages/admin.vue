@@ -5,18 +5,22 @@
     <Loader v-if="loading" />
     <div v-else-if="error" class="error">{{ error.message }}</div>
     <div v-else-if="loteries.length === 0" class="no-loterie">
-      <p>Vous n'avez créé aucune loterie.</p>
+      <p>Aucune loterie… les lutins chôment 🧝</p>
       <button @click="router.push('/form')" class="btn-primary">Créer une loterie</button>
     </div>
     <div v-else>
       <div class="lottery-selector">
-        <label for="lotterySelect">Sélectionner une loterie :</label>
-        <select id="lotterySelect" v-model="selectedLotteryId" @change="onLotteryChange">
-          <option value="">-- Choisir une loterie --</option>
-          <option v-for="lot in loteries" :key="lot.id" :value="lot.id">
-            {{ lot.name }} ({{ lot.year }})
-          </option>
-        </select>
+        <label>Choisis une loterie :</label>
+        <div class="lottery-chips">
+          <button
+            v-for="lot in loteries"
+            :key="lot.id"
+            type="button"
+            :class="['chip', { active: selectedLotteryId === lot.id }]"
+            @click="selectLottery(lot.id)">
+            🎁 {{ lot.name }} <small>({{ lot.year }})</small>
+          </button>
+        </div>
       </div>
 
       <div v-if="selectedLottery" class="lottery-details">
@@ -92,7 +96,7 @@
             <div class="participants-list">
               <div v-for="participant in selectedLottery.participants" :key="participant.id" class="participant-card">
                 <div class="participant-info">
-                  <h4>{{ participant.name }}</h4>
+                  <h4><span class="avatar">{{ avatarFor(participant.name) }}</span>{{ participant.name }}</h4>
                   <p v-if="participant.email" class="email">📧 {{ participant.email }}</p>
                   <span v-if="participant.isActive" class="badge active">✅ Actif</span>
                   <span v-else class="badge inactive">👶 Enfant</span>
@@ -156,7 +160,7 @@
               </div>
             </div>
             <div v-else class="no-data">
-              Aucune exclusion définie.
+              Aucune exclusion : tout le monde peut tirer tout le monde 😈
             </div>
           </div>
 
@@ -172,13 +176,14 @@
                   @click="handlePerformDraw"
                   :disabled="performingDraw || activeParticipants.length < 2"
                   class="btn-warning">
-                  {{ performingDraw ? 'Tirage en cours...' : 'Lancer le tirage' }}
+                  {{ performingDraw ? 'Les lutins mélangent les papiers...' : 'Lancer le tirage' }}
                 </button>
+                <div v-if="performingDraw" class="shaking-gift">🎁</div>
                 <p v-if="activeParticipants.length < 2" class="warning-text">
-                  ⚠️ Il faut au moins 2 participants actifs
+                  ⚠️ Il faut au moins 2 participants actifs (le Père Noël ne tire pas tout seul 🎅)
                 </p>
                 <div v-if="drawResult" class="result-message success">
-                  ✅ Tirage effectué avec succès !
+                  🎉 Tirage fait ! Les lutins ont tout noté.
                 </div>
               </div>
 
@@ -189,20 +194,32 @@
                   @click="handleSendDrawResults"
                   :disabled="sendingResults || !hasDrawBeenDone"
                   class="btn-warning">
-                  {{ sendingResults ? 'Envoi en cours...' : 'Envoyer les résultats' }}
+                  {{ sendingResults ? 'Les rennes livrent les emails...' : 'Envoyer les résultats' }}
                 </button>
                 <p v-if="!hasDrawBeenDone" class="warning-text">
                   ⚠️ Le tirage doit être effectué d'abord
                 </p>
                 <div v-if="drawResultsResult" class="result-message" :class="drawResultsResult.success ? 'success' : 'error'">
                   {{ drawResultsResult.success
-                    ? `✅ Email(s) envoyé(s) avec succès`
+                    ? `✅ Emails envoyés, les rennes sont en route 🦌`
                     : `❌ Erreur: ${drawResultsResult.errors?.join(', ') || 'Erreur inconnue'}` }}
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+
+      <div v-else class="lottery-placeholder card">
+        <span class="placeholder-arrow">👆</span>
+        <h3>Choisis une loterie pour la gérer</h3>
+        <p>Les lutins attendent tes ordres 🧝</p>
+        <div class="placeholder-stats">
+          <span class="stat-bubble">🎁 {{ loteries.length }} loterie(s)</span>
+          <span class="stat-bubble">👥 {{ totalParticipants }} participant(s) au total</span>
+          <span class="stat-bubble">🎲 {{ drawsDoneCount }} tirage(s) effectué(s)</span>
+        </div>
+        <button @click="router.push('/form')" class="btn-primary">➕ Créer une nouvelle loterie</button>
       </div>
     </div>
   </div>
@@ -217,7 +234,9 @@ import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 import { useConfirm } from '~/composables/useConfirm'
+import { useConfetti } from '~/composables/useConfetti'
 import { validateEmail } from '~/utils/email'
+import { avatarFor } from '~/utils/avatar'
 import type { LotteryResponse, ParticipantResponse } from '~/types'
 import {
   MY_OWNED_LOTTERIES_QUERY,
@@ -232,6 +251,7 @@ import {
 const router = useRouter()
 const { success, error: showError } = useToast()
 const { confirm } = useConfirm()
+const { confetti } = useConfetti()
 
 const { requireAuth, getToken } = useAuth()
 requireAuth()
@@ -244,6 +264,7 @@ onMounted(async () => {
   if (process.client && getToken()) {
     try {
       await load()
+      if (loteries.value.length === 1) selectedLotteryId.value = loteries.value[0].id
     } finally {
       loading.value = false
     }
@@ -279,12 +300,25 @@ const hasDrawBeenDone = computed(() => {
   return selectedLottery.value?.draws && selectedLottery.value.draws.length > 0
 })
 
+const totalParticipants = computed(() => {
+  return loteries.value.reduce((total: number, l: LotteryResponse) => total + l.participants.length, 0)
+})
+
+const drawsDoneCount = computed(() => {
+  return loteries.value.filter((l: LotteryResponse) => l.draws && l.draws.length > 0).length
+})
+
 const { mutate: addParticipant } = useMutation(ADD_PARTICIPANT_MUTATION)
 const { mutate: addExclusion } = useMutation(ADD_EXCLUSION_MUTATION)
 const { mutate: deleteExclusion } = useMutation(DELETE_EXCLUSION_MUTATION)
 const { mutate: performDraw } = useMutation(PERFORM_DRAW_MUTATION)
 const { mutate: sendDrawResults } = useMutation(SEND_DRAW_RESULTS_MUTATION)
 const { mutate: deleteLottery } = useMutation(DELETE_LOTTERY_MUTATION)
+function selectLottery(id: string) {
+  selectedLotteryId.value = id
+  onLotteryChange()
+}
+
 function onLotteryChange() {
   activeTab.value = 'participants'
   showAddParticipantForm.value = false
@@ -310,7 +344,7 @@ async function handleAddParticipant() {
     newParticipant.value = { name: '', email: '', isActive: true }
     showAddParticipantForm.value = false
     await refetch()
-    success('Participant ajouté avec succès')
+    success('Un participant de plus dans la hotte ! 🎁')
   } catch (err: unknown) {
     showError('Erreur lors de l\'ajout du participant')
   }
@@ -327,7 +361,7 @@ async function handleAddExclusion() {
     newExclusion.value = { participantId: '', excludedId: '' }
     showAddExclusionForm.value = false
     await refetch()
-    success('Exclusion ajoutée avec succès')
+    success('Exclusion notée, promis personne ne le saura 🤫')
   } catch (err: unknown) {
     showError('Erreur lors de l\'ajout de l\'exclusion')
   }
@@ -347,7 +381,7 @@ async function handleDeleteExclusion(exclusionId: string) {
   try {
     await deleteExclusion({ exclusionId })
     await refetch()
-    success('Exclusion supprimée avec succès')
+    success('Exclusion supprimée, on s\'est réconciliés 🤝')
   } catch (err: unknown) {
     showError('Erreur lors de la suppression de l\'exclusion')
   }
@@ -369,10 +403,15 @@ async function handlePerformDraw() {
   drawResult.value = null
 
   try {
-    const result = await performDraw({ lotteryId: selectedLotteryId.value })
+    // Petite pause pour laisser les lutins « mélanger les papiers »
+    const [result] = await Promise.all([
+      performDraw({ lotteryId: selectedLotteryId.value }),
+      new Promise(resolve => setTimeout(resolve, 1500))
+    ])
     drawResult.value = result?.data?.performDraw
     await refetch()
-    success('Tirage effectué avec succès !')
+    success('Tirage effectué ! 🎉')
+    confetti()
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : 'Erreur lors du tirage'
     showError(errorMessage)
@@ -400,7 +439,7 @@ async function handleDeleteLottery() {
       sessionStorage.setItem('lottery-just-deleted', 'true')
       window.dispatchEvent(new Event('lottery-deleted'))
     }
-    success('Loterie supprimée avec succès')
+    success('Loterie supprimée, adieu les cadeaux 👋')
   } catch (err: unknown) {
     showError('Erreur lors de la suppression de la loterie')
   }
@@ -433,6 +472,54 @@ async function handleSendDrawResults() {
 </script>
 
 <style scoped>
+.lottery-placeholder {
+  width: 60%;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.placeholder-arrow {
+  display: block;
+  font-size: 3rem;
+  animation: bounce-up 1.2s ease-in-out infinite;
+}
+
+@keyframes bounce-up {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.placeholder-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-lg) 0;
+}
+
+.stat-bubble {
+  background: var(--color-warning-bg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-badge);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+}
+
+.shaking-gift {
+  font-size: 3rem;
+  text-align: center;
+  margin-top: var(--spacing-md);
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-15deg) scale(1.1); }
+  75% { transform: rotate(15deg) scale(1.1); }
+}
+
 .admin-page {
   width: 100%;
   margin: 0 auto;
@@ -458,12 +545,36 @@ async function handleSendDrawResults() {
   color: var(--color-primary);
 }
 
-.lottery-selector select {
-  width: 100%;
-  padding: var(--spacing-md);
-  border: var(--border-width) solid var(--border-color);
-  border-radius: var(--border-radius-md);
+.lottery-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.chip {
+  padding: var(--spacing-sm) var(--spacing-md);
   font-size: var(--font-size-base);
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-badge);
+}
+
+.chip:hover:not(:disabled) {
+  background: var(--color-warning-bg);
+  color: var(--color-text);
+  border-color: var(--color-gold);
+}
+
+.chip.active {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent);
+}
+
+.chip.active:hover:not(:disabled) {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
 }
 
 .lottery-details {
@@ -479,7 +590,7 @@ async function handleSendDrawResults() {
 
 .lottery-header {
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
   color: var(--color-text-inverse);
 }
 
@@ -552,13 +663,13 @@ async function handleSendDrawResults() {
 
 .tab:hover {
   background: var(--color-bg-light);
-  color: var(--color-primary);
+  color: var(--color-accent);
 }
 
 .tab.active {
-  color: var(--color-primary);
+  color: var(--color-accent);
   background: var(--color-bg-light);
-  border-bottom-color: var(--color-primary);
+  border-bottom-color: var(--color-accent);
   font-weight: var(--font-weight-bold);
 }
 
@@ -633,6 +744,27 @@ async function handleSendDrawResults() {
   padding: var(--spacing-md);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border-color);
+  border-left: 6px solid var(--color-accent);
+  transition: transform var(--transition-base);
+}
+
+.participant-card:nth-child(even) {
+  border-left-color: var(--color-primary);
+}
+
+.participant-card:hover {
+  transform: translateY(-2px);
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin-right: var(--spacing-sm);
+  border-radius: 50%;
+  background: var(--color-warning-bg);
 }
 
 .participant-info {
@@ -823,6 +955,7 @@ async function handleSendDrawResults() {
   .lottery-selector {
     width: 100%;
   }
+  .lottery-placeholder,
   .lottery-details {
     width: 100%;
   }

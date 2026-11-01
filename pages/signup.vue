@@ -58,7 +58,7 @@
         />
 
         <button type="submit" :disabled="loading" :aria-busy="loading">
-          <span v-if="loading">Création...</span>
+          <span v-if="loading">Les lutins t'ajoutent à la liste des gentils...</span>
           <span v-else>Créer mon compte</span>
         </button>
         <div v-if="errorMsg" id="email-error" class="error-msg" role="alert">{{ errorMsg }}</div>
@@ -137,14 +137,14 @@ async function handleSignup(e: Event) {
 
 <style scoped>
 .signup-page {
-  min-height: 55vh;
+  flex: 1;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   background: none;
   position: relative;
   overflow: hidden;
-  padding-top: 4vh;
+  padding-bottom: 1vh;
 }
 
 .signup-container {

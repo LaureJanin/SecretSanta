@@ -30,7 +30,7 @@
         />
 
         <button type="submit" :disabled="loading" :aria-busy="loading">
-          <span v-if="loading">Connexion...</span>
+          <span v-if="loading">Les lutins vérifient ta liste...</span>
           <span v-else>Se connecter</span>
         </button>
         <div v-if="errorMsg" id="email-error" class="error-msg" role="alert">{{ errorMsg }}</div>
@@ -92,14 +92,14 @@ async function handleLogin(e: Event) {
 
 <style scoped>
 .login-page {
-  min-height: 55vh;
+  flex: 1;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   background: none;
   position: relative;
   overflow: hidden;
-  padding-top: 4vh;
+  padding-bottom: 1vh;
 }
 
 .signup-container {

@@ -1,14 +1,12 @@
 <template>
   <div class="home-page">
     <div class="home-intro">
-      <span class="emoji">🎅</span>
-      <h2>OH OH OH 🎄 C'est bientôt Noël !</h2>
-      <p>Est-ce que tu aimes <span class="red">RECEVOIR</span> des cadeaux ?</p>
-      <p>Est-ce que tu aimes <span class="red">FAIRE</span> des cadeaux ?</p>
-      <p> Est-ce que tu as été bien sage ?</p>
-      <p>Vraiment ?</p>
-      <p>Mouais... Bon... Admettons.</p>
+      <h2><span class="emoji">🎅</span> OH OH OH 🎄 C'est bientôt Noël !</h2>
+      <p>Tu aimes <span class="red">RECEVOIR</span> des cadeaux ? Et en <span class="red">FAIRE</span> ?</p>
+      <p>As-tu été bien sage ? Vraiment ? Mouais... Bon... Admettons.</p>
     </div>
+
+    <p v-if="daysLeft !== null" class="countdown">{{ countdownText }}</p>
 
     <h3>As-tu déjà fait ta liste pour Santa ?</h3>
 
@@ -20,8 +18,7 @@
       </div>
     </div>
 
-    <h3>Et toi que vas-tu offrir ?</h3>
-    <p>Pour répondre à ces questions, clique 👇.</p>
+    <h3>Et toi, que vas-tu offrir ? 👇</h3>
 
     <div class="action-buttons">
       <NuxtLink to="/signup">
@@ -46,16 +43,31 @@ const items = [
   'Un abonnement à vie à MyLittlePoney.tv',
 ];
 const repeatedItems = [...items, ...items];
+
+// Décompte avant Noël (calculé côté navigateur uniquement)
+const daysLeft = ref(null);
+onMounted(() => {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  let noel = new Date(now.getFullYear(), 11, 25);
+  if (today > noel) noel = new Date(now.getFullYear() + 1, 11, 25);
+  daysLeft.value = Math.round((noel - today) / 86400000);
+});
+const countdownText = computed(() => {
+  if (daysLeft.value === 0) return "C'est Noël aujourd'hui ! 🎅";
+  if (daysLeft.value === 1) return "Plus qu'un dodo avant Noël ! 🌙";
+  return `Plus que ${daysLeft.value} jours avant Noël ! 🎄`;
+});
 </script>
 
 <style scoped>
 .home-page {
-  min-height: 70vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 4vh;
+  justify-content: center;
+  padding-bottom: 1vh;
 }
 
 .home-intro {
@@ -63,16 +75,43 @@ const repeatedItems = [...items, ...items];
   border-radius: var(--border-radius-xl);
   box-shadow: var(--shadow-lg);
   padding: var(--spacing-md) var(--spacing-xl);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
   text-align: center;
-  max-width: var(--max-width-sm);
+  max-width: var(--max-width-md);
   width: 100%;
 }
 
+.home-intro h2 {
+  font-family: var(--font-family-title);
+  font-weight: var(--font-weight-normal);
+  font-size: 1.7rem;
+  color: var(--color-accent);
+}
+
+.home-intro p {
+  margin: var(--spacing-xs) 0;
+}
+
+.countdown {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-bold);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-badge);
+  box-shadow: var(--shadow-md);
+  animation: heartbeat 1.6s ease-in-out infinite;
+  margin: 0 0 var(--spacing-sm);
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
 .emoji {
-  display: block;
-  font-size: var(--font-size-3xl);
-  margin-bottom: var(--spacing-sm);
+  display: inline-block;
+  animation: wiggle 2s ease-in-out infinite;
+  transform-origin: bottom center;
 }
 
 .lottery-container {
@@ -84,8 +123,8 @@ const repeatedItems = [...items, ...items];
   background: transparent;
   max-width: var(--max-width-sm);
   width: 100%;
-  margin-top: var(--spacing-xl);
-  margin-bottom: var(--spacing-xl);
+  margin-top: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
 }
 
 .lottery-wheel {
@@ -110,7 +149,7 @@ const repeatedItems = [...items, ...items];
 .action-buttons {
   display: flex;
   gap: var(--spacing-lg);
-  margin-top: var(--spacing-xl);
+  margin-top: var(--spacing-md);
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -166,7 +205,7 @@ const repeatedItems = [...items, ...items];
     box-sizing: border-box;
   }
   .home-intro {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
     max-width: 100%;
     width: 100%;
     box-sizing: border-box;
@@ -175,17 +214,25 @@ const repeatedItems = [...items, ...items];
     width: 98vw;
     max-width: 98vw;
   }
+  .home-intro h2 {
+    font-size: 1.3rem;
+  }
   .action-buttons {
-    flex-direction: column;
     width: 100%;
     max-width: 100%;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
     align-items: center;
   }
   .action-buttons button {
     width: auto;
     min-width: auto;
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
   }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
 }
 </style>
