@@ -158,6 +158,7 @@ async function handleLogin(e: Event) {
 }
 
 .forgot-link {
+  padding: var(--spacing-sm) 0;
   text-align: center;
   font-size: var(--font-size-sm);
   color: var(--color-accent);

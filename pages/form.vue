@@ -148,7 +148,7 @@ async function handleSubmit() {
 }
 
 .form-section h2 {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-size: var(--font-size-xl);
   margin-bottom: var(--spacing-sm);
   text-align: center;
@@ -175,7 +175,6 @@ async function handleSubmit() {
 }
 
 .form-group input:focus {
-  outline: none;
   border-color: var(--border-color-focus);
 }
 

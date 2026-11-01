@@ -37,7 +37,8 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 
 if [ -z "$JWT_SECRET" ]; then
-    echo -e "${YELLOW}⚠️  JWT_SECRET n'est pas défini dans .env (utilisera la valeur par défaut)${NC}"
+    echo -e "${RED}❌ JWT_SECRET n'est pas défini dans .env (obligatoire)${NC}"
+    exit 1
 fi
 
 # Vérifier si Node.js est installé

@@ -256,7 +256,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
 }
 
 .lottery-section h2 {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin-top: 0;
   margin-bottom: var(--spacing-lg);
 }
@@ -318,7 +318,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
 }
 
 .idea-link {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: none;
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);
@@ -374,7 +374,7 @@ async function handleDeleteIdea(giftIdeaId: string) {
 
 .add-idea-form h4 {
   margin-top: 0;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .form-group {
@@ -400,7 +400,6 @@ async function handleDeleteIdea(giftIdeaId: string) {
 
 .form-group input:focus,
 .form-group textarea:focus {
-  outline: none;
   border-color: var(--border-color-focus);
 }
 

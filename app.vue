@@ -236,7 +236,7 @@ const generateFlakeStyle = () => {
   display: block;
   width: 25px;
   height: 3px;
-  background-color: var(--color-accent);
+  background-color: var(--color-nav);
   border-radius: 3px;
   transition: all var(--transition-base);
   transform-origin: center;
@@ -253,7 +253,7 @@ const generateFlakeStyle = () => {
 }
 
 .header-nav a {
-  color: var(--color-accent);
+  color: var(--color-nav);
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-lg);
   text-decoration: none;
@@ -267,8 +267,8 @@ const generateFlakeStyle = () => {
 
 .btn-logout {
   background: transparent;
-  color: var(--color-accent);
-  border: var(--border-width) solid var(--color-accent);
+  color: var(--color-nav);
+  border: var(--border-width) solid var(--color-nav);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius-sm);
   font-weight: var(--font-weight-bold);
@@ -278,6 +278,7 @@ const generateFlakeStyle = () => {
 }
 
 .theme-toggle {
+  color: var(--color-text);
   background: transparent;
   border: 2px solid transparent;
   box-shadow: none;
@@ -295,7 +296,7 @@ const generateFlakeStyle = () => {
 }
 
 .btn-logout:hover {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-text-inverse);
   transform: none;
   box-shadow: none;

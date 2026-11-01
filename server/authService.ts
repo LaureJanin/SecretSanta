@@ -4,8 +4,19 @@ import { dbService } from './database.js'
 import { emailService } from './emailService.js'
 import type { AuthResult, User } from './types.js'
 import { validateEmail } from '../utils/email.js'
+import { isRateLimited, recordHit, clearHits } from './rateLimit.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production'
+const envSecret = process.env.JWT_SECRET
+// Pas de valeur par défaut : un secret connu permettrait de fabriquer de faux jetons de connexion
+if (!envSecret || envSecret === 'your-super-secret-jwt-key-change-in-production') {
+  throw new Error('JWT_SECRET manquant : définis une valeur longue et aléatoire dans les variables d\'environnement')
+}
+const JWT_SECRET: string = envSecret
+
+const LOGIN_MAX_FAILURES = 5
+const LOGIN_WINDOW_MS = 15 * 60 * 1000
+const RESET_MAX_REQUESTS = 3
+const RESET_WINDOW_MS = 60 * 60 * 1000
 const JWT_EXPIRES_IN = '7d'
 
 export class AuthService {
@@ -63,8 +74,20 @@ export class AuthService {
         }
       }
 
+      // Protection contre les essais de mots de passe en rafale (par adresse email)
+      const loginKey = `login:${email.trim().toLowerCase()}`
+      if (isRateLimited(loginKey, LOGIN_MAX_FAILURES)) {
+        return {
+          success: false,
+          user: null,
+          token: null,
+          error: 'Trop de tentatives. Réessaie dans 15 minutes (ou utilise « Mot de passe oublié »).'
+        }
+      }
+
       const user = await dbService.getUserByEmail(email)
       if (!user) {
+        recordHit(loginKey, LOGIN_WINDOW_MS)
         return {
           success: false,
           user: null,
@@ -84,6 +107,7 @@ export class AuthService {
 
       const isValidPassword = await bcrypt.compare(password, user.password)
       if (!isValidPassword) {
+        recordHit(loginKey, LOGIN_WINDOW_MS)
         return {
           success: false,
           user: null,
@@ -92,6 +116,7 @@ export class AuthService {
         }
       }
 
+      clearHits(loginKey)
       const token = this.generateToken(user.id)
       const { password: _, ...userWithoutPassword } = user
 
@@ -117,6 +142,11 @@ export class AuthService {
   // il devient donc invalide dès que le mot de passe change (usage unique).
   async requestPasswordReset(email: string): Promise<void> {
     try {
+      // Évite qu'on s'en serve pour inonder une boîte mail (la réponse reste identique pour l'appelant)
+      const resetKey = `reset:${email.trim().toLowerCase()}`
+      if (isRateLimited(resetKey, RESET_MAX_REQUESTS)) return
+      recordHit(resetKey, RESET_WINDOW_MS)
+
       const user = await dbService.getUserByEmail(email)
       if (!user) return
 

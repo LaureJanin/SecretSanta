@@ -56,7 +56,7 @@ body::after {
 /* Titres */
 h1, h2, h3, h4 {
   font-family: var(--font-family);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-align: center;
   margin: var(--spacing-sm) 0;
 }
@@ -90,7 +90,7 @@ h5 {
 /* Boutons */
 button {
   background-color: var(--color-secondary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-secondary);
   padding: var(--spacing-md) calc(var(--spacing-xl) + 0.2rem);
   border: none;
   border-radius: var(--border-radius-lg);
@@ -104,6 +104,7 @@ button {
 
 button:hover:not(:disabled) {
   background-color: var(--color-primary);
+  color: var(--color-text-inverse);
   transform: translateY(-3px) rotate(-1deg) scale(1.03);
   box-shadow: var(--shadow-button-hover);
 }
@@ -161,12 +162,20 @@ button:disabled::before {
 
 .btn-secondary {
   background: linear-gradient(135deg, var(--color-secondary), #ffa500);
+  color: var(--color-on-secondary);
 }
 
 .btn-secondary:hover:not(:disabled) {
+  color: var(--color-on-secondary);
   background: linear-gradient(135deg, var(--color-secondary-dark), #ff8c00);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 159, 26, 0.3);
+}
+
+/* Navigation au clavier : contour bien visible */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
 }
 
 /* Liens */
@@ -194,7 +203,6 @@ input, select, textarea {
 }
 
 input:focus, select:focus, textarea:focus {
-  outline: none;
   border-color: var(--border-color-focus);
 }
 
@@ -248,7 +256,7 @@ label {
 /* États de chargement */
 .loading {
   text-align: center;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-size: var(--font-size-xl);
   margin: var(--spacing-xl) 0;
 }

@@ -615,7 +615,7 @@ async function handleSendDrawResults() {
   display: block;
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--spacing-md);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .lottery-chips {
@@ -640,13 +640,13 @@ async function handleSendDrawResults() {
 }
 
 .chip.active {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-text-inverse);
   border-color: var(--color-accent);
 }
 
 .chip.active:hover:not(:disabled) {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-text-inverse);
 }
 
@@ -663,7 +663,7 @@ async function handleSendDrawResults() {
 
 .lottery-header {
   padding: var(--spacing-lg);
-  background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+  background: linear-gradient(135deg, var(--color-accent-strong), var(--color-primary));
   color: var(--color-text-inverse);
 }
 
@@ -682,7 +682,7 @@ async function handleSendDrawResults() {
 .btn-delete-lottery {
   background: var(--color-secondary);
   border: none;
-  color: var(--color-text-inverse);
+  color: var(--color-on-secondary);
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius-md);
   font-size: var(--font-size-lg);
@@ -726,6 +726,8 @@ async function handleSendDrawResults() {
   flex: 1;
   min-width: 120px;
   max-width: 320px;
+  min-height: 40px;
+  box-sizing: border-box;
   padding: var(--spacing-xs) var(--spacing-sm);
   border: var(--border-width) solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -733,6 +735,7 @@ async function handleSendDrawResults() {
 }
 
 .btn-small {
+  min-height: 40px;
   padding: var(--spacing-xs) var(--spacing-sm);
   font-size: var(--font-size-sm);
   white-space: nowrap;
@@ -797,7 +800,7 @@ async function handleSendDrawResults() {
 
 .section-header h3 {
   margin: 0;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .btn-add {
@@ -1004,7 +1007,7 @@ async function handleSendDrawResults() {
 
 .action-card h4 {
   margin: 0 0 var(--spacing-sm) 0;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .action-card p {
@@ -1017,7 +1020,7 @@ async function handleSendDrawResults() {
   display: block;
   margin: 0 auto;
   background: var(--color-warning);
-  color: var(--color-text);
+  color: #333;
   padding: var(--spacing-md) var(--spacing-lg);
   border: none;
   border-radius: var(--border-radius-md);

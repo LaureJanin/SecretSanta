@@ -93,7 +93,7 @@ const countdownText = computed(() => {
 }
 
 .countdown {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: var(--color-text-inverse);
   font-weight: var(--font-weight-bold);
   padding: var(--spacing-sm) var(--spacing-lg);
@@ -137,7 +137,7 @@ const countdownText = computed(() => {
 .lottery-item {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
-  color: var(--color-accent);
+  color: var(--color-nav);
   line-height: 50px;
 }
 
@@ -177,7 +177,7 @@ const countdownText = computed(() => {
 
 .btn-login {
   background: linear-gradient(135deg, var(--color-secondary), #ffa500);
-  color: var(--color-text-inverse);
+  color: var(--color-on-secondary);
 }
 
 .btn-login:hover {

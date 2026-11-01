@@ -179,6 +179,10 @@ class DatabaseService {
     })
   }
 
+  async getExclusionById(exclusionId: string) {
+    return this.prisma.exclusion.findUnique({ where: { id: exclusionId } })
+  }
+
   async deleteExclusion(exclusionId: string) {
     await this.prisma.exclusion.delete({
       where: { id: exclusionId }

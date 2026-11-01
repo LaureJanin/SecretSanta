@@ -203,11 +203,24 @@ export const resolvers = {
       const user = requireAuth(context.user)
       await requireOwnership(lotteryId, user.id)
 
+      // Les deux participants doivent appartenir à cette loterie (sinon on pourrait toucher à celle d'un autre)
+      const [participant, excluded] = await Promise.all([
+        dbService.getParticipantForRelation(participantId),
+        dbService.getParticipantForRelation(excludedId)
+      ])
+      if (participant?.lotteryId !== lotteryId || excluded?.lotteryId !== lotteryId) {
+        throw new Error('Participants invalides pour cette loterie')
+      }
+
       return dbService.createExclusion(lotteryId, participantId, excludedId)
     },
 
     deleteExclusion: async (_: unknown, { exclusionId }: { exclusionId: string }, context: GraphQLContext) => {
-      requireAuth(context.user)
+      const user = requireAuth(context.user)
+      const exclusion = await dbService.getExclusionById(exclusionId)
+      if (!exclusion) throw new Error('Exclusion introuvable')
+      await requireOwnership(exclusion.lotteryId, user.id)
+
       return dbService.deleteExclusion(exclusionId)
     },
 

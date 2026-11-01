@@ -165,7 +165,7 @@ async function handleSignup(e: Event) {
 
 h1 {
   text-align: center;
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin-bottom: var(--spacing-lg);
   font-family: var(--font-family);
   text-shadow: 1px 1px 2px var(--color-text);
@@ -193,7 +193,6 @@ input {
 }
 
 input:focus {
-  outline: none;
   border-color: var(--border-color-focus);
 }
 
@@ -246,7 +245,7 @@ button:disabled {
 }
 
 .login-link {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
   transition: color var(--transition-base);

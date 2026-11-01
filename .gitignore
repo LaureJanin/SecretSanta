@@ -28,3 +28,6 @@ logs
 prisma/*.db
 prisma/*.db-journal
 prisma/prisma/
+
+# Sauvegardes locales de la base
+backups/

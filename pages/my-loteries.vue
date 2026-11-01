@@ -253,7 +253,7 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
   padding: var(--spacing-md) var(--spacing-lg);
   font-size: var(--font-size-2xl, 1.6rem);
   font-weight: var(--font-weight-bold);
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   background: var(--color-bg-light);
   border: 2px dashed var(--color-gold, #f5b942);
   border-radius: var(--border-radius-lg);
@@ -395,7 +395,7 @@ function getMyDrawGiftIdeas(loterie: LotteryResponse) {
 
 .btn-admin {
   background: var(--color-secondary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-secondary);
   border: none;
   padding: var(--spacing-sm) var(--spacing-md);
   border-radius: var(--border-radius-sm);
@@ -461,7 +461,7 @@ ul {
 }
 
 .draw-header h3 {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin: 0;
   font-size: var(--font-size-xl);
 }
@@ -477,7 +477,7 @@ ul {
 }
 
 .receiver-name strong {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   font-size: var(--font-size-xl);
 }
 
@@ -487,7 +487,7 @@ ul {
 }
 
 .gift-ideas-section h4 {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   margin-bottom: var(--spacing-md);
   text-align: center;
 }
@@ -525,7 +525,7 @@ ul {
 }
 
 .gift-idea-link {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
   text-decoration: none;
   font-weight: var(--font-weight-semibold);
   font-size: var(--font-size-sm);

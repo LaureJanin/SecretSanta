@@ -2,19 +2,23 @@
 
 :root {
   /* Couleurs principales */
-  --color-primary: #1ca463;
-  --color-primary-dark: #178a52;
-  --color-primary-light: #28a745;
+  --color-primary: #14804a;
+  --color-primary-dark: #0f6b3c;
+  --color-primary-light: #158049;
   --color-secondary: #ff9f1a;
   --color-secondary-dark: #e68a00;
   --color-accent: #d2232a;
+  --color-accent-strong: #d2232a; /* fond de bouton/pastille avec texte blanc */
+  --color-on-secondary: #3d2200; /* texte sur fond orange */
+  --color-nav: #5a0f14;
+  --color-primary-text: #0f6b3c; /* vert utilisé comme couleur de texte */
   --color-accent-light: #ff9f1a;
   --color-gold: #f5b942;
   
   /* Couleurs de texte */
   --color-text: #333;
   --color-text-light: #666;
-  --color-text-lighter: #999;
+  --color-text-lighter: #6b6b6b;
   --color-text-inverse: #fff;
   
   /* Couleurs de fond */
@@ -26,9 +30,9 @@
   --color-bg-gradient: linear-gradient(135deg, #ffe6b7 0%, #ffb88c 40%, #e57373 100%);
   
   /* Couleurs d'état */
-  --color-success: #1ca463;
+  --color-success: #0f6b3c;
   --color-success-bg: #e8f5e9;
-  --color-error: #d2232a;
+  --color-error: #b71c1c;
   --color-error-bg: #ffe6e6;
   --color-warning: #ffc107;
   --color-warning-bg: #fff3cd;
@@ -106,7 +110,7 @@
 :root[data-theme="dark"] {
   --color-text: #e8ecf8;
   --color-text-light: #b5bdd6;
-  --color-text-lighter: #8f98b8;
+  --color-text-lighter: #a3acc9;
 
   --color-bg: rgba(27, 34, 70, 0.96);
   --color-bg-light: #262f5c;
@@ -116,6 +120,13 @@
   --color-bg-gradient: linear-gradient(180deg, #080c2a 0%, #141b4d 55%, #2a2a62 100%);
 
   --color-accent: #ff6b6b;
+  --color-nav: #ff6b6b;
+  --color-primary: #14804a;
+  --color-primary-dark: #0f6b3c;
+  --color-primary-light: #158049;
+  --color-primary-text: #3ddc84;
+  --color-success: #3ddc84;
+  --color-error: #ff8a8a;
   --color-success-bg: #17382b;
   --color-error-bg: #4a1f26;
   --color-warning-bg: #4a3d12;
